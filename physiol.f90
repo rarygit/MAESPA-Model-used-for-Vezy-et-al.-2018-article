@@ -982,7 +982,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     
     REAL Cd, X, TOTLAI, ZPD2, TREEH, Z0, KH, ALPHA, Z0HT2
     REAL GBCANMS1, GBCANMS2, GBCANMSINI, GBCANMSROU
-    REAL ALPHA1, WINDSTAR, ZW, COAT, GBCANMS3,Z0H
+    REAL ALPHA1, WINDSTAR, ZW, COAT, GBCANMS3,Z0H,GBCANMS1MIN
     
     ! In this model, we assumed 2 aerodynamic conductances in series
     ! 1) from the atmosphere to the canopy, based on Van de Griend 1989
@@ -1007,14 +1007,18 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     
     ! Aerodynamic conductance in the inertial sublayer (Van de Griend 1989)
     GBCANMSINI = WINDSTAR*VONKARMAN /(LOG((ZHT - ZPD2)/(ZW - ZPD2)))
-    
     ! Aerodynamic conductance in the roughness layer
     ! The roughness layer is located between TREEH and a height ZW, according to 
     GBCANMSROU = WINDSTAR*VONKARMAN * ((ZW - TREEH)/(ZW - ZPD2))
                         
     ! Total aerodynamic conductance between the canopy ant the atmosphere
+    GBCANMS1MIN = 0.005
     GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
-            
+    IF (GBCANMS1.LE.GBCANMS1MIN) THEN
+        GBCANMS1 = GBCANMS1MIN
+    !    print*, 'Set GBCANMS1 at lower bound, set GBCANMS1= GBCANMS1MIN'
+    ENDIF
+           
     ! Aerodynamic conductance between the soil surface to the the canopy, 2nd conductance term from choudhury et al. 1988   
     ! based on an exponential decrease of wind speed with height
     ALPHA = 2
@@ -1024,7 +1028,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     ! and following Van de Griend 1989
     KH = ALPHA1 * VONKARMAN * WINDSTAR * (TREEH - ZPD2) 
 
-    ! Aerodynamic conductance soir-air below canopy according to Chourdhury et al., 1988
+    ! Aerodynamic conductance soil-air below canopy according to Chourdhury et al., 1988
     GBCANMS2 = ALPHA * KH / ( TREEH * exp(ALPHA) * (exp(-ALPHA * Z0HT2/TREEH)  -  exp(-ALPHA * (ZPD2+Z0) / TREEH) ) )
 
      ! 2nd alternative to GBCANMS1
@@ -1039,7 +1043,8 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
 !      
 !        GBCANMS2 = 1/  ( log((ZHT-ZPD2)/Z0)/(WIND*VONKARMAN**2) * (log((ZHT-ZPD2)/(TREEH-ZPD2)) +  &
 !               (TREEH/(COAT*(TREEH-ZPD2)))*   (exp(COAT*(1-(ZPD2+Z0H)/TREEH))- 1)))     
-
+!    GBCANMS1=0.02
+!    GBCANMS2=0.01
     
     RETURN
 
