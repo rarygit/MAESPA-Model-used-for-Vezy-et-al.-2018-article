@@ -964,7 +964,7 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
 727     FORMAT('AZ: Asimutal angle (rad)')
 728     FORMAT('Columns: DOY Tree Spec HOUR hrPAR hrNIR hrTHM', &
                ' hrPs hrRf hrRmW hrLE', &
-               ' LECAN Gscan Gbhcan hrH TCAN ALMAX ETDEFICIT PSIL PSILMIN CI TAIR VPD PAR ZEN AZ')   
+               ' LECAN Gscan Gbhcan hrH TCAN ALMAX ETDEFICIT PSIL PSILMIN CI TAIR VPD PAR ZEN AZ FBEAM')   
 
 801     FORMAT(' Fluxes for each layer on an hourly basis')
 802     FORMAT(' Rows: absorbed PAR (umol m-2 leaf s-1) ')
@@ -2394,7 +2394,7 @@ SUBROUTINE OUTPUTHR(IDAY,IHOUR,NOTARGETS,ITARGETS,ISPECIES,         &
                     THRAB,FCO2,FRESPF,FRESPW,FRESPB,                &
                     FH2OT,GSCAN,GBHCAN,FH2OCAN,FHEAT,VPD,TAIRABOVE,PAR,  &
                     PSILCAN,PSILCANMIN,CICAN,ECANMAX,ACANMAX,ZEN,AZ,  &
-                    ETCANDEFICIT)
+                    ETCANDEFICIT,FBEAM)
 ! Output the hourly totals
 !**********************************************************************
     USE switches
@@ -2416,7 +2416,7 @@ SUBROUTINE OUTPUTHR(IDAY,IHOUR,NOTARGETS,ITARGETS,ISPECIES,         &
     REAL ECANMAX(MAXT,MAXHRS),ACANMAX(MAXT,MAXHRS)
     REAL ETCANDEFICIT(MAXT,MAXHRS)
     REAL PSILCAN(MAXT,MAXHRS),PSILCANMIN(MAXT,MAXHRS),CICAN(MAXT,MAXHRS)
-    REAL ZEN(MAXHRS), AZ(MAXHRS)
+    REAL ZEN(MAXHRS), AZ(MAXHRS), FBEAM(IHOUR,3)
 
     IF (IOHRLY.GE.1) THEN
         DO ITAR=1,NOTARGETS
@@ -2433,7 +2433,7 @@ SUBROUTINE OUTPUTHR(IDAY,IHOUR,NOTARGETS,ITARGETS,ISPECIES,         &
                                     ACANMAX(ITAR,IHOUR),ETCANDEFICIT(ITAR,IHOUR),               &   
                                     PSILCAN(ITAR,IHOUR),PSILCANMIN(ITAR,IHOUR),CICAN(ITAR,IHOUR),  &
                                     TAIRABOVE,VPD(IHOUR)/1000,PAR(IHOUR), &
-                                    ZEN(IHOUR),AZ(IHOUR)                   
+                                    ZEN(IHOUR),AZ(IHOUR),FBEAM(IHOUR,1)                  
                 500 FORMAT (I7,1X,3(I4,1X),23(F12.5,1X))  
             ELSE IF (IOFORMAT .EQ. 1) THEN
                 WRITE (UHRLY) REAL(IDAY),REAL(ITREE),REAL(ISPEC),REAL(IHOUR),               &

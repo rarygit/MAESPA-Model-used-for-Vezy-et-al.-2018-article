@@ -2945,7 +2945,9 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
         RGLOBABV = RGLOBABV + RADABV(IHOUR,J)
     END DO
 
-    FCOVER=MIN(MAX(TOTLAI/3.5,0.),1.) !glm test 
+    ! FCOVER=MIN(MAX(TOTLAI/3.5,0.),1.) !glm test 
+    FCOVER= 1 ! RV 12/12/2016 
+    
     ! Lost scattered radiation
     ! Take the average across the trees
     SCLOSTTOT_tree = SUM(SCLOSTTREE(1:NOTARGETS,1:2)) / NOTARGETS
