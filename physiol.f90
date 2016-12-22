@@ -1013,11 +1013,11 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     GBCANMSROU = WINDSTAR*VONKARMAN / ((ZW - TREEH)/(ZW - ZPD2)) !glm 03/2016
     
     ! Total aerodynamic conductance between the canopy ant the atmosphere
-    GBCANMS1MIN = 0.005
+    GBCANMS1MIN = 0.008
     GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
     IF (GBCANMS1.LE.GBCANMS1MIN) THEN
         GBCANMS1 = GBCANMS1MIN
-    !    print*, 'Set GBCANMS1 at lower bound, set GBCANMS1= GBCANMS1MIN'
+    !    print*, 'Set GBCANMS1 at lower bound, GBCANMS1= GBCANMS1MIN'
     ENDIF
            
     ! Aerodynamic conductance between the soil surface to the the canopy, 2nd conductance term from choudhury et al. 1988   
@@ -1025,7 +1025,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     ALPHA = 2
     Z0HT2 = 0.01
 
-    ! Assuming uniforme vegetation, the aerodinamic conductivity at the top of the canopy KH,
+    ! Assuming uniform vegetation, the aerodynamic conductivity at the top of the canopy KH,
     ! and following Van de Griend 1989
     KH = ALPHA1 * VONKARMAN * WINDSTAR * (TREEH - ZPD2) 
 

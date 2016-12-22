@@ -198,7 +198,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL SOILMOISTURE,ROOTRESIST,ROOTRESFRAC,ROOTRAD,TOTLAI
       REAL WIND,ZHT,Z0HT,WEIGHTEDSWP,TOTSOILRES
       REAL ZBC(MAXT),RZ(MAXT), EXTWIND, GBCANMS1
-      REAL TREEH,ZPD    ! for aerodynamic conductance calculation
+      REAL TREEHAVG,ZPD    ! for aerodynamic conductance calculation
       INTEGER J, NOTREES
       INTEGER IWATTABLAYER,ISIMWATTAB
       
@@ -265,9 +265,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     ! assuming turbulent transfer (so that conductance is the same for
     ! momentum, heat and mass transfer (Jones 1992)).
     ! average canopy height calculation
-      TREEH = (sum(ZBC(1:NOTREES)) + sum(RZ(1:NOTREES)) ) / NOTREES
+    TREEHAVG = (sum(ZBC(1:NOTREES)) + sum(RZ(1:NOTREES)) ) / NOTREES
+    ! RV: changed TREEH to TREEHAVG because TREEH is already computed in 
+    ! maespa.f90 and is the maximum tree height (to compute air to canopy
+    ! conductance).
           
-      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH, TOTLAI, GBCANMS1, GAMSOIL)
+      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEHAVG, TOTLAI, GBCANMS1, GAMSOIL)
 
       RETURN
       END
@@ -766,17 +769,21 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
       ! Thermal conductivity of the dry layer (W/m/K)
       ! Note that as we assumed FRACWATER = 0. in this thin dry layer, the only parameter required is POREFRAC
-      ! If DRYTHERM lower than 0, it was not an input, so it has to be recalculated.   
+      ! If DRYTHERM lower than 0, it was not an input, so it has to be recalculated.
+      ! RV: set Porefrac always equal to 0.35 because it gives strange values with high porefrac.
+      ! Furthermore, DRYTHERM is used to compute the soil surface temperature, in which the porefrac may be 
+      ! different than the porefrac from the first layer. NB: Choudhury & Monteith 1988 took 0.5 though.
       IF (DRYTHERM.LT.0.) THEN
-          DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., POREFRAC1,4.,0.1,3)
+          ! DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., POREFRAC1,4.,0.1,3)
+          DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., 0.35,4.,0.1,3)
       ENDIF 
-      
       ! Note: sensible heat flux is above the dry layer, latent heat flux below the dry layer.
-      TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
 
+      TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
       !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
-      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK) ! QH positive when upward flux   
+      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK) ! QH negative when upward flux   
 
       ! No soil evap if surface is frozen
       IF(SOILTK.LE.FREEZE)QE = 0.
@@ -2005,7 +2012,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
              I = 2
 
            ! loop for all x-dimension nodes, except first and last.
-           DO WHILE (I .LT. (NLAYER+1)) !+1: SOILTK is the soil temperature below the drythick, SOILTEMP(2) is the soil temperature of the first layer M. Christina
+           DO WHILE (I .LT. (NLAYER+1)) !+1: SOILTK is the soil temperature above the drythick, SOILTEMP(2) is the soil temperature of the first layer M. Christina
 
            ! Thermal conductivity, w m-1 k-1 is converted to j m-1 k-1 t
            TDIFFUSE = SPERHR * THERMCOND(I) / VOLHC(I)
@@ -2088,7 +2095,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
 ! Combined (W m-1 K-1).
         THERMCONDFUN = (WETLAMBDA - DRYLAMBDA)*KE + DRYLAMBDA
-
+        
         RETURN
         END
 
