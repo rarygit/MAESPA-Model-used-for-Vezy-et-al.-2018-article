@@ -184,6 +184,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     SLOPE = (SATUR(TAIR + 0.1) - SATUR(TAIR)) / 0.1
     ! Radiation conductance (mol m-2 s-1)
     GRADN = GRADIATION(TAIR,RDFIPT,TUIPT,TDIPT)
+    
     ! Boundary layer conductance for heat - single sided, forced convection
     GBHU = GBHFORCED(TAIR,PRESS,WIND,WLEAF)
 
@@ -227,9 +228,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     
     ! Boundary layer conductance for heat - single sided, free convection
     GBHF = GBHFREE(TAIR,TLEAF,PRESS,WLEAF)
+    
     ! Total boundary layer conductance for heat
     GBH = GBHU + GBHF
-
     ! Total conductance for heat - two-sided
     GH = 2.*(GBH + GRADN)
     ! Total conductance for water vapour
@@ -253,8 +254,10 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
         CS = CA - ALEAF/GBC
     ENDIF
     TDIFF = (RNET - ET*LHV) / (CPAIR * AIRMA * GH)
+ 
     TLEAF1 = TAIR + TDIFF/4 !divide by 4 to slow down convergence and avoid big changes
     
+
     ! Now recalculate boundary layer conductance, ET with new TLEAF
     ! Helps convergence to TLEAF.
     ! Boundary layer conductance for heat - single sided, free convection
@@ -272,7 +275,6 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
 
     !  Call Penman-Monteith equation
     ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
-!IF (IHOUR.eq.24)     print*,'VPD',VPD, 'ET',ET,'GHV',GH,GV
     DLEAF = ET * PRESS / GV
     RHLEAF = 1. - DLEAF/SATUR(TLEAF1)
     VMLEAF = DLEAF/PRESS*1E-3
@@ -1013,7 +1015,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     GBCANMSROU = WINDSTAR*VONKARMAN / ((ZW - TREEH)/(ZW - ZPD2)) !glm 03/2016
     
     ! Total aerodynamic conductance between the canopy ant the atmosphere
-    GBCANMS1MIN = 0.008
+    GBCANMS1MIN = 0.0123 ! RV, GBCANMS1 for WIND= 0.035 and CANOPY HEIGHT at 25 m
     GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
     IF (GBCANMS1.LE.GBCANMS1MIN) THEN
         GBCANMS1 = GBCANMS1MIN

@@ -1344,12 +1344,11 @@ END SUBROUTINE EXDIFF
         DO J = 1,NOAGEC
             BETA1 = BETA1 + BETA(BPT(1,J),BPT(2,J),BPT(3,J),BPT(4,J),RCH) * PROP(J)
         END DO
-
+        
         DFT = BETA1*FOLTQ/(TRD*TRD*RZQ)
-
+        
         IF (JLEAF.EQ.1) THEN
-          DFT = DFT/PI
-
+            DFT = DFT/PI
 ! Find beta in horizontal direction
         ELSE IF (JLEAF.EQ.2) THEN
           XX = X1 + (REAL(I)-0.5)* (X2-X1)/20.0 - DXTQ
@@ -1379,7 +1378,7 @@ END SUBROUTINE EXDIFF
         ENDIF
 
         SS = SS + DFT*PATH/20.0
-
+        
   100 CONTINUE
 
       RETURN
@@ -2034,7 +2033,7 @@ END SUBROUTINE EXDIFF
           DIFUP = ABS(TU(IPT)-RTA(ILAYER))
           IF (DIFMU.GE.DIFUP) GO TO 200
           Z1 = ILAYER - 1
- !         print*, Z1, ILAYER, NLAY, DIFUP
+ 
           GO TO 290
 200     DIFMU = DIFUP
         Z2 = NLAY

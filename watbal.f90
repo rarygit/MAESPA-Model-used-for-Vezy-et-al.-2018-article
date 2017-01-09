@@ -2469,7 +2469,6 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
       !ETOT = -QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV 
       ETOT = QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV  ! glm change direction
-     ! print*,'ETOT',ETOT,QE,ETMM,EVAPSTORE
       
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
@@ -2485,8 +2484,6 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       !HTOT=RNETTOT - ETOT + QC !W m-2
       HTOT=RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
       TAIRNEW = TAIRABOVE +  (HTOT / (CPAIR * AIRMA * GCANOP))
-      
-     ! print*,'TAIRNEW',TAIRNEW, HTOT, RNETTOT, ETOT, QC
 
       ! air vapor pressure
       VPAIR = SATUR(TAIRABOVE) - VPDABOVE

@@ -1452,7 +1452,7 @@ PROGRAM maespa
                     
                     ! And ci the same as ca
                     CICAN(ITAR,IHOUR) = CA(IHOUR)
-
+                    
                     END DO ! Loop over gridpoints (nighttime).
                     
                     
@@ -1555,14 +1555,10 @@ PROGRAM maespa
                     
                     ! average canopy temperature
                     TCAN2 = sum(TCAN(1:NOTARGETS, IHOUR)) / NOTARGETS
-                                        
                     ! Calculation of a new VPD and Tair within the canopy based on the heat balance of Chourdhury et al. 1988
                     CALL TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIR(IHOUR),TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,RHNEW,& 
                                             WINDAH(IHOUR), ZPD, ZHT, Z0HT, DELTA, PRESS(IHOUR),QC,TREEH,TOTLAI,GCANOP, &
                                             EVAPSTORE,HTOT)
-                    
-                   !print*,PREVVPDCAN,VPDNEW
-
                     
                     IF ((ABS(TAIRNEW - TAIR(IHOUR)).LT.TOL) &
                         .AND. (ABS(PREVTSOIL - TSOILSURFACE).LT.TOL) &
