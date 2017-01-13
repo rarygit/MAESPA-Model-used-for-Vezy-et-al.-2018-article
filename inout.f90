@@ -4692,17 +4692,14 @@ END SUBROUTINE READCONTREES
     YMAX = YMAX - Y0
     X0 = 0.0
     Y0 = 0.0
-
-    ! Calculate the z co-ordinates from slopes
-    ZADD=0.0
-    IF (XSLOPE.LT.0.0) ZADD=XMAX*SIN(XSLOPE)
-    IF (YSLOPE.LT.0.0) ZADD=ZADD+YMAX*SIN(YSLOPE)
-    ZADD=ABS(ZADD)
-    
-    !  X and Y distances are measured on the slope so the height is based
-    !  on the sin(slope).
+  
+    ! X and Y distances are measured on the slope so the height is based
+    ! on the sin(slope).
+    ! RV: Bug here. X and Y slopes are given in degrees, FORTAN deals with 
+    ! Radian instead. Transforming to RADIANS by *PI/180. 
+    ! Also replacing ZADD by /2 on each DX/DY for simpler code. 13/01/2017
     DO I = 1,NOALLTREES
-        DZ(I) = DX(I)*SIN(XSLOPE) + DY(I)*SIN(YSLOPE) + ZADD
+        DZ(I) = DX(I)*SIN(XSLOPE*PI/180)/2 + DY(I)*SIN(YSLOPE*PI/180)/2
     END DO
 
     RETURN
