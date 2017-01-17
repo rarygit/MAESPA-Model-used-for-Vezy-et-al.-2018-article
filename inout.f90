@@ -1068,7 +1068,8 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
 203     FORMAT('day : day of simulation (1,2,etc.)')
 204     FORMAT('hour: timestep (1,2,etc.)')
 205     FORMAT('X,Y,Z: spatial coordinates of understorey test point (m)')
-206     FORMAT('PARbeam, PARdiffuse, PARtot : PAR reaching the top of the understorey, in direct, diffuse or total (mu mol m-2 s-1)')
+206     FORMAT('PARbeam, PARdiffuse, PARtot : PAR reaching the top of the understorey,&
+                &in direct, diffuse or total (mu mol m-2 s-1)')
 207     FORMAT('APAR : absorbed PAR by the understorey (mu mol m-2 s-1) ')
 208     FORMAT('hrPSus : photosynthesis for the understorey point (mu mol m-2 s-1)')            
 209     FORMAT('hrETus : transpiration for the understorey point (If zero it is not calculated) (mmol m-2 s-1)')
