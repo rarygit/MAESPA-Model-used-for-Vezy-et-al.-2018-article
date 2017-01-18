@@ -4696,11 +4696,9 @@ END SUBROUTINE READCONTREES
   
     ! X and Y distances are measured on the slope so the height is based
     ! on the sin(slope).
-    ! RV: Bug here. X and Y slopes are given in degrees, FORTAN deals with 
-    ! Radian instead. Transforming to RADIANS by *PI/180. 
-    ! Also replacing ZADD by /2 on each DX/DY for simpler code. 13/01/2017
+    ! RV: Bug here, replacing ZADD by /2 on each DX/DY. 13/01/2017
     DO I = 1,NOALLTREES
-        DZ(I) = DX(I)*SIN(XSLOPE*PI/180)/2 + DY(I)*SIN(YSLOPE*PI/180)/2
+        DZ(I) = DX(I)*SIN(XSLOPE)/2 + DY(I)*SIN(YSLOPE)/2
     END DO
 
     RETURN

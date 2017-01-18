@@ -1392,7 +1392,11 @@ END SUBROUTINE EXDIFF
 ! this subroutine is used to calculate the pathlength inside all
 ! trees around the tree we do all these calculations for
 !**********************************************************************
-
+! RXQ/RYQ is indivradx/y ; RZQ is indivhtcrown ; ZBCQ is indivhttrunk
+! DXTQ/DYTQ are xycoords of the individual, DZTQ  is soil height 
+! compared to X0/Y0 (depending on slope) ;
+! XPP/YPP/ZPP are X/Y/Z coordinates of the voxel.      
+      
       USE maestcom
       IMPLICIT NONE
       INTEGER JSHAPE,IFLAG,ISITU
