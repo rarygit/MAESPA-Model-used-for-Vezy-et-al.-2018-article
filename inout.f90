@@ -673,6 +673,8 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
             WRITE (UWATBAL, 4305)
             WRITE (UWATBAL, 4306)
             WRITE (UWATBAL, 4307)
+            WRITE (UWATBAL, 4308) !glm canopy evap
+            WRITE (UWATBAL, 4309) !glm canopy evap
             !WRITE (UWATBAL, 432)
             WRITE (UWATBAL, 990) '  '
             WRITE (UWATBAL, 431)
@@ -1033,13 +1035,16 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
 4305    FORMAT('rtherinc=radabv(ihr,3): incoming thermal radiation W m-2')        
 4306    FORMAT('sclosttot3: upward thermal                         W m-2')        
 4307    FORMAT('sclosttot: upward reflected shortwave              W m-2')        
+4308    FORMAT('ev : modelled canopy wet evaporation               mm')  !glm canopy evap       
+4309    FORMAT('drycan : modelled dry canopy fraction            0-1')   !glm canopy evap      
         
 431     FORMAT('Columns: day hour wsoil wsoilroot ppt canopystore '         &
                 'evapstore drainstore tfall et etmeas discharge overflow ' &
                 'weightedswp ktot drythick soilevap '                 &
                 'soilmoist fsoil qh qe qn qc rglobund '                     &
                 'rglobabv radinterc rnet totlai tair taircan tcan tsoilsurf tsoildry soilt1 soilt2 '        &
-                'fracw1 fracw2 fracaPAR VPDair VPDaircan GCAN itertair htot rtherinc sclosttot3 sclosttot')
+                'fracw1 fracw2 fracaPAR VPDair VPDaircan GCAN itertair htot rtherinc sclosttot3 sclosttot ' &
+                'ev drycan') !glm canopy evap
 432     FORMAT('FracaPAR: fraction of absorbed PAR')   
                     
 441     FORMAT('Daily water and heat balance components.')
@@ -2485,7 +2490,8 @@ END SUBROUTINE OUTPUTHR
 SUBROUTINE OUTPUTDY(IDAY,NOTARGETS,ITARGETS,ISPECIES,TDYAB,             &
                     TOTCO2,TOTRESPF,TOTRESPW,TOTRESPWG,TOTH2O,TOTH2OCAN,TOTHFX, &
                     TOTRESPCR,TOTRESPFR,TOTRESPFRG,TOTRESPCRG,TOTRESPFG, &
-                    TOTRESPB,TOTRESPBG)
+                    TOTRESPB,TOTRESPBG, &
+                    TOTH2OEV) !glm canopy evap 
 
 ! Output the daily totals
 !**********************************************************************
@@ -2505,6 +2511,7 @@ SUBROUTINE OUTPUTDY(IDAY,NOTARGETS,ITARGETS,ISPECIES,TDYAB,             &
     
     REAL TOTRESPFG,TOTRESPWG,TOTRESPBG
     REAL TOTRESPCRG,TOTRESPFRG
+    REAL TOTH2OEV(MAXT) !glm canopy evap 
     
     IF (IODAILY.EQ.1 .AND. IOFORMAT .EQ. 0) THEN
         DO ITAR=1,NOTARGETS
@@ -2514,8 +2521,9 @@ SUBROUTINE OUTPUTDY(IDAY,NOTARGETS,ITARGETS,ISPECIES,TDYAB,             &
                         TDYAB(ITAR,1),TDYAB(ITAR,2),TDYAB(ITAR,3),  &
                         TOTCO2(ITAR)+TOTRESPF(ITAR),TOTRESPF(ITAR), &
                         TOTCO2(ITAR),TOTH2O(ITAR),TOTH2OCAN(ITAR),  &
-                        TOTHFX(ITAR)
-            500 FORMAT (I7,1X,I4,1X,I4,1X,9(F12.4,1X))        
+                        TOTHFX(ITAR), &
+                        TOTH2OEV(ITAR) !glm canopy evap 
+            500 FORMAT (I7,1X,I4,1X,I4,1X,10(F12.4,1X))      !change 9 to 10 !glm canopy evap   
         END DO
     ELSE IF (IODAILY.EQ.1 .AND. IOFORMAT .EQ. 1) THEN
         DO ITAR=1,NOTARGETS
@@ -2525,7 +2533,8 @@ SUBROUTINE OUTPUTDY(IDAY,NOTARGETS,ITARGETS,ISPECIES,TDYAB,             &
                         TDYAB(ITAR,1),TDYAB(ITAR,2),TDYAB(ITAR,3),  &
                         TOTCO2(ITAR)+TOTRESPF(ITAR),TOTRESPF(ITAR), &
                         TOTCO2(ITAR),TOTH2O(ITAR),TOTH2OCAN(ITAR),  &
-                        TOTHFX(ITAR)    
+                        TOTHFX(ITAR), &
+                        TOTH2OEV(ITAR) !glm canopy evap             
         END DO
     END IF
     
@@ -2560,7 +2569,8 @@ END SUBROUTINE OUTPUTDY
 SUBROUTINE OUTPUTDYWAT(IDAY,WSOILMEAN,WSOILROOTMEAN,SWPMEAN,                 &
                        PPTTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT,               &
                        SOILEVAPTOT,FSOILMEAN,TFALLTOT,QHTOT,QETOT,QNTOT,    &
-                       QCTOT,RADINTERCTOT)
+                       QCTOT,RADINTERCTOT, &
+                       EVMMTOT)!glm canopy evap    
 
 ! Write the daily water balance output file.
 !**********************************************************************
@@ -2572,18 +2582,21 @@ SUBROUTINE OUTPUTDYWAT(IDAY,WSOILMEAN,WSOILROOTMEAN,SWPMEAN,                 &
     REAL WSOILMEAN,WSOILROOTMEAN,PPTTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT
     REAL SOILEVAPTOT,FSOILMEAN,TFALLTOT,QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT
     REAL SWPMEAN
+    REAL EVMMTOT !glm canopy evap    
     
     IF (IOFORMAT .EQ. 0) THEN
         WRITE(UWATDAY, 523)IDAY,WSOILMEAN,WSOILROOTMEAN,SWPMEAN,             &
                            PPTTOT,TFALLTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT,  &
                            SOILEVAPTOT,FSOILMEAN,QHTOT,                     &
-                           QETOT,QNTOT,QCTOT,RADINTERCTOT
-        523 FORMAT(I7,15(F12.4))
+                           QETOT,QNTOT,QCTOT,RADINTERCTOT, &
+                           EVMMTOT !glm canopy evap    
+        523 FORMAT(I7,16(F12.4)) !change 15 to 16 !glm canopy evap    
     ELSE IF (IOFORMAT .EQ. 1) THEN
         WRITE(UWATDAY) REAL(IDAY),WSOILMEAN,WSOILROOTMEAN,SWPMEAN,        &
                        PPTTOT,TFALLTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT,  &
                        SOILEVAPTOT,FSOILMEAN,QHTOT,                     &
-                       QETOT,QNTOT,QCTOT,RADINTERCTOT    
+                       QETOT,QNTOT,QCTOT,RADINTERCTOT, &
+                       EVMMTOT !glm canopy evap    
     END IF
     RETURN
 END SUBROUTINE OUTPUTDYWAT
@@ -2606,7 +2619,8 @@ SUBROUTINE OUTPUTWATBAL(IDAY,IHOUR,NROOTLAYER,NLAYER,          &
                               SCLOSTTOT,SOILWP,FRACAPAR,&
                               RTHERMINC,TAIRCAN,TCAN,VPD,VPDCAN, &
                               TSOILSURFACE,GCANOP,ITERTAIR,NOTARGETS,   &
-                              HTOT,SCLOSTTOT3)
+                              HTOT,SCLOSTTOT3, &
+                              EVMM,drycan) !glm canopy evap    
 ! Outputs water balance results.
 ! RAD, May 2008
 !**********************************************************************
@@ -2627,6 +2641,8 @@ SUBROUTINE OUTPUTWATBAL(IDAY,IHOUR,NROOTLAYER,NLAYER,          &
     REAL QH,QE,QN,QC,RGLOBUND,RGLOBABV,RGLOBABV12,RADINTERC,ESOIL,TOTLAI
     REAL RADINTERC1,RADINTERC2,RADINTERC3,SCLOSTTOT
     REAL RNET,FRACAPAR, VPD, VPDCAN, TSOILSURFACE,GCANOP,TCANMEAN,HTOT,SCLOSTTOT3
+    REAL EVMM,drycan !glm canopy evap    
+    
     INTEGER ITERTAIR,NOTARGETS
 
     CHARACTER*80 WTITLE
@@ -2665,8 +2681,9 @@ SUBROUTINE OUTPUTWATBAL(IDAY,IHOUR,NROOTLAYER,NLAYER,          &
                            RGLOBUND, RGLOBABV, RADINTERC, RNET,     &
                            TOTLAI,TAIRABOVE, TAIRCAN, TCANMEAN,TSOILSURFACE-273.15, SOILTEMP(1),SOILTEMP(2),SOILTEMP(3),    & !SOILTEMP(1) is the soil temperature just below the drythick layer
                            FRACWATER(1),FRACWATER(2),FRACAPAR, VPD,VPDCAN,GCANOP,ITERTAIR,  &
-                            HTOT,RTHERMINC,SCLOSTTOT3,SCLOSTTOT
-520                        FORMAT (I7,I7,39(F14.6,1X),I7,4(F14.6,1X))
+                            HTOT,RTHERMINC,SCLOSTTOT3,SCLOSTTOT, &
+                           EVMM,drycan !glm canopy evap   
+520                        FORMAT (I7,I7,39(F14.6,1X),I7,6(F14.6,1X)) !change 4 to 6 !glm canopy evap   
                            
         ! Write volumetric water content by layer:
         WRITE (UWATLAY, 521) FRACWATER(1:NLAYER)        !60) M. Christina 12/2013
@@ -2758,7 +2775,7 @@ SUBROUTINE READPLOT(UFILE, X0I, Y0I, XMAXI, YMAXI, NOALLTREESI, &
 ! XSLOPE, YSLOPE - slope of plot, in radians
 ! SHADEHT - height of shadecloth surrounding plot, if any
 ! STOCKING - no of stems per ha
-! WATBALAREA - groundarea used in the water balance(m2)
+! WATBALAREA - groundarea used in the water balance when USESTAND = 0 (m2)
 !**********************************************************************
 
     USE maestcom
