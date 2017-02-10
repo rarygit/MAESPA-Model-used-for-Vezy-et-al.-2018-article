@@ -2482,7 +2482,7 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       
       ! calculation of air temperature within the canopy (Note that Qc <0)
       !HTOT=RNETTOT - ETOT + QC !W m-2
-      HTOT=RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
+      HTOT = RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
       TAIRNEW = TAIRABOVE +  (HTOT / (CPAIR * AIRMA * GCANOP))
 
       ! air vapor pressure
