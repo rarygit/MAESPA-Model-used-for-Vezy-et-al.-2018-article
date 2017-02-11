@@ -310,13 +310,13 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     
     !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
     IF (((1-drycan)*EV*SPERHR *18 * 1E-03).ge.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
-        drycan=MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
+        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
     
     ENDIF
     
     ! Sensible heat flux
 !200 FHEAT = RNET - LHV*ET
-200 FHEAT = RNET - drycan*LHV*ET - (1-drycan)*LHV*EV
+200 FHEAT = RNET - drycan*LHV*ET - (1-drycan)*LHV*EV ! glm canopy evap
     
     ! Transpiration minus supply by soil/plant (EMAX) must be drawn from plant reserve
     ETDEFICIT = (VPD/PATM) * GSV *1E03 - EMAXLEAF
@@ -339,8 +339,8 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
         PSIL = 0.0
     ENDIF
     
-    ET=drycan*ET !(output = actual reduced Transp)!glm canopy evap 
-    EV=(1-drycan)*EV !(output = actual reduced evaporation)!glm canopy evap 
+    ET = drycan*ET ! (output = actual reduced Transp)!glm canopy evap 
+    EV = (1-drycan)*EV !(output = actual reduced evaporation)!glm canopy evap 
     
     RETURN
     END SUBROUTINE PSTRANSP
