@@ -32,7 +32,7 @@
     INTEGER, PARAMETER :: MAXC = 3 !2            ! Maximum no. of leaf area distributions
     INTEGER, PARAMETER :: MAXANG = 20 !11          ! Maximum no. of zenith & leaf angles
     INTEGER, PARAMETER :: MAXD = 13           ! For resp prog
-    INTEGER, PARAMETER :: MAXDATE = 45 !30      ! Maximum no. of dates for tree or physiol parameters
+    INTEGER, PARAMETER :: MAXDATE = 180 !30      ! Maximum no. of dates for tree or physiol parameters
     INTEGER, PARAMETER :: MAXECHLAYER = 150   ! Maximum number of elementary layers in equiv. horizontal canopy (EHC,ASSIGN,CHART)
     !INTEGER, PARAMETER :: maxdate = 5        ! Maximum no. of dates for physiol parameters
     !INTEGER, PARAMETER :: MAXMET = 18         ! Maximum columns in met data file
