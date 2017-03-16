@@ -1456,13 +1456,14 @@ PROGRAM maespa
                                                 VMFD(IHOUR),PRESS(IHOUR),JMAX25(LGP(IPT),IAGE),IECO,            &
                                                 EAVJ,EDVJ,DELSJ,VCMAX25(LGP(IPT),IAGE),                         &
                                                 EAVC,EDVC,DELSC,TVJUP,TVJDN,THETA,AJQ(LGP(IPT),IAGE),           &
-                                                RD0(LGP(IPT),IAGE),Q10F,K10F,RTEMP,1.0,TBELOW,MODELGS,          &
+                                                RD0(LGP(IPT),IAGE),Q10F,K10F,RTEMP,1.0,TBELOW,MODELGS,      &
                                                 WSOILMETHOD,EMAXLEAF,SOILMOISTURE,SMD1,SMD2,WC1,WC2,            &
-                                                SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,   &
-                                                WLEAF,NSIDES,VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,  &
-                                                RD,ET,HFX,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,WEIGHTEDSWP,    &
-                                                KTOT,HMSHAPE,PSIL,ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,  &
-                                                NEWTUZET,EV,drycan,CANOPY_STORE_I)!glm canopy evap
+                                                SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
+                                                VPARA,VPARB,VPARC,VFUN,SF,PSIV,     &
+                                                ITERMAX,GSC,ALEAF,RD,ET,HFX,TLEAF,GBH,PLANTK, &
+                                                TOTSOILRES,MINLEAFWP, &
+                                                WEIGHTEDSWP,KTOT,HMSHAPE,PSIL,ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET, &
+                                                EV,drycan,CANOPY_STORE_I) !glm canopy evap
                                                                     
                             
                             ! Filling voxel table
@@ -1597,7 +1598,7 @@ PROGRAM maespa
                         .AND. (ABS(VPDNEW - PREVVPDCAN).LT.(50*TOL))) THEN
                         
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'convergence', ITERTAIR
-                        ITERTAIR = ITERTAIRMAX - 1
+                        !ITERTAIR = ITERTAIRMAX - 1
                         PREVTAIRCAN = TAIRNEW
                         PREVVPDCAN = VPDNEW
                         GOTO 1112                 

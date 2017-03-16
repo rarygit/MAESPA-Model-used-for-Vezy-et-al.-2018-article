@@ -19,7 +19,7 @@
 ! you should have received a copy of the gnu general public license
 ! along with MAESPA.  if not, see <http://www.gnu.org/licenses/>.
 !=======================================================================================
-
+    
 ! This file contains all the subroutines required to read the met data
 ! file. The main routines (called externally to this file) are:
 ! OPENMETF - opens the met file & reads the format information
@@ -74,7 +74,7 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
 ! and returns the format of the met file.
 ! INPUTS:
 ! ISTART, IEND - Desired start and end of simulation (in days-since-1950) - from confile. If not defined,
-!	program uses all met data.
+!	program uses all met data. 
 ! OUTPUTS:
 ! CAK - Constant CO2 concentration (umol mol-1), if specified; 0 otherwise
 ! PRESSK - Constant air pressure (Pa), if specified; PATM otherwise
@@ -104,56 +104,56 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
     INTEGER DAYORHR,MSTART,MEND,ISTART,IEND,ICOL,MFLAG,I,NOMETCOLS
     NAMELIST /METFORMAT/ DAYORHR, KHRSPERDAY, NOCOLUMNS, COLUMNS, STARTDATE, ENDDATE
     REAL CAK,PRESSK,DIFSKY,SWMIN,SWMAX,ALAT,TTIMD
-
+    
     CHARACTER*20 filenamenum !glm
     INTEGER :: numpar !glm!
     COMMON /PAR/ numpar !glm!
-
+    
     990   FORMAT (A60)     ! For reading titles in input files.
-    991   FORMAT (A12,A60) ! For writing comments to output files.
-
+991       FORMAT (A12,A60) ! For writing comments to output files.
+    
     ! Open input file with met data
     write(filenamenum,'(I4.4,A)') numpar,'_met.dat' !glm
-    OPEN(UMET, FILE=trim(in_path)//filenamenum, STATUS='OLD', IOSTAT=IOERROR)
+    OPEN(UMET, FILE=trim(in_path)//filenamenum, STATUS='OLD', IOSTAT=IOERROR)      
     ! OPEN (UMET, FILE =trim(in_path)//'met.dat', STATUS='OLD', IOSTAT=IOERROR)
-
+    
     IF (IOERROR.NE.0) THEN
         CALL SUBERROR('ERROR OPENING MET FILE',IFATAL,IOERROR)
     END IF
-
+    
     READ (UMET, 990, IOSTAT=IOERROR) MTITLE
     IF (IOERROR.NE.0) THEN
         CALL SUBERROR('ERROR READING MET FILE',IFATAL,IOERROR)
     END IF
-
+    
     ! Read in unchanging met data
     CALL READENVIRON(UMET, CAK, PRESSK, DIFSKY, SWMIN, SWMAX)
 
     ! Read in latitude & longitude
     CALL READLAT(UMET, ALAT, TTIMD)
-
+    
     ! Read format
     KHRSPERDAY = 0  ! Init.
     REWIND(UMET)
     READ (UMET,METFORMAT,IOSTAT = IOERROR)
     IF (IOERROR.NE.0) CALL SUBERROR('ERROR IN MET FILE: MISSING FORMAT INFORMATION', IFATAL,IOERROR)
-
+    
     ! Check dates of simulation are covered
     MSTART = IDATE50(STARTDATE)
     MEND = IDATE50(ENDDATE)
-
+    
     IF ((ISTART.EQ.0).AND.(IEND.EQ.0)) THEN
         ISTART = MSTART
         IEND = MEND
     ELSE
-
+    
         IF ((ISTART.LT.MSTART).OR.(IEND.GT.MEND))CALL SUBERROR('ERROR: MET FILE DOES NOT COVER DATES',IFATAL,IOERROR)
     END IF
-
+      
     ! Process number of hours per day - the old KHRS
     IF (KHRSPERDAY.EQ.0) CALL SUBERROR('ERROR: ADD KHRSPERDAY TO MET.DAT FORMAT',IFATAL,KHRSPERDAY)
     IF (KHRSPERDAY.GT.MAXHRS) CALL SUBERROR('ERROR: KHRSPERDAY MUST NOT EXCEED MAXHRS',IFATAL,KHRSPERDAY)
-
+    
     KHRS = KHRSPERDAY
     HHRS = (KHRS) / 2.0
     SPERHR = 3600 * 24.0 / KHRS
@@ -209,9 +209,9 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MDTHR
             ELSE
                 CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
-                              IWARN,0)
+                              IWARN,0) 
             ENDIF
-
+            
             IF (ICOL.NE.MISSING) METCOLS(ICOL) = I
         END DO
         ! Check to see if any of the essential information is missing.
@@ -268,13 +268,13 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MHTIME
             ELSEIF (COLUMNS(I).EQ.'VMFD')  THEN
                 ICOL = MHMFD
-			ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
+            ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
                 ICOL = MHTHR
             ELSE
                 CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
-                              IWARN,0)
+                              IWARN,0) 
             ENDIF
-
+            
             IF (ICOL.NE.MISSING) METCOLS(ICOL) = I
         END DO
         ! Check to see if any of the essential information is missing.
@@ -293,14 +293,14 @@ SUBROUTINE RESTARTMETF(ISTART,MSTART,MFLAG)
 ! BM Changed 10/00: Start of data must be directly specified
 ! INPUTS:
 ! ISTART - Date for which met data is wanted
-! MSTART - Date on which met data starts
+! MSTART - Date on which met data starts 
 ! MFLAG - indicates whether daily or hourly data
 !**********************************************************************
     USE maestcom
     IMPLICIT NONE
     INTEGER IOERROR,MFLAG,LINESTOSKIP,ISTART,MSTART,I
     CHARACTER*60 TMPTXT, DATASTART
-
+    
     DATASTART = 'DATA STARTS'
     REWIND(UMET)
 
@@ -309,7 +309,7 @@ SUBROUTINE RESTARTMETF(ISTART,MSTART,MFLAG)
     30    READ (UMET,990,IOSTAT = IOERROR) TMPTXT
     IF (IOERROR.NE.0) CALL SUBERROR('ERROR: COULD NOT FIND START OF MET DATA',IFATAL,IOERROR)
     IF (TMPTXT.NE.DATASTART) GOTO 30
-
+   
     ! Read data until the start date
     IF (MFLAG.EQ.0) THEN
         LINESTOSKIP = ISTART-MSTART
@@ -345,7 +345,7 @@ SUBROUTINE READENVIRON(UFILE,CAK,PRESSK,DIFSKYI,SWMINI,SWMAXI)
     INTEGER UFILE,IOERROR
     REAL CA,PRESS,DIFSKY, SWMIN, SWMAX
     REAL CAK,PRESSK,DIFSKYI, SWMINI, SWMAXI
-
+    
     ! Default values
     PRESS = PATM
     CA = 0
@@ -371,7 +371,7 @@ END SUBROUTINE READENVIRON
 SUBROUTINE READDELTAT(UFILE,DELTATI,IOERROR)
 ! Read in mean monthly daily temperature amplitudes
 ! Needed to calculate incident PAR (if not specified) using routine of Bristow & Campbell 1984
-! If not present, program will stop (only called if PAR not specified).
+! If not present, program will stop (only called if PAR not specified). 
 !**********************************************************************
 
     USE maestcom
@@ -487,7 +487,7 @@ SUBROUTINE GETMETDAY(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,A
     REAL WIND,PRESSK,TMAX,TMIN,DAYL,PRECIP,ALAT,DEC,PAR,FBM
     REAL RADBM,RADDF,SMD,CAK,SWMIN,SWMAX
     REAL EMSKY(MAXHRS)
-
+    
     ! Read in day's data
     READ (UMET,*,IOSTAT = IOERROR) (DATAIN(I), I = 1,NOMETCOLS)
     IF (IOERROR.NE.0) CALL SUBERROR('ERROR READING MET DATA',IFATAL,IOERROR)
@@ -548,7 +548,7 @@ SUBROUTINE GETMETDAY(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,A
     IF (METCOLS(MDFBEAM).EQ.MISSING) THEN
         IF (METCOLS(MDSI).EQ.MISSING) THEN
             CALL CALCFBMD(IDATE,ZEN,PAR,FBM)
-        ELSE
+        ELSE 
             CALL CALCFBMD(IDATE,ZEN,DATAIN(METCOLS(MDSI))*FPAR,FBM)
         END IF
     ELSE
@@ -622,7 +622,7 @@ SUBROUTINE GETMETDAY(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,A
         SOILDATA = NONE
         SMD = 0.0
     END IF
-
+	
     DO IHR = 1,KHRS
         SOILMOIST(IHR) = SMD
     END DO
@@ -654,7 +654,7 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
     REAL DELTAT(12),PRESSK,TMIN,TMAX,DAYPPT,ALAT,DEC,DAYL
     REAL PAR,FBM,RADBM,RADDF,CALCFBMH,CAK,SWMIN,SWMAX
     REAL EMSKY(MAXHRS)
-
+    
     ! Read in one day's worth of data at a time.
     DO IHR = 1,KHRS
         READ (UMET,*,IOSTAT = IOERROR) (DATAIN(IHR,I), I = 1,NOMETCOLS)
@@ -668,8 +668,8 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
         END DO
         DO IHR = 2,KHRS
             IF(IDATES(IHR).NE.IDATES(IHR-1))THEN
-                CALL SUBERROR('ERROR: NUMBER OF MET LINES NOT EQUAL',IFATAL,-1)
-            ENDIF
+                CALL SUBERROR('ERROR: NUMBER OF MET LINES NOT EQUAL',IFATAL,-1)    
+            ENDIF    
         END DO
     ENDIF
 
@@ -765,7 +765,7 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
     ! Read in rainfall if present.
     ! Don't convert to mmol m-2 as before (RAD)
 	DAYPPT = 0.0
-    IF (METCOLS(MHPPT).NE.MISSING) THEN
+    IF (METCOLS(MHPPT).NE.MISSING) THEN 
         DO IHR = 1,KHRS
             PPT(IHR) = DATAIN(IHR,METCOLS(MHPPT))   !*1E6/18.
             DAYPPT = DAYPPT+PPT(IHR)
@@ -821,9 +821,9 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
 
     IF (METCOLS(MHTHR).NE.MISSING) THEN     ! TEST
         DO IHR = 1,KHRS
-            RADABV(IHR,3) = DATAIN(IHR,METCOLS(MHTHR))
+            RADABV(IHR,3) = DATAIN(IHR,METCOLS(MHTHR)) 
         END DO
-    ELSE
+    ELSE 
     ! Calculate thermal radiation
         CALL THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
     END IF
@@ -842,9 +842,9 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
     ! Get soil moisture - either soil water potential or soil moisture deficit
 
     ! Initialize
-    SOILMOIST = 0.0
-    SOILDATA = NONE
-
+    SOILMOIST = 0.0  
+    SOILDATA = NONE  
+     
     IF (METCOLS(MHSWP).NE.MISSING) THEN
         SOILDATA = POTENTIAL
         DO IHR = 1,KHRS
@@ -874,10 +874,10 @@ SUBROUTINE CALCTHRLY(TMAX,TMIN,DAYL,TAIR)
 ! Calculate a daily variation in temperature from max & min temperatures.
 ! Temp varies linearly between sunset & sunrise, and sinusoidally during the day.
 ! INPUTS:
-! TMIN, TMAX - minimum and maximum daily temperatures, ï¿½C
+! TMIN, TMAX - minimum and maximum daily temperatures, °C
 ! DAYL - daylength, hours
 ! OUTPUTS:
-! TAIR - array of hourly air temperatures, ï¿½C
+! TAIR - array of hourly air temperatures, °C
 !**********************************************************************
 
     USE maestcom
@@ -885,7 +885,7 @@ SUBROUTINE CALCTHRLY(TMAX,TMIN,DAYL,TAIR)
     INTEGER I
     REAL TAIR(MAXHRS),TMAX,TMIN,DAYL
     REAL TAV,TAMPL,HRTIME,TIME
-
+    
     TAV = (TMAX+TMIN)/2.0
     TAMPL = (TMAX-TMIN)/2.0
 
@@ -898,7 +898,7 @@ SUBROUTINE CALCTHRLY(TMAX,TMIN,DAYL,TAIR)
         ELSE
             TAIR(I) = TAV - TAMPL*COS(1.5*PI*TIME/DAYL)
         ENDIF
-    END DO
+    END DO    
     RETURN
 END SUBROUTINE CALCTHRLY
 
@@ -908,9 +908,9 @@ SUBROUTINE CALCTSOIL(TAIR,TSOIL)
 ! Calculate soil temperatures.
 ! Set equal to average daily air temperature.
 ! INPUTS:
-! TAIR - array of hourly air temperatures, ï¿½C
+! TAIR - array of hourly air temperatures, °C
 ! OUTPUTS:
-! TSOIL - array of hourly soil temperatures, ï¿½C
+! TSOIL - array of hourly soil temperatures, °C
 !**********************************************************************
 
     USE maestcom
@@ -928,7 +928,7 @@ SUBROUTINE CALCTSOIL(TAIR,TSOIL)
     DO I = 1,KHRS
         TSOIL(I) = TAV
     END DO
-    RETURN
+    RETURN  
 END SUBROUTINE CALCTSOIL
 
 
@@ -939,9 +939,9 @@ SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
 !**********************************************************************
 
 !	USE MSFLIB        ! Library required by COMPAQ VISUAL FORTRAN - superseded
- !   USE IFPORT        ! Library required by Intel Visual Fortran
+ !   USE IFPORT        ! Library required by Intel Visual Fortran 
     USE maestcom
-
+    
     IMPLICIT NONE
     INTEGER IHR,IRAIN,IHRSWITHRAIN,I
     INTEGER(4)  IFLAG
@@ -952,15 +952,15 @@ SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
     ! Reset rain array (RAD).
     PPT = 0.
 
-    !      CALL SEED(1995) ! For testing - same random numbers - change to 0 later.
+    !      CALL SEED(1995) ! For testing - same random numbers - change to 0 later. 
     IFLAG = 0
-
+      
     ! 1. All rain falls in one hour for light storms (<2 mm)
     IF (TOTAL.LE.2.) THEN
         CALL RANDOM_NUMBER(RANVAL)   ! randomly select hour
         IRAIN = INT(RANVAL*KHRS)+1
         PPT(IRAIN) = TOTAL
-    ! 2. All rain falls in 24 hours for storms >46 mm
+    ! 2. All rain falls in 24 hours for storms >46 mm 
     ELSE IF (TOTAL.GT.46.) THEN
         RAIN = TOTAL/REAL(KHRS)
         DO IHR = 1,KHRS
@@ -992,8 +992,8 @@ END SUBROUTINE ASSIGNRAIN
 ! Calculate hourly relative humidity from air temperature and minimum
 ! daily temperature (assumed to be the dewpoint).
 ! INPUTS:
-! TMIN - daily minimum temperature, ï¿½C
-! TAIR - array of hourly air temperatures, ï¿½C
+! TMIN - daily minimum temperature, °C
+! TAIR - array of hourly air temperatures, °C
 ! OUTPUTS:
 ! RH - array of hourly relative humidity, fraction
 !**********************************************************************
@@ -1147,12 +1147,12 @@ SUBROUTINE BRISTO(IDAY,TMAX,TMIN,PRECIP,DELTAT,ALAT,DEC,DAYL,PAR)
     DELT = TMAX - TMIN					!Daily temperature amplitude - should include prev. day but ..
     IF (PRECIP.GT.10.) DELT = DELT*0.75	!Reduce if rainy
     IMON = MONTH(IDAY)					!Month
-    BRISTOK = 0.036*EXP(-0.154*DELTAT(IMON))
+    BRISTOK = 0.036*EXP(-0.154*DELTAT(IMON))	
     TRANSM = 1 - EXP(-BRISTOK*(DELT)**2.4)	!Transmittance
 
     ANGDL=DAYL*PI/KHRS					! Angular daylength
     !Incident radiation on clear day
-    RADCLR=0.0864*SOLARC/PI*TAU* (ANGDL*SIN(ALAT)*SIN(DEC)+ COS(ALAT)*COS(DEC)*SIN(ANGDL))
+    RADCLR=0.0864*SOLARC/PI*TAU* (ANGDL*SIN(ALAT)*SIN(DEC)+ COS(ALAT)*COS(DEC)*SIN(ANGDL))	
     RADTOT = RADCLR*TRANSM				!Estimated solar radiation in MJ m-2 d-1??
     PAR = RADTOT*FPAR					!Estimated PAR in MJ m-2 d-1
 
@@ -1211,7 +1211,7 @@ SUBROUTINE CALCPARHRLY(RADBM,RADDF,ZEN,RADABV,FBEAM)
         ELSE
             RDDF = 0.0
         END IF
-
+    
         ! Convert from MJ hr-1 to J s-1
         RADABV(I,1)=(RDDF+RDBM)*1e6/SPERHR
         IF ((RDBM+RDDF).GT.0.0) THEN
@@ -1259,8 +1259,8 @@ SUBROUTINE CALCFBMD(IDATE,ZEN,PAR,FBM)
     ELSE IF (TRANS.LT.0.75) THEN
         FDIF = 1.33 - 1.46*TRANS
     ELSE
-        FDIF = 0.23
-    END IF
+        FDIF = 0.23   
+    END IF   
     FBM = 1. - FDIF
 
     RETURN
@@ -1339,7 +1339,7 @@ END SUBROUTINE CALCNIR
 
 !**********************************************************************
 SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
-! Calculate incident thermal radiation, if it has not been measured.
+! Calculate incident thermal radiation, if it has not been measured. 
 ! Several different formulae exist:
 ! Ying-Ping had the following formula, from MH Unsworth & JL Monteith
 ! (1975) Quart. J. R. Met. Soc. 101. pp13-24, pp25-34
@@ -1350,9 +1350,9 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
 ! a range of alternative formulae & found Brutsaert's to be the best.
 ! BM 22/5/98.
 ! This formula is appropriate for clear skies only. The thermal radiation
-! from a cloudy sky will be larger since clouds radiate more effectively.
+! from a cloudy sky will be larger since clouds radiate more effectively. 
 ! Changed to the formula taking this into account, given by Monteith & Unsworth
-! 1990 Principles of Environmental Physics 2nd ed p53.
+! 1990 Principles of Environmental Physics 2nd ed p53. 
 !**********************************************************************
 
     USE maestcom
@@ -1363,7 +1363,7 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
     REAL EA,EMCLEAR,EMSKY(MAXHRS),SIGT4
     REAL, EXTERNAL :: TK
     REAL, EXTERNAL :: SATUR
-
+    
     DO I = 1,KHRS
         ! Brutsaert et al formula
         !        EA = SATUR(TAIR(I)) - VPD(I) !Old formula - see comments
@@ -1376,8 +1376,8 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
         ! RADABV(I,3) = FSUN(I)*EMCLEAR + (1.-FSUN(I))*(0.84+0.16*EMCLEAR)
 
         ! BM 12/05: Am hybridising. Use Brutsaert et al for clear sky emission but
-        ! Monteith and Unsworth correction for cloudy sky.
-        ! The 1.06 SIGT4 - 119 formula seems problematic in some conditions.
+        ! Monteith and Unsworth correction for cloudy sky. 
+        ! The 1.06 SIGT4 - 119 formula seems problematic in some conditions. 
         ! Also suspect I had correction incorrect - check this!!
         EA = SATUR(TAIR(I)) - VPD(I) !Old formula - see comments
         EMCLEAR = 0.642*(EA/TK(TAIR(I)))**(1./7.)
@@ -1421,7 +1421,7 @@ REAL FUNCTION ETRAD(IDATE,SINB)
     INTEGER IDATE,JDAY
     INTEGER, EXTERNAL :: JDATE
     REAL SINB
-
+    
     JDAY = JDATE(IDATE)
 
     ! Spitters' formula
@@ -1470,7 +1470,7 @@ SUBROUTINE READLAT(UFILE, ALAT, TTIMD)
 
     USE maestcom
     IMPLICIT NONE
-
+      
     INTEGER UFILE,IOERROR
     REAL LAT(3),LONG(3)
     CHARACTER*1 LATHEM,LONHEM
@@ -1514,7 +1514,7 @@ SUBROUTINE GETWIND(FOLLAY,FOLNTR,TOTLAI,EXTWIND,WINDLAY)
     INTEGER ILAY
     REAL FOLLAY(MAXLAY),FOLABV(MAXLAY),WINDLAY(MAXLAY)
     REAL TOTLAI,FOLNTR,EXTWIND
-
+    
     ! Calculate approximately LAI above each point (for wind speed)
     FOLABV(1) = FOLLAY(1)/2.
     DO ILAY = 2,MAXLAY
@@ -1534,8 +1534,8 @@ SUBROUTINE GETWIND(FOLLAY,FOLNTR,TOTLAI,EXTWIND,WINDLAY)
     RETURN
     END SUBROUTINE GETWIND
 
-
-!**********************************************************************
+    
+!**********************************************************************    
 SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
 
 ! Calculate decrease in wind speed with increasing canopy depth
@@ -1548,17 +1548,17 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     REAL ZL(MAXP),ZBC(MAXP),RZ(MAXP),WINDLAY(MAXLAY)
     REAL ZHT, WINDTOP,ALPHA1, ALPHA2, ZW,ZPD2,Z0
     REAL WINDSTAR,TREEH
-
+    
     !Average canopy height
     !TREEH = 0.0
-    !DO I = 1,notrees
+    !DO I = 1,notrees 
     !    TREEH = TREEH + ZBC(I) + RZ(I)
     !ENDDO
     !    TREEH = TREEH / NOTREES
-
+        
     !or max canopy height (eg. heterogeneous canopy)
     TREEH = 0.0
-    DO I = 1,notrees
+    DO I = 1,notrees 
         TREEH = MAX(TREEH, ZBC(I) + RZ(I))
     ENDDO
 
@@ -1571,24 +1571,24 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     ! Note that the formula differs from the one used in GBCANMS (without wind)
     ! because this subroutine calculate a relative wind
     WINDSTAR = VONKARMAN / log((ZHT-ZPD2)/Z0)
-
+    
     ! According to Van de Griend we can assumed that (ZW height of the roughness layer) :
     ALPHA1 = 1.5
     ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2)
-
+    
     ! Wind speed at the top of the canopy according to Van de Griend 1989 (eq 42)
     WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
                   WINDSTAR/VONKARMAN * (1-((TREEH-ZPD2)/(ZW-ZPD2)))
 
-    ! We assumed a expenential decrease of wind speed with depth in the canopy according to Choudhury & Monteith 1988
+    ! We assumed a expenential decrease of wind speed with depth in the canopy according to Choudhury & Monteith 1988   
     ALPHA2 = 3.0
     DO IPT = 1,NUMPNT
         WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
-    ENDDO
+    ENDDO     
     END SUBROUTINE GETWINDNEW
-
-
-
+    
+    
+    
 !**********************************************************************
 SUBROUTINE ALTERMETCC(CA,TAIR,TSOIL,RH,VPD,VMFD,PRESS,CO2INC,TINC)
 ! Subroutine to change met data according to climate change scenario.
@@ -1601,7 +1601,7 @@ SUBROUTINE ALTERMETCC(CA,TAIR,TSOIL,RH,VPD,VMFD,PRESS,CO2INC,TINC)
     USE maestcom
     IMPLICIT NONE
     INTEGER IHR
-
+    
     REAL CA(MAXHRS),TAIR(MAXHRS),TSOIL(MAXHRS)
     REAL VPD(MAXHRS),RH(MAXHRS),VMFD(MAXHRS),PRESS(MAXHRS)
     REAL CO2INC,ABSHUM,TINC
@@ -1630,11 +1630,11 @@ REAL FUNCTION CALCAH(RH,TAIR)
 ! Calculate absolute humidity (g m-3) from relative humidity & T.
 ! Conversion from Jones (1992) pp. 109-110.
 !**********************************************************************
-
+    
     IMPLICIT NONE
     REAL, EXTERNAL :: SATUR,TK
     REAL TAIR,RH
-
+    
     CALCAH = RH*SATUR(TAIR)*2.17/TK(TAIR)
 
     RETURN
@@ -1649,7 +1649,7 @@ REAL FUNCTION AHTORH(ABSHUM,TAIR)
     IMPLICIT NONE
     REAL TAIR,ABSHUM
     REAL, EXTERNAL :: TK,SATUR
-
+    
     AHTORH = ABSHUM*TK(TAIR)/2.17/SATUR(TAIR)
 
     RETURN
@@ -1671,7 +1671,7 @@ SUBROUTINE ALTERMETOTC(TOTC,WINDOTC,PAROTC,FBEAMOTC,TAIR,TSOIL,WINDAH,RADABV,&
     USE maestcom
     IMPLICIT NONE
     INTEGER IHR
-
+    
     REAL windah(MAXHRS),tsoil(MAXHRS),tair(MAXHRS)
     REAL radabv(MAXHRS,3),fbeam(MAXHRS,3)
     REAL VPD(MAXHRS),RH(MAXHRS),VMFD(MAXHRS),PRESS(MAXHRS)
@@ -1789,7 +1789,8 @@ REAL FUNCTION CALCFBMWN(IDATE,IHR,ZEN,RADABV)
     !         FBEAM(IHR,1) = FBEAM(IHR,1) + 0.51* (1.0-FBEAM(IHR,1))*FSUN
     !         FBEAM(IHR,2) = FBEAM(IHR,2) + 0.51* (1.0-FBEAM(IHR,2))*FSUN
     END IF
-
+    
 END FUNCTION CALCFBMWN
 
 !***************************************************************************
+

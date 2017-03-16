@@ -32,7 +32,7 @@
     INTEGER, PARAMETER :: MAXC = 3 !2            ! Maximum no. of leaf area distributions
     INTEGER, PARAMETER :: MAXANG = 20 !11          ! Maximum no. of zenith & leaf angles
     INTEGER, PARAMETER :: MAXD = 13           ! For resp prog
-    INTEGER, PARAMETER :: MAXDATE = 180 !30      ! Maximum no. of dates for tree or physiol parameters
+    INTEGER, PARAMETER :: MAXDATE = 177 !30      ! Maximum no. of dates for tree or physiol parameters
     INTEGER, PARAMETER :: MAXECHLAYER = 150   ! Maximum number of elementary layers in equiv. horizontal canopy (EHC,ASSIGN,CHART)
     !INTEGER, PARAMETER :: maxdate = 5        ! Maximum no. of dates for physiol parameters
     !INTEGER, PARAMETER :: MAXMET = 18         ! Maximum columns in met data file
@@ -68,8 +68,10 @@
     REAL, PARAMETER :: TCH2O = 0.594       ! thermal conductivity of water (W m-1 K-1)
     REAL, PARAMETER :: TCORG = 0.25        ! thermal conductivity of organic matter (W m-1 K-1)
     REAL, PARAMETER :: DHEAT = 21.5e-6     ! molecular diffusivity for heat
-    REAL, PARAMETER :: EMLEAF = 0.98       ! Emissivity of thermal radiation by leaf
-    REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil
+    !REAL, PARAMETER :: EMLEAF = 0.98       ! Emissivity of thermal radiation by leaf café
+    !REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil café
+    REAL, PARAMETER :: EMLEAF = 0.955       ! Emissivity of thermal radiation by leaf eucas
+    REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil eucas
     REAL, PARAMETER :: H2OLV0 = 2.501e6    ! latent heat H2O (J/kg)
     REAL, PARAMETER :: H2OMW = 18.e-3      ! mol mass H2O (kg/mol)
     REAL, PARAMETER :: H2OVW = 18.05e-6    ! partial molal volume of water at 20C (m3 mol-1)

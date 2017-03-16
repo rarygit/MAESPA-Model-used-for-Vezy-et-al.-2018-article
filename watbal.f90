@@ -782,7 +782,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ENDIF 
       ! Note: sensible heat flux is above the dry layer, latent heat flux below the dry layer.
 
-      TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      !TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      TSOILSURFACE = SOILTK + (QE + QC) *DRYTHICK / DRYTHERM !glm 15/03/2017
       
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
       !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
