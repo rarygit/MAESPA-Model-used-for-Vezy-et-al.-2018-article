@@ -250,12 +250,37 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! Call Penman-Monteith equation !(if leaf 100% dry)  !glm canopy evap
     ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
     
+    !calcul 2 !glm
+    !GAMMA = CPAIR*AIRMA*PRESS/LHV
+    !IF (GV.GT.0.0) THEN
+    !    ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
+    !    ET = ET/LHV
+    !    !print*,TLEAF,TAIR,VPD,GH,GV,ET2    
+    !ELSE
+    !    ET = 0.0
+    !ENDIF
+    
     ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
     GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
     EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
+    !calcul 2 !glm
+    !GAMMA = CPAIR*AIRMA*PRESS/LHV
+    !IF (GV.GT.0.0) THEN
+    !    EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
+    !    EV = EV/LHV
+    !!    !print*,ET,ET2        
+    !ELSE
+    !    EV = 0.0
+    !ENDIF
+
+    !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
+    IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
+        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
+    ENDIF
 
     ! End of subroutine if no iterations wanted.
     IF (ITERMAX.EQ.0) GOTO 200
+    
 
     ! Otherwise, calculate new TLEAF, DLEAF, RHLEAF & CS
     GBC = GBH/GBHGBC
@@ -268,37 +293,17 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     
     TLEAF1 = TAIR + TDIFF/4 ! divide by 4 to slow down convergence and avoid big changes
     
-    ! Now recalculate boundary layer conductance, ET with new TLEAF
-    ! Helps convergence to TLEAF.
-    ! Boundary layer conductance for heat - single sided, free convection
-    GBHF = GBHFREE(TAIR,TLEAF1,PRESS,WLEAF)
-    
-    ! Total boundary layer conductance for heat
-    GBH = GBHU + GBHF
-
-    ! Total conductance for heat - two-sided
-    GH = 2.*(GBH + GRADN)
-    ! Total conductance for water vapour
-    GBV = GBVGBH*GBH
-    GSV = GSVGSC*GSC
-    GV = (GBV*GSV)/(GBV+GSV)
-
-    !  Call Penman-Monteith equation !(if leaf 100% dry)  !glm canopy evap
-    ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
     DLEAF = ET * PRESS / GV
     RHLEAF = 1. - DLEAF/SATUR(TLEAF1)
     VMLEAF = DLEAF/PRESS*1E-3
     
-    ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
-    GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
-    EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV) !glm canopy evap
-
     ! Check to see whether convergence achieved or failed
     IF (ABS(TLEAF - TLEAF1).LT.TOL/4) GOTO 200
 
     IF (ITER.GT.ITERMAX) THEN
         !WRITE(ERRORMESSAGE, '(I4,A,I2,A)') IDAY,'  ', IHOUR, ' FAILED CONVERGENCE IN PSTRANSP'
-        CALL SUBERROR(ERRORMESSAGE,IWARN,0)
+        !CALL SUBERROR(ERRORMESSAGE,IWARN,0)
+        !print*,TLEAF,TLEAF1,CS,PSIL
         FAILCONV = .TRUE.
 	    GOTO 200
     END IF
@@ -308,11 +313,6 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ITER = ITER + 1
     GOTO 100
     
-    !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
-    IF (((1-drycan)*EV*SPERHR *18 * 1E-03).ge.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
-        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
-    
-    ENDIF
     
     ! Sensible heat flux
 !200 FHEAT = RNET - LHV*ET
@@ -331,9 +331,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! supposed to be the one of the dry part of the leaf !glm canopy evap!
     IF(ISMAESPA)THEN
         ! Used to use ET without boundary layer; not sure why.
-        ETEST = 1E06 * (VPD/PATM) * GSV
+        !ETEST = 1E06 * (VPD/PATM) * GSV
         
-!        PSIL = WEIGHTEDSWP - (ETEST/1000)/KTOT
+       ! PSIL = WEIGHTEDSWP - (ETEST/1000)/KTOT
         PSIL = WEIGHTEDSWP - (ET/1000)/KTOT
     ELSE
         PSIL = 0.0
@@ -1383,7 +1383,6 @@ SUBROUTINE PSILFIND(RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,P
         
         PSILIN = ZBRENT(PSILOBJFUN,T1,T2,XACC,EXTRAPARS,EXTRAINT)
 
-
 END
 
 
@@ -1509,6 +1508,7 @@ REAL FUNCTION PSILOBJFUN(PSILIN, EXTRAPARS, EXTRAINT)
              TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP, WEIGHTEDSWP,KTOT,HMSHAPE,PSILIN,PSIL,ETDEFICIT,ETEST,CI,ISMAESPA,ISNIGHT,&
              G02,G12,NEWTUZET,EV,drycan,CANOPY_STORE_I) !glm canopy evap
 
-        PSILOBJFUN = PSILIN - PSIL
+        PSILOBJFUN = (PSILIN - PSIL)**2
+        !print*,'PSILOBJFUN',ihour,PSILIN,PSIL,PSILOBJFUN
 
 END

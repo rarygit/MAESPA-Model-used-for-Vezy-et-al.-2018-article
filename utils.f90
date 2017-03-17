@@ -368,7 +368,8 @@ END FUNCTION RHOFUN
         TOL1=2.*EPS*ABS(B)+0.5*TOLZ
         XM=.5*(C-B)
         IF(ABS(XM).LE.TOL1 .OR. FB.EQ.0.)THEN
-            ZBRENT=B      
+            ZBRENT=B   
+            !print*,ITER
             RETURN        
         ENDIF
         IF(ABS(E).GE.TOL1 .AND. ABS(FA).GT.ABS(FB)) THEN
