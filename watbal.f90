@@ -782,7 +782,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ENDIF 
       ! Note: sensible heat flux is above the dry layer, latent heat flux below the dry layer.
 
-      TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      !TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      TSOILSURFACE = SOILTK + (QE + QC) *DRYTHICK / DRYTHERM !glm 15/03/2017
       
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
       !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
@@ -1287,7 +1288,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         !computation of the ratio of dry canopy, approximated as CANSTOR/MAXSTORE !glm canopy evap
         
-        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE/MAXSTORAGE*TOTLAI)))
+        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE/(MAXSTORAGE*TOTLAI))))
         
         RETURN
         END
@@ -2503,8 +2504,7 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       LHV = HEATEVAP(TAIRCAN) * H2OMW
     
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
-      !ETOT = -QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV 
-      ETOT = -QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap 
+      ETOT = QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap 
       
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
