@@ -16,13 +16,13 @@
 ! you should have received a copy of the gnu general public license
 ! along with MAESPA.  if not, see <http://www.gnu.org/licenses/>.
 !=======================================================================================
-    
+
     MODULE maestcom
     IMPLICIT NONE
-    
-    CHARACTER(LEN=3), PARAMETER :: format_ascii = 'asc' 
+
+    CHARACTER(LEN=3), PARAMETER :: format_ascii = 'asc'
     CHARACTER(LEN=3), PARAMETER :: format_binary = 'bin'
-    
+
     ! Maximum dimensions of arrays
     INTEGER, PARAMETER :: MAXT = 5000        ! Maximum no. of trees in plot
     INTEGER, PARAMETER :: MAXLAY = 15         ! Maximum no. of layers for radiation
@@ -68,10 +68,10 @@
     REAL, PARAMETER :: TCH2O = 0.594       ! thermal conductivity of water (W m-1 K-1)
     REAL, PARAMETER :: TCORG = 0.25        ! thermal conductivity of organic matter (W m-1 K-1)
     REAL, PARAMETER :: DHEAT = 21.5e-6     ! molecular diffusivity for heat
-    !REAL, PARAMETER :: EMLEAF = 0.98       ! Emissivity of thermal radiation by leaf café
-    !REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil café
-    REAL, PARAMETER :: EMLEAF = 0.955       ! Emissivity of thermal radiation by leaf eucas
-    REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil eucas
+    REAL, PARAMETER :: EMLEAF = 0.98       ! Emissivity of thermal radiation by leaf cafï¿½
+    REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil cafï¿½
+    ! REAL, PARAMETER :: EMLEAF = 0.955       ! Emissivity of thermal radiation by leaf eucas
+    ! REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil eucas
     REAL, PARAMETER :: H2OLV0 = 2.501e6    ! latent heat H2O (J/kg)
     REAL, PARAMETER :: H2OMW = 18.e-3      ! mol mass H2O (kg/mol)
     REAL, PARAMETER :: H2OVW = 18.05e-6    ! partial molal volume of water at 20C (m3 mol-1)
@@ -86,7 +86,7 @@
     REAL, PARAMETER :: CPERDW = 0.5        ! fraction per DW
     REAL, PARAMETER :: VONKARMAN = 0.41    ! von Karman's constant
     REAL, PARAMETER :: GRAV = 9.8067       ! Gravitational acceleration
-      
+
     ! Numbers of I/O units
     INTEGER, PARAMETER :: UCONTROL = 1        ! Confile.dat
     INTEGER, PARAMETER :: UTREES = 2          ! Trees.dat
@@ -123,8 +123,8 @@
     INTEGER, PARAMETER :: UDAYHDR = 35        ! Dayflx_hdr.asc
     INTEGER, PARAMETER :: UMET = 36            ! Met.dat
     INTEGER, PARAMETER :: UTUTD = 37           ! Tutd.dat
-    INTEGER, PARAMETER :: UHRLYHDR = 38 
-    INTEGER, PARAMETER :: ULAYHDR = 39 
+    INTEGER, PARAMETER :: UHRLYHDR = 38
+    INTEGER, PARAMETER :: ULAYHDR = 39
     INTEGER, PARAMETER :: UHISTHDR = 40
     INTEGER, PARAMETER :: URESPHRHDR = 41
     INTEGER, PARAMETER :: UWATBALHDR = 42
@@ -134,10 +134,10 @@
     INTEGER, PARAMETER :: UWATUPTHDR = 46
     INTEGER, PARAMETER :: UWATDAYHDR = 47
     INTEGER, PARAMETER :: URESPHDR = 48
-    INTEGER, PARAMETER :: USUNLA = 49    
-    INTEGER, PARAMETER :: USWPLAY = 50    
-    
-    
+    INTEGER, PARAMETER :: USUNLA = 49
+    INTEGER, PARAMETER :: USWPLAY = 50
+
+
 
     ! Flags passed to error handling subroutine
     INTEGER, PARAMETER :: IFATAL = 100        ! Error was fatal - stop program
@@ -154,7 +154,7 @@
     ! Flags to indicate which program it is
     INTEGER, PARAMETER :: INORMAL = 0         ! Maestra, Maeshr
     INTEGER, PARAMETER :: ITEST = 1           ! Maestest
-	  
+
     !COMMON /HRS/ HHRS, KHRS, SPERHR ! Make KHRS and HHRS available throughout the program
 !    INTEGER, PARAMETER :: KHRS = 24                  ! Number of time intervals in a day
 !    REAL, PARAMETER :: HHRS = (KHRS) / 2.0           ! Half a day length
