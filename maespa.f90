@@ -1414,8 +1414,8 @@ PROGRAM maespa
                                         EMSKY(IHOUR),NUMPNT,TOTLAI,FOLLAY,FOLT(1),LGP)
                   
                         ! Lost scattered radiation for each tree (W m-2), averaged over the grid points.
-                        SCLOSTTREE(ITAR,1) = SUM(SCLOST(1:NUMPNT,1)) / NUMPNT
-                        SCLOSTTREE(ITAR,2) = SUM(SCLOST(1:NUMPNT,2)) / NUMPNT
+                        SCLOSTTREE(ITAR,1) = 0.0 !glm night time !SUM(SCLOST(1:NUMPNT,1)) / NUMPNT
+                        SCLOSTTREE(ITAR,2) = 0.0 !glm night time !SUM(SCLOST(1:NUMPNT,2)) / NUMPNT
                         SCLOSTTREE(ITAR,3) = SUM(SCLOST(1:NUMPNT,3)) / NUMPNT
                         
                         ! Downward thermal flux, averaged across grid points in this tree:
@@ -1598,7 +1598,7 @@ PROGRAM maespa
                         .AND. (ABS(VPDNEW - PREVVPDCAN).LT.(50*TOL))) THEN
                         
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'convergence', ITERTAIR
-                        ITERTAIR = ITERTAIRMAX - 1
+                        !ITERTAIR = ITERTAIRMAX - 1
                         PREVTAIRCAN = TAIRNEW
                         PREVVPDCAN = VPDNEW
                         GOTO 1112                 

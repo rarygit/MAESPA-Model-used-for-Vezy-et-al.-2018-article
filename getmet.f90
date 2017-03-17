@@ -268,7 +268,7 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MHTIME
             ELSEIF (COLUMNS(I).EQ.'VMFD')  THEN
                 ICOL = MHMFD
-			ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
+            ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
                 ICOL = MHTHR
             ELSE
                 CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
