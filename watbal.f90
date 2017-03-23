@@ -377,7 +377,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                NLAYER,LAYTHICK,DRYTHICKMIN,DRYTHICK)
 
 !       Option to keep soil wet, also keep DRYTHICK = 0
-        IF(KEEPWET.EQ.1)DRYTHICK = 0.001
+        IF(KEEPWET.EQ.1) DRYTHICK = 0.001
 
 !       From which layer is soil evaporation withdrawn?
 !       Note that it currently can only come from 1st or 2nd layer!
@@ -764,7 +764,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ! Soil heat flux (flux of heat out of layer 1 into layer 2).
       ! SoilTK = Temperature jsut below drythick, SOILTK2 = T at the bottom of the first layer.
       !QC = -THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 
-      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm : QC positive if downward flux
+      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm 
 
       ! Latent heat flux (W m-2) (<0 = evaporation)
       QE = QEFLUX(SOILTK,TAIRK,VPDKPA,POREFRAC1,SOILWP1, &
@@ -787,7 +787,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
       !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
-      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK) ! QH negative when upward flux   
+      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK)   
 
       ! No soil evap if surface is frozen
       IF(SOILTK.LE.FREEZE)QE = 0.
@@ -1517,7 +1517,6 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                         DRYTHICK = MAX(DRYTHICKMIN,WETTINGTOP(AR1B))
                 ENDIF
         ENDIF
-
         
         RETURN
         END
@@ -2108,7 +2107,6 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 ! Unsaturated component
         SR = FRACWATER / POREFRAC
         KE = EXP(ALPHA*(1-SR**(ALPHA-1.33)))
-
 ! Combined (W m-1 K-1).
         THERMCONDFUN = (WETLAMBDA - DRYLAMBDA)*KE + DRYLAMBDA
         
@@ -2502,7 +2500,7 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
 
       ! Latent heat of water vapour at air temperature (J mol-1)
       LHV = HEATEVAP(TAIRCAN) * H2OMW
-    
+     
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
       ETOT = QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap 
       
@@ -2538,8 +2536,8 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       IF ((TAIRABOVE-TAIRNEW).GT.10)  TAIRNEW = TAIRABOVE - 10
 
       ! Avoid very low VPD or over-saturation.
-      IF (VPDNEW.LT.1) VPDNEW = 1
-      IF (VPDNEW.GT.SATUR(TAIRNEW)) VPDNEW=SATUR(TAIRNEW) -1
+      IF ((VPDNEW-VPDABOVE).GT.100) VPDNEW = VPDABOVE+500
+      IF ((VPDABOVE-VPDNEW).GT.100) VPDNEW = max(10.,VPDABOVE-500)
       !print*, 'VPDNEW',VPDNEW,VPDABOVE, TAIRNEW, TAIRABOVE
       
       ! Updated relative humidity

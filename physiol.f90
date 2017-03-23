@@ -155,6 +155,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     REAL ET,RNET,GBC,TDIFF,TLEAF1,FHEAT,ETEST,SF,PSIV,HMSHAPE
     REAL PSILIN,CI,VPARA,VPARB,VPARC,VPDMIN,GK,RD0ACC,ETDEFICIT
     REAL EV, drycan, GVEV,CANOPY_STORE_I  !glm canopy evap
+    REAL TLEAF2,DELTATLEAFIN,DELTATLEAF,DELTATLEAF2 !glm secant method of convergence
     
     LOGICAL ISMAESPA,ISNIGHT,FAILCONV
     INTEGER NEWTUZET
@@ -197,6 +198,31 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ITER = 0  ! Counter for iterations - finding leaf temperature
 100 CONTINUE  ! Return point for iterations
 
+    
+!    TLEAF = TAIR
+!    TLEAF2 = TAIR+1 
+!    DELTATLEAF = 0.01     ! normally should run the code once with TLEAF initial values before
+!    DELTATLEAF2 = -0.1    ! normally should run the code once with TLEAF2 initial values before
+!    DELTATLEAFIN = 1.0
+!    
+!    ITERTLEAF = 0  ! Counter for iterations 
+!    DO WHILE (((ABS(DELTATLEAFIN).GT.(0.02)).OR.(ABS(DELTATLEAF).GT.(0.02))).AND.(ITERTLEAF.LE.ITERMAX))   
+!        
+!    !Secant method for convergence of TLEAF
+!   IF (DELTATLEAF.NE.DELTATLEAF2) THEN
+!    DELTATLEAFIN = (TLEAF2-TLEAF)*DELTATLEAF/(DELTATLEAF-DELTATLEAF2) !glm secant method        
+!    TLEAF2=TLEAF          ! xl=rtsec
+!    TLEAF=TLEAF+DELTATLEAFIN     ! rtsec = rtsec+dx
+!    DELTATLEAF2=DELTATLEAF    ! fl=f
+!   ELSE
+!        DELTATLEAFIN=0
+!        DELTATLEAF=0
+!        DELTATLEAF2=0
+!    ENDIF
+ 
+    
+    
+    
     IF(.NOT.ISNIGHT)THEN
     CALL PHOTOSYN(PAR,TLEAF,TMOVE,CS,RHLEAF,DLEAF,VMLEAF,JMAX25,IECO,EAVJ,EDVJ,DELSJ,VCMAX25,&
                     EAVC,EDVC,DELSC,TVJUP,TVJDN,THETA,AJQ,RD0,Q10F,K10F,RTEMP,DAYRESP,TBELOW,&
@@ -248,30 +274,30 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     GV = (GBV*GSV)/(GBV+GSV)
 
     ! Call Penman-Monteith equation !(if leaf 100% dry)  !glm canopy evap
-    ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
+    !ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
     
     !calcul 2 !glm
-    !GAMMA = CPAIR*AIRMA*PRESS/LHV
-    !IF (GV.GT.0.0) THEN
-    !    ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
-    !    ET = ET/LHV
-    !    !print*,TLEAF,TAIR,VPD,GH,GV,ET2    
-    !ELSE
-    !    ET = 0.0
-    !ENDIF
+    GAMMA = CPAIR*AIRMA*PRESS/LHV
+    IF (GV.GT.0.0) THEN
+        ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
+        ET = ET/LHV
+        !print*,TLEAF,TAIR,VPD,GH,GV,ET2    
+    ELSE
+        ET = 0.0
+    ENDIF
     
     ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
     GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
-    EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
+    !EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
     !calcul 2 !glm
-    !GAMMA = CPAIR*AIRMA*PRESS/LHV
-    !IF (GV.GT.0.0) THEN
-    !    EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
-    !    EV = EV/LHV
-    !!    !print*,ET,ET2        
-    !ELSE
-    !    EV = 0.0
-    !ENDIF
+    GAMMA = CPAIR*AIRMA*PRESS/LHV
+    IF (GV.GT.0.0) THEN
+        EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
+        EV = EV/LHV
+    !    !print*,ET,ET2        
+    ELSE
+        EV = 0.0
+    ENDIF
 
     !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
     IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
@@ -292,6 +318,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     TDIFF = (RNET - drycan*ET*LHV - (1-drycan)*EV*LHV) / (CPAIR * AIRMA * GH)  !glm canopy evap
     
     TLEAF1 = TAIR + TDIFF/4 ! divide by 4 to slow down convergence and avoid big changes
+!    DELTATLEAF = TLEAF-(TAIR + TDIFF)
     
     DLEAF = ET * PRESS / GV
     RHLEAF = 1. - DLEAF/SATUR(TLEAF1)
@@ -312,6 +339,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     TLEAF = TLEAF1
     ITER = ITER + 1
     GOTO 100
+    
+!    ITERTLEAF = ITERTLEAF + 1 !glm secant method
+!    END DO !TLEAF WHILE LOOP !glm secant method
     
     
     ! Sensible heat flux
@@ -394,6 +424,7 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
     REAL, EXTERNAL :: FPSIL
     REAL, EXTERNAL :: VJMAXWFN
 
+
     ! Calculate photosynthetic parameters from leaf temperature.
     GAMMASTAR = GAMMAFN(TLEAF,IECO)                   ! CO2 compensati
     KM = KMFN(TLEAF,IECO)                             ! Michaelis-Ment
@@ -416,9 +447,10 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
 
     ! Deal with extreme cases
     IF ((JMAX.LE.0.0).OR.(VCMAX.LE.0.0)) THEN
-        ALEAF = -RD
-        
+        ALEAF = -RD        
         GS = G0
+        ALEAF2 = -RD        
+        GS2 = G0
 
         RETURN
     END IF
@@ -474,8 +506,13 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
                 GSDIVA2 = (G12/ (CS -GAMMA)) * FPSIF
             END IF
         END IF
+           ! print*,'GSDIVA',GSDIVA,CS,GAMMA
 
         ! Following calculations are used for both BB & BBL models.
+        !-----------
+        !glm WITH G1
+        !-----------
+        
         ! Solution when Rubisco activity is limiting
         A = G0 + GSDIVA * (VCMAX - RD)
         B = (1. - CS*GSDIVA) * (VCMAX - RD) + G0 * (KM - CS)- GSDIVA * (VCMAX*GAMMASTAR + KM*RD)
@@ -505,51 +542,55 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
 
         ALEAF = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
         GS = G0 + GSDIVA*ALEAF
+        !print*,'ALEAF',ALEAF,AC,AJ,RD
+        !-----------
+        !glm WITH G2
+        !-----------
+        GS2 = G02 + GSDIVA2*ALEAF !test to speed up
         
-        
-        ! if new gs model calculate the second possibility with different g0 and g1
-        IF (NEWTUZET.EQ.1) THEN
-            
-            ! For the same ALEAF could we have a higher stomatal conductance ?
-            GS2 = G02 + GSDIVA2*ALEAF
-            
-            IF (GS2.GT.GS) THEN
-                
-                ! Solution when Rubisco activity is limiting
-                A = G02 + GSDIVA2 * (VCMAX - RD)
-                B = (1. - CS*GSDIVA2) * (VCMAX - RD) + G02 * (KM - CS)- &
-                    GSDIVA2 * (VCMAX*GAMMASTAR + KM*RD)
-                C = -(1. - CS*GSDIVA2) * (VCMAX*GAMMASTAR + KM*RD) - G02*KM*CS
+        IF (GS2.GT.GS) THEN 
+        ! Solution when Rubisco activity is limiting
+        A = G02 + GSDIVA2 * (VCMAX - RD)
+        B = (1. - CS*GSDIVA2) * (VCMAX - RD) + G02 * (KM - CS)- &
+              GSDIVA2 * (VCMAX*GAMMASTAR + KM*RD)
+        C = -(1. - CS*GSDIVA2) * (VCMAX*GAMMASTAR + KM*RD) - G02*KM*CS
 
-                CIC = QUADP(A,B,C,IQERROR)
+        CIC = QUADP(A,B,C,IQERROR)
 
-                IF ((IQERROR.EQ.1).OR.(CIC.LE.0.0).OR.(CIC.GT.CS)) THEN
+        IF ((IQERROR.EQ.1).OR.(CIC.LE.0.0).OR.(CIC.GT.CS)) THEN
                     AC = 0.0
-                ELSE
+        ELSE
                     AC = VCMAX * (CIC - GAMMASTAR) / (CIC + KM)
-                END IF
+        END IF
  
-                ! Solution when electron transport rate is limiting
-                A = G02 + GSDIVA2 * (VJ - RD)
-                B = (1. - CS*GSDIVA2) * (VJ - RD) + G02 * (2.*GAMMASTAR - CS) &
+        ! Solution when electron transport rate is limiting
+        A = G02 + GSDIVA2 * (VJ - RD)
+        B = (1. - CS*GSDIVA2) * (VJ - RD) + G02 * (2.*GAMMASTAR - CS) &
                     - GSDIVA2 * (VJ*GAMMASTAR + 2.*GAMMASTAR*RD)
-                C = -(1. - CS*GSDIVA2) * GAMMASTAR * (VJ + 2.*RD) &
+        C = -(1. - CS*GSDIVA2) * GAMMASTAR * (VJ + 2.*RD) &
                     - G02*2.*GAMMASTAR*CS
-                CIJ = QUADP(A,B,C,IQERROR)
+        CIJ = QUADP(A,B,C,IQERROR)
 
-                AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
-                IF (AJ-RD.LT.1E-6) THEN        ! Below light compensation point
+        AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
+        IF (AJ-RD.LT.1E-6) THEN        ! Below light compensation point
                     CIJ = CS
                     AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
-                END IF
+        END IF
 
-                ALEAF2 = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
-                GS2 = G02 + GSDIVA2*ALEAF2
-                        
+        ALEAF2 = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
+        GS2 = G02 + GSDIVA2*ALEAF2
+        
+        !-----------
+        !glm take the max
+        !-----------
+        IF (GS2.GT.GS) THEN                        
                 GS = GS2
                 ALEAF = ALEAF2
-            ENDIF
         ENDIF  ! new model gs
+        !-------------
+        
+        END IF !fin test
+                    
 
         ! Set nearly zero conductance (for numerical reasons).
         IF (GS.LT.GSMIN) GS = GSMIN

@@ -1,11 +1,11 @@
 PROGRAM maespa
     !=======================================================================================
     !  The MAESPA/MAESTRA model.
-    !
+    ! 
     !  For more information see http://maespa.github.io
     !  The code is maintained at http://www.bitbucket.org/remkoduursma/maespa
     ! ======================================================================================
-
+    
     !=======================================================================================
     ! Copyright 2015 Remko Duursma, Belinda Medlyn, Mathias Christina, Guerric le Maire
     !---------------------------------------------------------------------------------------
@@ -24,12 +24,12 @@ PROGRAM maespa
     ! you should have received a copy of the gnu general public license
     ! along with MAESPA.  if not, see <http://www.gnu.org/licenses/>.
     !=======================================================================================
-
+    
     !------------------------------------------------------------------------
     ! This file (maespa.f90) contains the main program.
     ! It also contains subroutines to zero arrays (ZEROHR, ZEROHIST, ZEROD, ZEROHRFLUX)
     ! and to sum arrays (SUMHR, SUMDAILY).
-    ! All other code is contained in the additional files:
+    ! All other code is contained in the additional files: 
     !   getmet.f90 - read in met data
     !   inout.f90 - handle input & output data
     !   physiol.f90 - physiology subroutines
@@ -47,67 +47,67 @@ PROGRAM maespa
     USE switches
     USE metcom
     USE maestcom
-
+    
     USE maindeclarations
-
+    
     IMPLICIT NONE
-
-
+   
+    
     INTEGER :: numpar !glm!
-    COMMON /PAR/ numpar !glm!
+    COMMON /PAR/ numpar !glm! 
 
     VTITLE = 'MAESPA: version Feb 2014'
     VTITLE = VTITLE(1:LEN_TRIM(VTITLE))
 
     ! Read files number for cluster calculations
 	READ(*,*) numpar !glm
-
+    
     ! Set program flag
     IPROG = INORMAL
     IPROGUS = ITEST  ! Understorey setting.
-
+    
     ! Temporary stuff ... will go into respiratory T acclimation routines.
     TAIRMEM = -999.99 ! All array elements...
     NTAIRADD = 0
-
+    
     ! Set all the defaults stuff up
     CALL DEFAULT_CONDITIONS(IN_PATH, OUT_PATH)
-
+   
     ! Open input files
     CALL OPENINPUTF(CTITLE,TTITLE,PTITLE,STITLE,WTITLE,UTITLE,IWATFILE, &
                     KEEPZEN,IPOINTS,ISIMUS,IUSTFILE,in_path,out_path)
-
+   
     ! Openinputf should take care of this, but glitches?
     IF(IUSTFILE.EQ.0)ISIMUS = 0
-
-    ! Decide whether to simulate the water balance (MAESPA) or not (MAESTRA)
+    
+    ! Decide whether to simulate the water balance (MAESPA) or not (MAESTRA)    
     IF(IWATFILE .EQ. 0)THEN
        ISMAESPA = .FALSE.
     ELSE
        ISMAESPA = .TRUE.
     ENDIF
-
+    
     IF(ISMAESPA)THEN
         VTITLE = 'MAESPA'
     ELSE
         VTITLE = 'MAESTRA'
     ENDIF
     VTITLE = VTITLE(1:LEN_TRIM(VTITLE))
-
+   
     ! Get input from control file
     CALL INPUTCON(ISTART, IEND, NSTEP,NUMPNT, NOLAY, PPLAY, NZEN, DIFZEN, NAZ,      &
                     MODELGS, MODELJM, MODELRD, MODELSS, MODELRW, ITERMAX, IOHIST,   &
                     BINSIZE,ICC, CO2INC, TINC,IOTC, TOTC, WINDOTC, PAROTC,          &
                     FBEAMOTC, IWATFILE, NSPECIES, SPECIESNAMES,   &
                     PHYFILES, STRFILES,ITERTAIRMAX,NECHLAY)
-
+    
     ! Get input from canopy structure file
     CALL INPUTSTR(NSPECIES,STRFILES,JLEAFSPEC,BPTTABLESPEC,RANDOMSPEC,NOAGECSPEC,    &
                     JSHAPESPEC,SHAPESPEC,EXTWINDSPEC,NALPHASPEC,ALPHASPEC,      &
                     FALPHATABLESPEC,COEFFTSPEC,EXPONTSPEC,WINTERCSPEC,BCOEFFTSPEC,   &
                     BEXPONTSPEC,BINTERCSPEC,RCOEFFTSPEC,REXPONTSPEC,RINTERCSPEC,&
                     FRFRACSPEC,in_path,DATESLIA2,NOLIADATES,DATESLAD,NOLADDATES)
-
+    
     ! Get input from physiology file
     CALL INPUTPHY(NSPECIES,PHYFILES,MODELJM,MODELRD,MODELGS,MODELRW,NOLAY,NOAGECSPEC,           &
                     NOAGEPSPEC,PROPCSPEC,PROPPSPEC,ABSRPSPEC,ARHOSPEC,ATAUSPEC,RHOSOLSPEC,      &
@@ -126,12 +126,12 @@ PROGRAM maespa
                     DATESWLEAFSPEC,NOWLEAFDATESSPEC,NSIDESSPEC,           &
                     SFSPEC,PSIVSPEC,VPARASPEC,VPARBSPEC,VPARCSPEC,VFUNSPEC, &
                     G02TABLESPEC,G12TABLESPEC,NEWTUZET,in_path)
-
+    
     ! Cannot use Tuzet with MAESTRA (because plantk is in watpars.dat!)
     IF(.NOT.ISMAESPA.AND.MODELGS.EQ.6)THEN
         CALL SUBERROR('Error: Cannot use Tuzet model in MAESTRA. Use MAESPA!', IFATAL, 0)
     ENDIF
-
+    
     ! Get input from trees file
     CALL INPUTTREE(XSLOPE,YSLOPE,BEAR,X0,Y0,XMAX,YMAX,PLOTAREA,STOCKING,ZHT,Z0HT,ZPD, &
                     NOALLTREES,NOTREES,NOTARGETS,ITARGETS,SHADEHT,NOXDATES, &
@@ -140,46 +140,46 @@ PROGRAM maespa
                     RXTABLE1,RYTABLE1,RZTABLE1,ZBCTABLE1,FOLTABLE1,         &
                     TOTLAITABLE,DIAMTABLE1,IFLUSH,DT1,DT2,DT3,DT4,EXPTIME,  &
                     APP,EXPAN,WEIGHTS,NSPECIES,ISPECIES)
-
+    
     ! Save number of species
     NOSPEC = MAXVAL(ISPECIES(ITARGETS(1:NOTARGETS)))
-
+    
     ! Get input from the water balance file
-    IF(ISMAESPA)THEN
+    IF(ISMAESPA)THEN        
         CALL INPUTWATBAL(NOSPEC,BPAR, PSIE, KSAT, ROOTRESIST, ROOTRESFRAC, ROOTRADTABLE, ROOTSRLTABLE,ROOTMASSTOTTABLE, &
                         MINROOTWP,MINLEAFWPSPEC,PLANTKTABLE,KSCALING,THROUGHFALL,REASSIGNRAIN,RUTTERB,RUTTERD, MAXSTORAGE, &
-                        DRAINLIMIT,ROOTXSECAREA,EQUALUPTAKE,NLAYER, NROOTLAYER, LAYTHICK, INITWATER,    &
+                        DRAINLIMIT,ROOTXSECAREA,EQUALUPTAKE,NLAYER, NROOTLAYER, LAYTHICK, INITWATER,    & 
                         FRACROOTTABLE, POREFRAC, SOILTEMP, KEEPWET, KEEPDRY, DRYTHICKMIN,TORTPAR, SIMTSOIL,RETFUNCTION,&
                         FRACORGANIC, EXPINF, WSOILMETHOD, USEMEASET,USEMEASSW,SIMSOILEVAP,USESTAND,ALPHARET,WS,WR,NRET,&
                         DATESKP,NOKPDATES,DATESROOT,NOROOTDATES,NOROOTSPEC,RFAGEBEGIN,RFPAR1,RFPAR2,RFPAR3,ROOTFRONTLIMIT,&
                         IWATTABLAYER, PLATDRAIN,ISIMWATTAB,DRYTHERM,SIMSTORE,STORECOEF,STOREEXP,STOPSIMONEMPTY)
     ENDIF
-
+    
     ! Open met data file (must be done after ISTART & IEND read)
     CALL OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTIMD,DELTAT,&
                     MFLAG,METCOLS,NOMETCOLS,MTITLE,MSTART,in_path)
-
+    
     ! Open output files
     CALL OPEN_OUTPUT_FILES(ISIMUS,CTITLE,TTITLE,PTITLE,STITLE,MTITLE,VTITLE,WTITLE,NSPECIES,SPECIESNAMES,out_path,ISMAESPA)
-
-
+    
+    
     IF(ISIMUS.EQ.1)THEN
         CALL INPUTUSSTR(NOUSPOINTS,X0,Y0,GRDAREAI,XLU,YLU,ZLU,USLAITAB,NOFUDATES,DATESFU,&
                         HTUS,NOHUDATES,DATESHU,FOLNUS,NONUDATES,DATESNU,EXTKUS)
-
+        
         CALL INPUTUSPHY(JMAXN25,IECOU,EAVJU,EDVJU,DELSJU,TVJUPU,TVJDNU,VCMAXN25,EAVCU,    &
                         EDVCU,DELSCU,UNMIN,AJQU,ABSRPU,GSBG0U,GSBG1U,CICARAT,RD0US,RDK,   &
                         RDT,SLAUS,EFFY,MOSS,JMAX25M,VCMAX25M,THETAM,C4FRAC,               &
                         VCMAXC4,TVJUPC4, TVJDNC4, DELSCC4, EAVCC4, EDVCC4, CICAC4)
     ENDIF
-
+    
     ! Read MAESTEST input file.
     ! Open files and read information about points
     IF(IPOINTS .EQ. 1)THEN
       CALL GETPOINTSF(NUMTESTPNT,XLP,YLP,ZLP,X0,Y0,XMAX,YMAX, &
          CTITLE,TTITLE,MTITLE,STITLE,VTITLE)
     ENDIF
-
+      
     ! Initialize various variables related to water balance calculations.
     IF(ISMAESPA)THEN
     CALL INITWATBAL(LAYTHICK,WETTINGBOT,WETTINGTOP,POREFRAC,WATERGAIN,WATERLOSS,PPTGAIN,    &
@@ -190,53 +190,53 @@ PROGRAM maespa
         SOILDATA = 0
         USEMEASSW = 0
     ENDIF
-
+    
     ! Sort trees
     DO ITAR = 1,NOTARGETS
         ITREE = ITARGETS(ITAR)
         CALL SORTTREESI(NOALLTREES,NOTREES,ITREE,DXT1,DYT1,DZT1,ITAD(1:MAXT,ITAR))
     ENDDO
-
+    
     ! Flag to abort simulation if some condition is met.
     ABORTSIMULATION = .FALSE.
-
+    
     !***********************************************************************!
     !                       Begin daily loop                                !
     !***********************************************************************!
 
     ! Initialize met file
     CALL RESTARTMETF(ISTART,MSTART,MFLAG)
-
+    
     IDAY = 0
     DO WHILE (ISTART + IDAY <= IEND .AND. .NOT. ABORTSIMULATION)
         IF(VERBOSE.GE.1)WRITE(*,105) IDAY
         105 FORMAT('  DAY:',I5)
-
+       
         !**********************************************************************
-
+    
         CALL INTERPOLATEDIST(IDAY,ISTART,FRACROOTTABLE,NOROOTDATES,NOROOTSPEC,DATESROOT,FRACROOTSPEC,NROOTLAYER, NALPHASPEC, &
                                 FALPHATABLESPEC,DATESLIA2,NOLIADATES,FALPHASPEC,NSPECIES, &
                                 ISMAESPA,LAYTHICK,RFAGEBEGIN,RFPAR1,RFPAR2,RFPAR3,ROOTFRONTLIMIT, ROOTFRONT)
-
+                
         IF(ISMAESPA)THEN
             CALL INTERPOLATEW(IDAY,ISTART,NOSPEC,NOKPDATES,DATESKP,PLANTKTABLE,PLANTK,  &
                               NOROOTDATES,DATESROOT,NOROOTSPEC,ROOTRADTABLE,ROOTSRLTABLE,ROOTMASSTOTTABLE, &
                               FRACROOTSPEC,LAYTHICK,ROOTRESFRAC,ROOTXSECAREA, ROOTLENSPEC, ROOTRESIST, ROOTMASSSPEC,  &
-                              NROOTLAYER,ROOTRAD)
+                              NROOTLAYER,ROOTRAD)    
         ENDIF
-
+        
         CALL LADCHOOSE(IDAY,ISTART,NSPECIES,NOLADDATES,DATESLAD,BPTTABLESPEC,BPTSPEC)
-
+                    
 !       Diffuse extinction coefficients.
         DO I=1,NSPECIES
             CALL EXDIFF(NALPHASPEC(I),ALPHASPEC(1:MAXANG,I),FALPHASPEC(1:MAXANG,I), &
                         NZEN,DIFZEN,RANDOMSPEC(I),DEXTSPEC(I,1:MAXANG))
         END DO
-
+        
         ! Added 29-3-2008 (RAD): reposition met file correctly,
         ! to account for the looping order change.
         !CALL RESTARTMETF(IDAY+ISTART,MSTART,MFLAG) !glm commented from Remko email
-
+       
         ! Prepare histogram
         CALL ZEROSTART(HISTO,CANOPYDIMS)
 
@@ -262,14 +262,14 @@ PROGRAM maespa
            ZEN = ZEN0
            AZ = AZ0
         ENDIF
-
+ 
         ! Get meteorological data
         CALL GETMET(IDAY+ISTART,MFLAG,ZEN,METCOLS,NOMETCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,  &
                     ALAT,DEC,DAYL,WINDAH,TSOIL,TAIR,RADABV,FBEAM,RH,VPD,VMFD,CA,PRESS,      &
                     PPT,SOILMOIST,SOILDATA,TSOILDATA,ETMEAS,EMSKY)
 
         IF(KEEPDRY.EQ.1)PPT = 0.0
-
+        
         ! Moving average air temperature (for acclimation of respiration - not currently documented feature).
         MOVEWINDOW = 7 * KHRS
         TAIRMEM = CSHIFT(TAIRMEM, -KHRS)
@@ -285,21 +285,21 @@ PROGRAM maespa
             PPTDAY = SUM(PPT)
             CALL ASSIGNRAIN(PPTDAY,PPT)
         ENDIF
-
+                
         IF (ICC.EQ.0) CALL ALTERMETCC(CA,TAIR,TSOIL,RH,VPD,VMFD,PRESS,CO2INC,TINC)
         IF (IOTC.EQ.0) CALL ALTERMETOTC(TOTC,WINDOTC,PAROTC,FBEAMOTC,TAIR,TSOIL,WINDAH,RADABV,&
                                         FBEAM,RH,VPD,VMFD,PRESS)
-
+         
         !********************************************************************
         ! Zero daily fluxes
-
+       
         CALL ZEROD(TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,TOTRESPB,TOTRESPCR,TOTRESPFR,TOTH2O,TOTHFX,&
                     WSOILMEAN,WSOILROOTMEAN,SWPMEAN,PPTTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT,SOILEVAPTOT,&
                     FSOILMEAN,TFALLTOT,QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT, &
                     EVMMTOT) !glm canopy evap
-
+        
         NSUMMEDW = 0
-
+         
         ! Zero hourly fluxes
         CALL ZEROHR(THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPFR,FRESPCR,FH2O,GSCAN,GBHCAN,FHEAT,PPAR,PPS, &
                     PTRANSP,TCAN,FSOIL1,PSILCAN,PSILCANMIN,CICAN,NSUMMED,TOTTMP,ECANMAX,ACANMAX,ETCANDEFICIT, &
@@ -314,20 +314,20 @@ PROGRAM maespa
                 ! Sort trees to middle of understorey points.
                 AX = AVERAGEVAL(XLU,NOUSPOINTS)
                 AY = AVERAGEVAL(YLU,NOUSPOINTS)
-
+                
                 ! Sort overstorey dimensions, save in separate arrays.
                 ! Can move this out of loop, only needs to be done once.
                 CALL SORTTREESP(AX,AY,NOALLTREES,NOTREES,DXT1,DYT1,DZT1,RXTABLE1,RYTABLE1,RZTABLE1,     &
                                 ZBCTABLE1,FOLTABLE1,DIAMTABLE1,DXTUS,DYTUS,DZTUS,RXTABLEUS,RYTABLEUS,   &
                                 RZTABLEUS,FOLTABLEUS,ZBCTABLEUS,DIAMTABLEUS,ISPECIES,ISPECIESTUS,ITUUS)
-
+    
                 ! Interpolate overstorey dimensions for use in understorey calcs.
                 CALL INTERPOLATET(IDAY,ISTART,IHOUR,NOXDATES,DATESX,RXTABLEUS,NOYDATES,DATESY,RYTABLEUS,    &
                                     NOZDATES,DATESZ,RZTABLEUS,NOTDATES,DATEST,ZBCTABLEUS,NODDATES,DATESD,   &
                                     DIAMTABLEUS,NOLADATES,DATESLA,FOLTABLEUS,TOTLAITABLE,NOTREES,           &
                                     RXUS,RYUS,RZUS,ZBCUS,FOLTUS,TOTLAI,DIAM,STOCKING,IFLUSH,DT1,DT2,DT3,    &
                                     DT4,EXPTIME,APP,EXPAN,NEWCANOPY,CANOPYDIMS)
-
+         
                 ! Interpolate understorey dimensions
                 CALL INTERPUS(IDAY,ISTART,NOUSPOINTS,UNMIN,EXTKUS,GRDAREAI,DATESFU,NOFUDATES,USLAITAB,USLAI,&
                                 DATESHU,NOHUDATES,HTUS,ZLU,DATESNU,NONUDATES,FOLNUS,FN0US,AREAUS)
@@ -344,24 +344,24 @@ PROGRAM maespa
                     PROPPTUS(1:MAXC,I) = PROPPSPEC(1:MAXC,ISPECIESTUS(I))
                     PROPCTUS(1:MAXC,I) = PROPCSPEC(1:MAXC,ISPECIESTUS(I))
                 END DO
-
+                
                 ! Diffuse transmission to the understorey points.
                 CALL TRANSD(IDAY,NEWCANOPY,IPROGUS,NOTREES,XSLOPE,YSLOPE,NZEN,DIFZEN,NAZ,NOUSPOINTS, &
                             DEXTTUS,DIFSKY,XLU,YLU,ZLU,RXUS,RYUS,RZUS,DXTUS,DYTUS,DZTUS,XMAX,YMAX,SHADEHT,  &
                             FOLTUS,ZBCUS,JLEAFTUS,BPTTUS,NOAGECTUS,PROPCT,JSHAPETUS,SHAPETUS,NEWTUTD,TUUS,  &
-                            TDUS,RELDFUS,DEXT)
+                            TDUS,RELDFUS,DEXT)   
             ENDIF
         ENDIF  ! ISIMUS.EQ.1
 
         ! Loop through all trees, calculate diffuse transmittances.
-        ! Once every IOTUTD days:
+        ! Once every IOTUTD days:    
         IF((MOD(IDAY,IOTUTD).EQ.0).OR.IDAY.EQ.0)THEN
-
+            
             DO ITAR = 1,NOTARGETS
                 ITREE = ITARGETS(ITAR)
-
+                
                 ISPEC = ISPECIES(ITREE)
-
+                
                 JLEAF = JLEAFSPEC(ISPEC)
                 JSHAPE = JSHAPESPEC(ISPEC)
                 SHAPE = SHAPESPEC(ISPEC)
@@ -384,103 +384,103 @@ PROGRAM maespa
                 RINTERC = RINTERCSPEC(ISPEC)
                 FRFRAC = FRFRACSPEC(ISPEC)
 
-                NOAGEP = NOAGEPSPEC(ISPEC)
+                NOAGEP = NOAGEPSPEC(ISPEC)       
                 PROPC(1:MAXC) = PROPCSPEC(1:MAXC,ISPEC)
-                PROPP(1:MAXC) = PROPPSPEC(1:MAXC,ISPEC)
-                ABSRP(1:MAXLAY,1:3) = ABSRPSPEC(1:MAXLAY,1:3,ISPEC)
-                ARHO(1:MAXLAY,1:3) = ARHOSPEC(1:MAXLAY,1:3,ISPEC)
-                ATAU(1:MAXLAY,1:3) = ATAUSPEC(1:MAXLAY,1:3,ISPEC)
-                RHOSOL(1:3) = RHOSOLSPEC(1:3,ISPEC)
-                JMAXTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = JMAXTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)
-                DATESJ(1:MAXDATE) = DATESJSPEC(1:MAXDATE,ISPEC)
-                NOJDATES = NOJDATESSPEC(ISPEC)
-                IECO = IECOSPEC(ISPEC)
-                EAVJ = EAVJSPEC(ISPEC)
-                EDVJ = EDVJSPEC(ISPEC)
-                DELSJ = DELSJSPEC(ISPEC)
-                THETA = THETASPEC(ISPEC)
-                VCMAXTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = VCMAXTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)
-                DATESV(1:MAXDATE) =  DATESVSPEC(1:MAXDATE,ISPEC)
-                NOVDATES =  NOVDATESSPEC(ISPEC)
-                EAVC = EAVCSPEC(ISPEC)
-                EDVC = EDVCSPEC(ISPEC)
-                DELSC = DELSCSPEC(ISPEC)
-                TVJUP = TVJUPSPEC(ISPEC)
-                TVJDN = TVJDNSPEC(ISPEC)
+                PROPP(1:MAXC) = PROPPSPEC(1:MAXC,ISPEC)    
+                ABSRP(1:MAXLAY,1:3) = ABSRPSPEC(1:MAXLAY,1:3,ISPEC)  
+                ARHO(1:MAXLAY,1:3) = ARHOSPEC(1:MAXLAY,1:3,ISPEC)      
+                ATAU(1:MAXLAY,1:3) = ATAUSPEC(1:MAXLAY,1:3,ISPEC)       
+                RHOSOL(1:3) = RHOSOLSPEC(1:3,ISPEC)    
+                JMAXTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = JMAXTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC) 
+                DATESJ(1:MAXDATE) = DATESJSPEC(1:MAXDATE,ISPEC)       
+                NOJDATES = NOJDATESSPEC(ISPEC)     
+                IECO = IECOSPEC(ISPEC)         
+                EAVJ = EAVJSPEC(ISPEC)         
+                EDVJ = EDVJSPEC(ISPEC)         
+                DELSJ = DELSJSPEC(ISPEC)        
+                THETA = THETASPEC(ISPEC)        
+                VCMAXTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = VCMAXTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)   
+                DATESV(1:MAXDATE) =  DATESVSPEC(1:MAXDATE,ISPEC)         
+                NOVDATES =  NOVDATESSPEC(ISPEC)     
+                EAVC = EAVCSPEC(ISPEC)         
+                EDVC = EDVCSPEC(ISPEC)         
+                DELSC = DELSCSPEC(ISPEC)        
+                TVJUP = TVJUPSPEC(ISPEC)        
+                TVJDN = TVJDNSPEC(ISPEC)        
                 SLATABLE(1:maxdate,1:MAXLAY,1:MAXC) = SLATABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)
-                DATESSLA(1:maxdate) =  DATESSLASPEC(1:maxdate,ISPEC)
-                NOSLADATES = NOSLADATESSPEC (ISPEC)
-                NOADATES = NOADATESSPEC(ISPEC)
-                DATESA(1:MAXDATE) =  DATESASPEC(1:MAXDATE,ISPEC)
-                AJQTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = AJQTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)
-                RDTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = RDTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)
-                DATESRD(1:MAXDATE) =  DATESRDSPEC(1:MAXDATE,ISPEC)
-                NORDATES = NORDATESSPEC(ISPEC)
-                RTEMP = RTEMPSPEC(ISPEC)
-                DAYRESP = DAYRESPSPEC(ISPEC)
-                TBELOW = TBELOWSPEC(ISPEC)
-                EFFYRW = EFFYRWSPEC(ISPEC)
-                RMW = RMWSPEC(ISPEC)
-                RTEMPW = RTEMPWSPEC(ISPEC)
-                COLLA = COLLASPEC(ISPEC)
-                COLLK = COLLKSPEC(ISPEC)
-                STEMSDW = STEMSDWSPEC(ISPEC)
-                RMWAREA = RMWAREASPEC(ISPEC)
-                STEMFORM = STEMFORMSPEC(ISPEC)
-                NOFQDATES = NOFQDATESSPEC(ISPEC)
-                DATESFQ(1:MAXDATE) =  DATESFQSPEC(1:maxdate,ISPEC)
-                Q10FTABLE(1:MAXDATE) =  Q10FTABLESPEC(1:maxdate,ISPEC)
+                DATESSLA(1:maxdate) =  DATESSLASPEC(1:maxdate,ISPEC)       
+                NOSLADATES = NOSLADATESSPEC (ISPEC)  
+                NOADATES = NOADATESSPEC(ISPEC)   
+                DATESA(1:MAXDATE) =  DATESASPEC(1:MAXDATE,ISPEC)         
+                AJQTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = AJQTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)     
+                RDTABLE(1:MAXDATE,1:MAXLAY,1:MAXC) = RDTABLESPEC(1:MAXDATE,1:MAXLAY,1:MAXC,ISPEC)      
+                DATESRD(1:MAXDATE) =  DATESRDSPEC(1:MAXDATE,ISPEC)        
+                NORDATES = NORDATESSPEC(ISPEC)     
+                RTEMP = RTEMPSPEC(ISPEC)        
+                DAYRESP = DAYRESPSPEC(ISPEC)      
+                TBELOW = TBELOWSPEC(ISPEC)       
+                EFFYRW = EFFYRWSPEC(ISPEC)       
+                RMW = RMWSPEC(ISPEC)          
+                RTEMPW = RTEMPWSPEC(ISPEC)       
+                COLLA = COLLASPEC(ISPEC)        
+                COLLK = COLLKSPEC(ISPEC)        
+                STEMSDW = STEMSDWSPEC(ISPEC)      
+                RMWAREA = RMWAREASPEC(ISPEC)      
+                STEMFORM = STEMFORMSPEC(ISPEC)     
+                NOFQDATES = NOFQDATESSPEC(ISPEC)    
+                DATESFQ(1:MAXDATE) =  DATESFQSPEC(1:maxdate,ISPEC)        
+                Q10FTABLE(1:MAXDATE) =  Q10FTABLESPEC(1:maxdate,ISPEC)    
                 K10F = K10FSPEC(ISPEC)
-                NOWQDATES = NOWQDATESSPEC(ISPEC)
-                DATESWQ = DATESWQSPEC(1:MAXDATE,ISPEC)
-                Q10WTABLE(1:maxdate) =  Q10WTABLESPEC(1:MAXDATE,ISPEC)
-                RMFR = RMFRSPEC(ISPEC)
-                RMCR = RMCRSPEC(ISPEC)
-                Q10R = Q10RSPEC(ISPEC)
-                RTEMPR = RTEMPRSPEC(ISPEC)
-                EFFYRF = EFFYRFSPEC(ISPEC)
-                RMB = RMBSPEC(ISPEC)
-                Q10B = Q10BSPEC(ISPEC)
-                RTEMPB = RTEMPBSPEC(ISPEC)
-                GSREF = GSREFSPEC(ISPEC)
-                GSMIN = GSMINSPEC(ISPEC)
-                PAR0 = PAR0SPEC(ISPEC)
-                D0 = D0SPEC(ISPEC)
-                VK1 = VK1SPEC(ISPEC)
-                VK2 = VK2SPEC(ISPEC)
-                VPD1 = VPD1SPEC(ISPEC)
-                VPD2 = VPD2SPEC(ISPEC)
-                VMFD0 = VMFD0SPEC(ISPEC)
-                GSJA = GSJASPEC(ISPEC)
-                GSJB = GSJBSPEC(ISPEC)
-                T0 = T0SPEC(ISPEC)
-                TREF = TREFSPEC(ISPEC)
-                TMAX = TMAXSPEC(ISPEC)
-                SMD1 = SMD1SPEC(ISPEC)
-                SMD2 = SMD2SPEC(ISPEC)
-                WC1 = WC1SPEC(ISPEC)
-                WC2 = WC2SPEC(ISPEC)
-                SWPEXP = SWPEXPSPEC(ISPEC)
+                NOWQDATES = NOWQDATESSPEC(ISPEC)    
+                DATESWQ = DATESWQSPEC(1:MAXDATE,ISPEC)      
+                Q10WTABLE(1:maxdate) =  Q10WTABLESPEC(1:MAXDATE,ISPEC)    
+                RMFR = RMFRSPEC(ISPEC)         
+                RMCR = RMCRSPEC(ISPEC)         
+                Q10R = Q10RSPEC(ISPEC)         
+                RTEMPR = RTEMPRSPEC(ISPEC)       
+                EFFYRF = EFFYRFSPEC(ISPEC)       
+                RMB = RMBSPEC(ISPEC)          
+                Q10B = Q10BSPEC(ISPEC)         
+                RTEMPB = RTEMPBSPEC(ISPEC)      
+                GSREF = GSREFSPEC(ISPEC)        
+                GSMIN = GSMINSPEC(ISPEC)        
+                PAR0 = PAR0SPEC(ISPEC)         
+                D0 = D0SPEC(ISPEC)           
+                VK1 = VK1SPEC(ISPEC)         
+                VK2 = VK2SPEC(ISPEC)          
+                VPD1 = VPD1SPEC(ISPEC)         
+                VPD2 = VPD2SPEC(ISPEC)         
+                VMFD0 = VMFD0SPEC(ISPEC)        
+                GSJA = GSJASPEC(ISPEC)         
+                GSJB = GSJBSPEC(ISPEC)         
+                T0 = T0SPEC(ISPEC)           
+                TREF = TREFSPEC(ISPEC)        
+                TMAX = TMAXSPEC(ISPEC)         
+                SMD1 = SMD1SPEC(ISPEC)         
+                SMD2 = SMD2SPEC(ISPEC)        
+                WC1 = WC1SPEC(ISPEC)          
+                WC2 = WC2SPEC(ISPEC)          
+                SWPEXP = SWPEXPSPEC(ISPEC)       
                 GNIGHT = GNIGHTSPEC(ISPEC)
                 G0TABLE = G0TABLESPEC(1:maxdate,ISPEC)
-                G1TABLE = G1TABLESPEC(1:maxdate,ISPEC)
+                G1TABLE = G1TABLESPEC(1:maxdate,ISPEC)              
                 G02TABLE = G02TABLESPEC(1:maxdate,ISPEC)
-                G12TABLE = G12TABLESPEC(1:maxdate,ISPEC)
+                G12TABLE = G12TABLESPEC(1:maxdate,ISPEC)              
                 DATESGS = DATESGSSPEC(1:maxdate,ISPEC)
                 NOGSDATES = NOGSDATESSPEC(ISPEC)
-
+                
                 WLEAFTABLE = WLEAFTABLESPEC(1:maxdate,ISPEC)
                 DATESWLEAF = DATESWLEAFSPEC(1:maxdate,ISPEC)
                 NOWLEAFDATES = NOWLEAFDATESSPEC(ISPEC)
-
-                D0L = D0LSPEC(ISPEC)
-                GAMMA = GAMMASPEC(ISPEC)
-                VPDMIN = VPDMINSPEC(ISPEC)
+                
+                D0L = D0LSPEC(ISPEC)          
+                GAMMA = GAMMASPEC(ISPEC)     
+                VPDMIN = VPDMINSPEC(ISPEC)   
                 SF = SFSPEC(ISPEC)
                 PSIV = PSIVSPEC(ISPEC)
-
+                
                 NSIDES = NSIDESSPEC(ISPEC)
-
+                
                 VPARA = VPARASPEC(ISPEC)
                 VPARB = VPARBSPEC(ISPEC)
                 VPARC = VPARCSPEC(ISPEC)
@@ -490,17 +490,17 @@ PROGRAM maespa
                 DXT(1:NOTREES) = DXT1(ITAD(1:NOTREES, ITAR))
                 DYT(1:NOTREES) = DYT1(ITAD(1:NOTREES, ITAR))
                 DZT(1:NOTREES) = DZT1(ITAD(1:NOTREES, ITAR))
-
+                
                 RXTABLE(1:MAXDATE, 1:NOTREES) = RXTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 RYTABLE(1:MAXDATE, 1:NOTREES) = RYTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 RZTABLE(1:MAXDATE, 1:NOTREES) = RZTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
-
+                
                 FOLTABLE(1:MAXDATE, 1:NOTREES) = FOLTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 ZBCTABLE(1:MAXDATE, 1:NOTREES) = ZBCTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 DIAMTABLE(1:MAXDATE, 1:NOTREES) = DIAMTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
-
+                
                 ISPECIEST(1:NOTREES) = ISPECIES(ITAD(1:NOTREES, ITAR))
-
+                
                 ! Interpolate to get daily values of parameters
                 ! This we can probably also do outside the hourly loop.
                 CALL INTERPOLATEP(IDAY,ISTART,NOJDATES,DATESJ,JMAXTABLE,NOVDATES,DATESV,VCMAXTABLE, &
@@ -509,13 +509,13 @@ PROGRAM maespa
                                     Q10WTABLE,NOLAY,NOAGEP,JMAX25,VCMAX25,RD0,SLA,AJQ,Q10F,Q10W,    &
                                     NOGSDATES,DATESGS,G0TABLE,G1TABLE,G0,G1,NOWLEAFDATES,DATESWLEAF,WLEAFTABLE,WLEAF, &
                                     G02TABLE, G12TABLE, G02,G12)
-
+         
                 CALL INTERPOLATET(IDAY,ISTART,IHOUR,NOXDATES,DATESX,RXTABLE,NOYDATES,DATESY,RYTABLE,    &
                                     NOZDATES,DATESZ,RZTABLE,NOTDATES,DATEST,ZBCTABLE,NODDATES,DATESD,   &
                                     DIAMTABLE,NOLADATES,DATESLA,FOLTABLE,TOTLAITABLE,NOTREES,RX,RY,RZ,  &
                                     ZBC,FOLT,TOTLAI,DIAM,STOCKING,IFLUSH,DT1,DT2,DT3,DT4,EXPTIME,APP,   &
                                     EXPAN,NEWCANOPY,CANOPYDIMS)
-
+               
                 !!!! can move this outside the loop as well... !!!!
                 DO I = 1,NOTREES
                     JSHAPET(I) = JSHAPESPEC(ISPECIEST(I))
@@ -531,13 +531,13 @@ PROGRAM maespa
                 CALL POINTSNEW(NOLAY,PPLAY,JLEAF,JSHAPE,SHAPE,RX(1),RY(1),RZ(1),ZBC(1),DXT(1),DYT(1),DZT(1),  &
                                 FOLT(1),PROPC,PROPP, &
                                 BPT,NOAGEC,NOAGEP, XL,YL,ZL,VL,DLT,DLI,LGP,FOLLAY)
-
-
-
+            
+                
+                
                 ! Do Maestest calculations (only once - when the loop is at the first tree (ITAR), and on the first day).
                 RANPOINTS = 0
                 IF(IPOINTS.EQ.1.AND.RANPOINTS.EQ.0)THEN
-
+   
                         ! Sort trees to middle of test points (has no real effect at the moment; since all trees in the plot are used).
                         AX = AVERAGEVAL(XLP,NUMTESTPNT)
                         AY = AVERAGEVAL(YLP,NUMTESTPNT)
@@ -554,7 +554,7 @@ PROGRAM maespa
                          ZBCTABLE1,FOLTABLE1,DIAMTABLE1, &
                          DXTP,DYTP,DZTP,RXTABLEP,RYTABLEP,RZTABLEP, &
                          FOLTABLEP,ZBCTABLEP,DIAMTABLEP,ISPECIES,ISPECIESTP,ITP)
-
+    
                         ! Interpolate overstorey dimensions for use in test point calcs.
                         CALL INTERPOLATET(IDAY,ISTART,1, &
                          NOXDATES,DATESX,RXTABLEP,NOYDATES,DATESY,RYTABLEP, &
@@ -564,7 +564,7 @@ PROGRAM maespa
                          RXP,RYP,RZP,ZBCP,FOLTP,TOTLAI,DIAM,STOCKING, &
                          IFLUSH,DT1,DT2,DT3,DT4,EXPTIME,APP,EXPAN, &
                          NEWCANOPY,CANOPYDIMS)
-
+     
                         ! Make tree arrays of radiation-extinction related parameters,
                         ! that may vary between species.
                        DO I = 1,NOTREESTEST
@@ -585,15 +585,15 @@ PROGRAM maespa
                         XMAX,YMAX,SHADEHT, &
                         FOLTP,ZBCP,JLEAFTP,BPTTP,NOAGECTP,PROPCTP,JSHAPETP,SHAPETP, &
                         NEWTUTD,TUP,TDP,RELDFP,DEXTP)
-
+      
                         CALL EHC(NUMTESTPNT,TUP,TDP, &
                          TOTLAI,XSLOPE,YSLOPE,NAZ,NZEN,NECHLAY,DIFZEN,DEXTP, &
                          DLAIP,EXPDIFP,LAYERP,MLAYERP &
-                       )
+                       )     
                        RANPOINTS = 1
-
+                    
                 ENDIF  ! MAESTEST (Diffuse calculations)
-
+                
                 ! Output xyz coordinates of crown grid points.
                 ! This is actually useful; might make this an output option.
                 ! Note in R: require(rgl);plot3d(x,y,z) can plot the points nicely...
@@ -612,7 +612,7 @@ PROGRAM maespa
                 RELDFAR(ITAR, 1:NUMPNT) = RELDF(1:NUMPNT)
 
             END DO  ! End precalculate diffuse transmittance.
-
+            
             ! Undocumented feature:
             ! Assign plant hydraulic conductance cf. Peltoniemi. This is assumed to scale with fractional diffuse
             ! radiation (because Kplant is proportional to APPFD in an optimal plant).
@@ -622,26 +622,26 @@ PROGRAM maespa
             !    PLANTKCR(ITAR,J) = PLANTK * RELDFAR(ITAR,J) ** KSCALING
             !  ENDDO
             !ENDDO
-            ! Make sure that value given in input file (PLANTK) corresponds to maximum
+            ! Make sure that value given in input file (PLANTK) corresponds to maximum 
             ! -actual- plantk in the crown.
             !RESCALE = PLANTK / MAXVAL(PLANTKCR)
             !PLANTKCR = PLANTKCR * RESCALE
-
-
+         
+            
         ENDIF  ! IDAY=0 or IOTUTDth day.
+        
 
 
-
-
-
-
-
-
+        
+        
+        
+        
+        
         !**********************************************************************!
         !                       Begin hourly loop                              !
         !**********************************************************************!
         DO IHOUR = 1,KHRS
-
+            
             ITERTAIR = 0.
             TAIRABOVE = TAIR(IHOUR)
             VPDABOVE = VPD(IHOUR)
@@ -655,24 +655,24 @@ PROGRAM maespa
                     AREA,IHOUR,ILAY,ITAR,NOTARGETS,NUMPNT,NSUMMED,TOTTMP,&
                     PPAR,PPS,PTRANSP,THRAB,FCO2,FRESPF,GSCAN,GBHCAN,FH2O,ETCANDEFICIT,FHEAT,TCAN,FSOIL1,  &
                     PSILCAN,PSILCANMIN,CICAN, ECANMAX, ACANMAX,AREATOT, &
-                    EV,FH2OEV)!glm canopy evap
+                    EV,FH2OEV)!glm canopy evap 
 
-
+                        
             ! average canopy height for aerodynamic conductance calculation
             TREEH = (SUM(ZBC(1:NOTREES)) + SUM(RZ(1:NOTREES))) / NOTREES
-
+            
             ! Run the iteration on air temperature and vapour pressure within the canopy
             CALL ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			                TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
 			                TAIRABOVE, TAIRNEW, VPDNEW)
 
-
+            
             CALL ZEROFSOIL(FSOIL1,NSUMMED,TOTTMP)
-
+            
             ! Loop over all chosen trees within subplot
             DO ITAR = 1,NOTARGETS
                 ITREE = ITARGETS(ITAR)
-
+                
                 ! Read diffuse transmittance from precalculated array
                 TU(1:NUMPNT) = TUAR(ITAR, 1:NUMPNT)
                 TD(1:NUMPNT) = TDAR(ITAR, 1:NUMPNT)
@@ -680,7 +680,7 @@ PROGRAM maespa
 
                 ! Assign arrays.
                 ISPEC = ISPECIES(ITREE)
-
+                
                 JLEAF = JLEAFSPEC(ISPEC)
                 BPT(1:8,1:MAXC) = BPTSPEC(1:8,1:MAXC,ISPEC)
                 RANDOM = RANDOMSPEC(ISPEC)
@@ -702,86 +702,86 @@ PROGRAM maespa
                 RINTERC = RINTERCSPEC(ISPEC)
                 FRFRAC = FRFRACSPEC(ISPEC)
 
-                NOAGEP = NOAGEPSPEC(ISPEC)
+                NOAGEP = NOAGEPSPEC(ISPEC)       
                 PROPC(1:MAXC) = PROPCSPEC(1:MAXC,ISPEC)
-                PROPP(1:MAXC) = PROPPSPEC(1:MAXC,ISPEC)
-                ABSRP(1:MAXLAY,1:3) = ABSRPSPEC(1:MAXLAY,1:3,ISPEC)
-                ARHO(1:MAXLAY,1:3) = ARHOSPEC(1:MAXLAY,1:3,ISPEC)
-                ATAU(1:MAXLAY,1:3) = ATAUSPEC(1:MAXLAY,1:3,ISPEC)
-                RHOSOL(1:3) = RHOSOLSPEC(1:3,ISPEC)
-                JMAXTABLE(1:maxdate,1:MAXLAY,1:MAXC) = JMAXTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)
-                DATESJ(1:maxdate) = DATESJSPEC(1:maxdate,ISPEC)
-                NOJDATES = NOJDATESSPEC(ISPEC)
-                IECO = IECOSPEC(ISPEC)
-                EAVJ = EAVJSPEC(ISPEC)
-                EDVJ = EDVJSPEC(ISPEC)
-                DELSJ = DELSJSPEC(ISPEC)
-                THETA = THETASPEC(ISPEC)
-                VCMAXTABLE(1:maxdate,1:MAXLAY,1:MAXC) = VCMAXTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)
-                DATESV(1:maxdate) =  DATESVSPEC(1:maxdate,ISPEC)
-                NOVDATES = NOVDATESSPEC(ISPEC)
-                EAVC = EAVCSPEC(ISPEC)
-                EDVC = EDVCSPEC(ISPEC)
-                DELSC = DELSCSPEC(ISPEC)
-                TVJUP = TVJUPSPEC(ISPEC)
-                TVJDN = TVJDNSPEC(ISPEC)
+                PROPP(1:MAXC) = PROPPSPEC(1:MAXC,ISPEC)    
+                ABSRP(1:MAXLAY,1:3) = ABSRPSPEC(1:MAXLAY,1:3,ISPEC)  
+                ARHO(1:MAXLAY,1:3) = ARHOSPEC(1:MAXLAY,1:3,ISPEC)      
+                ATAU(1:MAXLAY,1:3) = ATAUSPEC(1:MAXLAY,1:3,ISPEC)       
+                RHOSOL(1:3) = RHOSOLSPEC(1:3,ISPEC)    
+                JMAXTABLE(1:maxdate,1:MAXLAY,1:MAXC) = JMAXTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC) 
+                DATESJ(1:maxdate) = DATESJSPEC(1:maxdate,ISPEC)       
+                NOJDATES = NOJDATESSPEC(ISPEC)     
+                IECO = IECOSPEC(ISPEC)         
+                EAVJ = EAVJSPEC(ISPEC)         
+                EDVJ = EDVJSPEC(ISPEC)         
+                DELSJ = DELSJSPEC(ISPEC)        
+                THETA = THETASPEC(ISPEC)        
+                VCMAXTABLE(1:maxdate,1:MAXLAY,1:MAXC) = VCMAXTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)   
+                DATESV(1:maxdate) =  DATESVSPEC(1:maxdate,ISPEC)         
+                NOVDATES = NOVDATESSPEC(ISPEC)     
+                EAVC = EAVCSPEC(ISPEC)         
+                EDVC = EDVCSPEC(ISPEC)         
+                DELSC = DELSCSPEC(ISPEC)        
+                TVJUP = TVJUPSPEC(ISPEC)        
+                TVJDN = TVJDNSPEC(ISPEC)        
                 SLATABLE(1:maxdate,1:MAXLAY,1:MAXC) = SLATABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)
-                DATESSLA(1:maxdate) =  DATESSLASPEC(1:maxdate,ISPEC)
-                NOSLADATES = NOSLADATESSPEC (ISPEC)
-                NOADATES = NOADATESSPEC(ISPEC)
-                DATESA(1:maxdate) =  DATESASPEC(1:maxdate,ISPEC)
-                AJQTABLE(1:maxdate,1:MAXLAY,1:MAXC) =  AJQTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)
-                RDTABLE(1:maxdate,1:MAXLAY,1:MAXC) =  RDTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)
-                DATESRD(1:maxdate) =  DATESRDSPEC(1:maxdate,ISPEC)
-                NORDATES = NORDATESSPEC(ISPEC)
-                RTEMP = RTEMPSPEC(ISPEC)
-                DAYRESP = DAYRESPSPEC(ISPEC)
-                TBELOW = TBELOWSPEC(ISPEC)
-                EFFYRW = EFFYRWSPEC(ISPEC)
-                RMW = RMWSPEC(ISPEC)
-                RTEMPW = RTEMPWSPEC(ISPEC)
-                COLLA = COLLASPEC(ISPEC)
-                COLLK = COLLKSPEC(ISPEC)
-                STEMSDW = STEMSDWSPEC(ISPEC)
-                RMWAREA = RMWAREASPEC(ISPEC)
-                STEMFORM = STEMFORMSPEC(ISPEC)
-                NOFQDATES = NOFQDATESSPEC(ISPEC)
-                DATESFQ(1:maxdate) =  DATESFQSPEC(1:maxdate,ISPEC)
-                Q10FTABLE(1:maxdate) =  Q10FTABLESPEC(1:maxdate,ISPEC)
-                K10F = K10FSPEC(ISPEC)
-                NOWQDATES = NOWQDATESSPEC(ISPEC)
-                DATESWQ = DATESWQSPEC(1:maxdate,ISPEC)
-                Q10WTABLE(1:maxdate) =  Q10WTABLESPEC(1:maxdate,ISPEC)
-                RMFR = RMFRSPEC(ISPEC)
-                RMCR = RMCRSPEC(ISPEC)
-                Q10R = Q10RSPEC(ISPEC)
-                RTEMPR = RTEMPRSPEC(ISPEC)
-                EFFYRF = EFFYRFSPEC(ISPEC)
-                RMB = RMBSPEC(ISPEC)
-                Q10B = Q10BSPEC(ISPEC)
-                RTEMPB = RTEMPBSPEC(ISPEC)
-                GSREF = GSREFSPEC(ISPEC)
-                GSMIN = GSMINSPEC(ISPEC)
-                PAR0 = PAR0SPEC(ISPEC)
-                D0 = D0SPEC(ISPEC)
-                VK1 = VK1SPEC(ISPEC)
-                VK2 = VK2SPEC(ISPEC)
-                VPD1 = VPD1SPEC(ISPEC)
-                VPD2 = VPD2SPEC(ISPEC)
-                VMFD0 = VMFD0SPEC(ISPEC)
-                GSJA = GSJASPEC(ISPEC)
-                GSJB = GSJBSPEC(ISPEC)
-                T0 = T0SPEC(ISPEC)
-                TREF = TREFSPEC(ISPEC)
-                TMAX = TMAXSPEC(ISPEC)
-                SMD1 = SMD1SPEC(ISPEC)
-                SMD2 = SMD2SPEC(ISPEC)
-                WC1 = WC1SPEC(ISPEC)
-                WC2 = WC2SPEC(ISPEC)
-                SWPEXP = SWPEXPSPEC(ISPEC)
-                G0TABLE = G0TABLESPEC(1:maxdate,ISPEC)
+                DATESSLA(1:maxdate) =  DATESSLASPEC(1:maxdate,ISPEC)       
+                NOSLADATES = NOSLADATESSPEC (ISPEC)  
+                NOADATES = NOADATESSPEC(ISPEC)   
+                DATESA(1:maxdate) =  DATESASPEC(1:maxdate,ISPEC)         
+                AJQTABLE(1:maxdate,1:MAXLAY,1:MAXC) =  AJQTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)     
+                RDTABLE(1:maxdate,1:MAXLAY,1:MAXC) =  RDTABLESPEC(1:maxdate,1:MAXLAY,1:MAXC,ISPEC)      
+                DATESRD(1:maxdate) =  DATESRDSPEC(1:maxdate,ISPEC)        
+                NORDATES = NORDATESSPEC(ISPEC)     
+                RTEMP = RTEMPSPEC(ISPEC)        
+                DAYRESP = DAYRESPSPEC(ISPEC)      
+                TBELOW = TBELOWSPEC(ISPEC)       
+                EFFYRW = EFFYRWSPEC(ISPEC)       
+                RMW = RMWSPEC(ISPEC)          
+                RTEMPW = RTEMPWSPEC(ISPEC)       
+                COLLA = COLLASPEC(ISPEC)        
+                COLLK = COLLKSPEC(ISPEC)        
+                STEMSDW = STEMSDWSPEC(ISPEC)      
+                RMWAREA = RMWAREASPEC(ISPEC)      
+                STEMFORM = STEMFORMSPEC(ISPEC)     
+                NOFQDATES = NOFQDATESSPEC(ISPEC)    
+                DATESFQ(1:maxdate) =  DATESFQSPEC(1:maxdate,ISPEC)        
+                Q10FTABLE(1:maxdate) =  Q10FTABLESPEC(1:maxdate,ISPEC) 
+                K10F = K10FSPEC(ISPEC)   
+                NOWQDATES = NOWQDATESSPEC(ISPEC)    
+                DATESWQ = DATESWQSPEC(1:maxdate,ISPEC)      
+                Q10WTABLE(1:maxdate) =  Q10WTABLESPEC(1:maxdate,ISPEC)    
+                RMFR = RMFRSPEC(ISPEC)         
+                RMCR = RMCRSPEC(ISPEC)         
+                Q10R = Q10RSPEC(ISPEC)         
+                RTEMPR = RTEMPRSPEC(ISPEC)       
+                EFFYRF = EFFYRFSPEC(ISPEC)       
+                RMB = RMBSPEC(ISPEC)          
+                Q10B = Q10BSPEC(ISPEC)         
+                RTEMPB = RTEMPBSPEC(ISPEC)      
+                GSREF = GSREFSPEC(ISPEC)        
+                GSMIN = GSMINSPEC(ISPEC)        
+                PAR0 = PAR0SPEC(ISPEC)         
+                D0 = D0SPEC(ISPEC)           
+                VK1 = VK1SPEC(ISPEC)         
+                VK2 = VK2SPEC(ISPEC)          
+                VPD1 = VPD1SPEC(ISPEC)         
+                VPD2 = VPD2SPEC(ISPEC)         
+                VMFD0 = VMFD0SPEC(ISPEC)        
+                GSJA = GSJASPEC(ISPEC)         
+                GSJB = GSJBSPEC(ISPEC)         
+                T0 = T0SPEC(ISPEC)           
+                TREF = TREFSPEC(ISPEC)        
+                TMAX = TMAXSPEC(ISPEC)         
+                SMD1 = SMD1SPEC(ISPEC)         
+                SMD2 = SMD2SPEC(ISPEC)        
+                WC1 = WC1SPEC(ISPEC)          
+                WC2 = WC2SPEC(ISPEC)          
+                SWPEXP = SWPEXPSPEC(ISPEC)       
+                G0TABLE = G0TABLESPEC(1:maxdate,ISPEC)           
                 G1TABLE = G1TABLESPEC(1:maxdate,ISPEC)
-                G02TABLE = G02TABLESPEC(1:maxdate,ISPEC)
+                G02TABLE = G02TABLESPEC(1:maxdate,ISPEC)           
                 G12TABLE = G12TABLESPEC(1:maxdate,ISPEC)
                 WLEAFTABLE = WLEAFTABLESPEC(1:maxdate,ISPEC)
                 GK = GKSPEC(ISPEC)
@@ -791,32 +791,32 @@ PROGRAM maespa
                 DATESWLEAF = DATESWLEAFSPEC(1:maxdate,ISPEC)
                 NOGSDATES= NOGSDATESSPEC(ISPEC)
                 NOWLEAFDATES= NOWLEAFDATESSPEC(ISPEC)
-                D0L = D0LSPEC(ISPEC)
-                GAMMA = GAMMASPEC(ISPEC)
+                D0L = D0LSPEC(ISPEC)          
+                GAMMA = GAMMASPEC(ISPEC)     
                 SF = SFSPEC(ISPEC)
-                PSIV = PSIVSPEC(ISPEC)
+                PSIV = PSIVSPEC(ISPEC)   
                 NSIDES = NSIDESSPEC(ISPEC)
-
-
+    
+                
                 ! If first timestep (but not first day of simulation), reset plant water store to yesterday's value
                 ! Need to be just after zerohrflux, because of canopy air T iteration
                 ! Note IDAY =0,1,..., but array index=1,2,...
                 IF(SIMSTORE.EQ.1.AND.IHOUR.EQ.1)THEN
-
+            
                     ! All days
                     IF(IDAY.NE.0)THEN
                         PLANTWATER(IDAY+1,ITAR) = PLANTWATER(IDAY, ITAR)
-
+                    
                     ! First day of simulation (calculate from input parameters)
-                    ELSE
+                    ELSE   
                         !   Plantwater/leafarea = storecoef * leafarea ** storeexp
                         !   Plantwater  (liters) = storecoef * leafarea ** (storeexp + 1)
                         PLANTWATER(1,ITAR) = STORECOEF * FOLTABLE1(1, ITREE) ** (STOREEXP + 1)
-
+                        
                     ENDIF
-
+                
                 ENDIF
-
+                                
                 ! Assign water balance and hydraulics.
                 MINLEAFWP = MINLEAFWPSPEC(ISPEC)
                 ! If multiple species but only one root distribution.
@@ -830,25 +830,25 @@ PROGRAM maespa
 !                ROOTLEN = ROOTLENSPEC(1:MAXSOILLAY,ISPEC)
                 ROOTMASS = ROOTMASSSPEC(1:MAXSOILLAY,ICHOOSE)
                 ROOTLEN = ROOTLENSPEC(1:MAXSOILLAY,ICHOOSE)
-
+                                
                 ! Sort the trees every timestep.
                 DXT(1:NOTREES) = DXT1(ITAD(1:NOTREES, ITAR))
                 DYT(1:NOTREES) = DYT1(ITAD(1:NOTREES, ITAR))
                 DZT(1:NOTREES) = DZT1(ITAD(1:NOTREES, ITAR))
-
+                
                 RXTABLE(1:MAXDATE, 1:NOTREES) = RXTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 RYTABLE(1:MAXDATE, 1:NOTREES) = RYTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 RZTABLE(1:MAXDATE, 1:NOTREES) = RZTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
-
+                
                 FOLTABLE(1:MAXDATE, 1:NOTREES) = FOLTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 ZBCTABLE(1:MAXDATE, 1:NOTREES) = ZBCTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
                 DIAMTABLE(1:MAXDATE, 1:NOTREES) = DIAMTABLE1(1:MAXDATE, ITAD(1:NOTREES, ITAR))
-
+                
                 ISPECIEST(1:NOTREES) = ISPECIES(ITAD(1:NOTREES, ITAR))
-
+                
                 ! Index of sorted trees needed by SCALEUP
                 IT(1:NOTREES) = ITAD(1:NOTREES, ITAR)
-
+                
                 DO I = 1,NOTREES
                     JSHAPET(I) = JSHAPESPEC(ISPECIEST(I))
                     SHAPET(I) = SHAPESPEC(ISPECIEST(I))
@@ -859,7 +859,7 @@ PROGRAM maespa
                     PROPPT(1:MAXC,I) = PROPPSPEC(1:MAXC,ISPECIEST(I))
                     PROPCT(1:MAXC,I) = PROPCSPEC(1:MAXC,ISPECIEST(I))
                 END DO
-
+                
                 ! Interpolate to get daily values of parameters
                 ! This we can probably also do outside the hourly loop.
                 CALL INTERPOLATEP(IDAY,ISTART,NOJDATES,DATESJ,JMAXTABLE,NOVDATES,DATESV,VCMAXTABLE,NORDATES,&
@@ -867,41 +867,41 @@ PROGRAM maespa
                                     NOFQDATES,DATESFQ,Q10FTABLE,NOWQDATES,DATESWQ,Q10WTABLE,NOLAY,NOAGEP,   &
                                     JMAX25,VCMAX25,RD0,SLA,AJQ,Q10F,Q10W,NOGSDATES,DATESGS,G0TABLE,G1TABLE, &
                                     G0,G1,NOWLEAFDATES,DATESWLEAF,WLEAFTABLE,WLEAF,G02TABLE,G12TABLE,G02,G12)
-
+                
                 CALL INTERPOLATET(IDAY,ISTART,IHOUR,NOXDATES,DATESX,RXTABLE,NOYDATES,DATESY,RYTABLE,NOZDATES,   &
                                     DATESZ,RZTABLE,NOTDATES,DATEST,ZBCTABLE,NODDATES,DATESD,DIAMTABLE,          &
                                     NOLADATES,DATESLA,FOLTABLE,TOTLAITABLE,NOTREES,RX,RY,RZ,ZBC,FOLT,           &
                                     TOTLAI,DIAM,STOCKING,IFLUSH,DT1,DT2,DT3,DT4,EXPTIME,APP,EXPAN,NEWCANOPY,    &
                                     CANOPYDIMS)
-
+            
                 CALL POINTSNEW(NOLAY,PPLAY,JLEAF,JSHAPE,SHAPE,RX(1),RY(1),RZ(1),ZBC(1),DXT(1),DYT(1), &
                                 DZT(1),FOLT(1),PROPC,PROPP,BPT,NOAGECT(1),NOAGEP,XL,YL,ZL,VL,DLT,DLI, &
-                                LGP,FOLLAY)
-
-                ! Following functions need FOLLAY.
+                                LGP,FOLLAY)          
+                
+                ! Following functions need FOLLAY. 
                 CALL GETWINDNEW(ZL,ZBC,RZ,LGP,PPLAY*NOLAY,NOALLTREES,ZHT,WINDLAY)
-
+                
                 ! Calculate woody biomass and woody biomass increment
                 CALL CALCWBIOM(IDAY,RZ(1)+ZBC(1),DIAM(1),COEFFT,EXPONT,WINTERC,WBIOM,WBINC)
                 CALL CALCWBIOM(IDAY,RZ(1)+ZBC(1),DIAM(1),BCOEFFT,BEXPONT,BINTERC,BBIOM,BBINC)
                 CALL CALCWBIOM(IDAY,RZ(1)+ZBC(1),DIAM(1),RCOEFFT,REXPONT,RINTERC,RBIOM,RBINC)
-
+                
                 ! Calculate foliar biomass and increment
                 CALL CALCFBIOM(IDAY,NOSLADATES,FOLLAY,SLA,PROPP,NOLAY,NOAGEP,FBIOM,FBINC)
-
+                
                 ! Calculate stem respiration rate per unit biomas
                 RMW = CALCRMW(MODELRW,COLLA,COLLK,STEMSDW,DIAM(1),RZ(1)+ZBC(1),STEMFORM,RMWAREA,WBIOM,RMW)
 
                 ! Output information to layer flux file if required
                 IF (IOHRLY.GT.1) CALL OUTPUTLAY(ULAY,FOLLAY,JMAX25,VCMAX25,NOLAY)
-
+                   
                 ! If the diffuse transmittances have changed, must set up the EHC
                 IF (NEWTUTD.EQ.1.AND.TOTLAI.GT.0) THEN
                     CALL EHC(NUMPNT,TU,TD,TOTLAI,XSLOPE,YSLOPE,NAZ,NZEN,NECHLAY,DIFZEN,DEXT,DLAI,EXPDIF,LAYER,MLAYER)
                 END IF
-
+                
                 IF(ISMAESPA)THEN
-
+                    
                     ! Assign soil water measurement to SOILMOIST, depending on settings.
                     CALL ASSIGNSOILWATER(WSOILMETHOD,USEMEASSW,SWMIN,SWMAX,SOILMOIST(IHOUR), WSOILROOT, &
                                             SOILDEPTH,SOILDATA, SOILMOISTURE)
@@ -914,7 +914,7 @@ PROGRAM maespa
                                         WEIGHTEDSWP,TOTESTEVAP, &
                                         FRACUPTAKESPEC(1:MAXSOILLAY, ISPEC),TOTSOILRES,ALPHARET,WS,WR,NRET,  &
 										ZBC,RZ,ZPD, NOTREES,EXTWIND,IWATTABLAYER,ISIMWATTAB)
-
+                                        
                     ! Soil surface T for SCATTER routine:
                     IF(SIMTSOIL.EQ.0)THEN  ! No Tsoil simulated.
                         PREVTSOIL = TK(TSOIL(IHOUR))
@@ -931,13 +931,13 @@ PROGRAM maespa
                 ELSE
                     WEIGHTEDSWP = 0
                 ENDIF
-
+                
 
                 ! Test to see if daylight hours or if any foliage
                 IF ((ABS(ZEN(IHOUR)) <  PI/2.0 ) .AND. (RADABV(IHOUR,1) > 1.0) .AND. (FOLT(1) > 0.0)) THEN
-
+                    
                     ISNIGHT = .FALSE.
-
+                    
                     ! Get slope correction factor
                     CALL SLOPES(IHOUR,TTIMD,EQNTIM,ALAT,DEC,XSLOPE,YSLOPE,BEAR,ZEN(IHOUR),BMULT,DMULT2,SOMULT)
 
@@ -945,7 +945,7 @@ PROGRAM maespa
                     DO I=1,NSPECIES
                         CALL EXDIFF(NALPHASPEC(I),ALPHASPEC(1:MAXANG,I),FALPHASPEC(1:MAXANG,I),NZEN,DIFZEN,&
                                     RANDOMSPEC(I),DEXTSPEC(I,1:MAXANG))
-
+  
                         CALL EXBEAM(NALPHASPEC(I),ALPHASPEC(1:MAXANG,I),FALPHASPEC(1:MAXANG,I),RANDOMSPEC(I),&
                                     ZEN(IHOUR),BEXTSPEC(I),BEXTANGSPEC(I,1:MAXANG))
                     END DO
@@ -971,93 +971,93 @@ PROGRAM maespa
                             CALL TRANSB(IHOUR,IPROGUS,ZEN(IHOUR),AZ(IHOUR),XSLOPE,YSLOPE,FBEAM,BEXTTUS,XLU(IPTUS),  &
                                         YLU(IPTUS),ZLU(IPTUS),RXUS,RYUS,RZUS,DXTUS,DYTUS,DZTUS,XMAX,YMAX,SHADEHT,   &
                                         FOLTUS,ZBCUS,JLEAFTUS,BPTTUS,NOAGECTUS,PROPCTUS,JSHAPETUS,SHAPETUS,NOTREES, &
-                                        SUNLA,BEXTUS,BEXTANGTUS,BEXTANGUS)
-
+                                        SUNLA,BEXTUS,BEXTANGTUS,BEXTANGUS)  
+            
                             ! Output transmittances (Note IWAVE=1 only).
                             PAR = RADABV(IHOUR,1)
-
+               
                             TDIFF = (1-FBEAM(IHOUR,1))*PAR*TDUS(IPTUS)
                             TSCAT = 0 !DIFDN(IPTUS,1)*UMOLPERJ
-
+                  
                             ! Recalculate sunlit leaf area (TRANSB returns it but that is at a point just above the understorey,
                             ! not sunlit leaf area for the understorey canopy (since IPROG=ITEST).
                             ! From Campbell&Norman (2000, p. 259)
                             SUNLA = (1 - EXP(-EXTKUS*USLAI(IPTUS)))/EXTKUS
-
+                                  
                             ! PAR at all understorey points, diffuse, direct, and total.
                             UIBEAM(IHOUR,IPTUS) = FBEAM(IHOUR,1)*PAR*SUNLA
                             UIDIFF(IHOUR,IPTUS) = TDIFF + TSCAT
                             PARUS(IHOUR,IPTUS) = UIDIFF(IHOUR,IPTUS) + UIBEAM(IHOUR,IPTUS)
-
+                            
                             ! Global radiation to understorey points
                             !NIRUS(IHOUR,IPTUS) = FBEAM(IHOUR,1)*RADABV(IHOUR,1)*SUNLA
-
-
+               
+               
                             ! Get parameters of BEWDY model
                             CALL BEWDYPARMS(IHOUR,TAIR(IHOUR),RH(IHOUR),CA(IHOUR),JMAXN25,IECOU,EAVJU,EDVJU,DELSJU, &
                                             TVJUPU,TVJDNU,VCMAXN25,EAVCU,EDVCU,DELSCU,AJQU,GSBG0U,GSBG1U,CICARAT,   &
                                             BALPHA,BLAMBDA)
-
+              
                             IF (MOSS.EQ.1) THEN
                                 CALL PSMOSS(UMOLPERJ*PARUS(IHOUR,IPTUS),TAIR(IHOUR),RH(IHOUR),CA(IHOUR),JMAX25M,IECOU,  &
                                             EAVJU,EDVJU,DELSJU,TVJUPU,TVJDNU,VCMAX25M,EAVCU,EDVCU,DELSCU,AJQU,THETAM,   &
                                             PSUS(IHOUR,IPTUS))
                                 GSIPT = 0.0
                                 ETUS = 0.0
-
+                                
                             ELSE
-
+                                
                                 ! Otherwise call BEWDY model to calculate understorey photosynthesis
                                 !! Note UIBEAM is divided by SUNLA, gets back-converted in BEWDY subr.
                                 IF(SUNLA.GT.0.0) THEN
                                     BEAMP = UMOLPERJ*UIBEAM(IHOUR,IPTUS)/SUNLA
-                                ELSE
+                                ELSE    
                                     BEAMP = 0.0
                                 ENDIF
-
+                                
                                 IF(C4FRAC.LT.1.0)THEN
                                     CALL BEWDY(IHOUR,BEAMP,UMOLPERJ*UIDIFF(IHOUR,IPTUS),SUNLA,BALPHA,BLAMBDA,FN0US(IPTUS),  &
                                             UNMIN,EXTKUS,ABSRPU,USLAI(IPTUS), APARUS(IHOUR,IPTUS),PSC3,                 &
                                             PARUNDER(IHOUR,IPTUS))
-
+                                    
                                     ! Stomatal conductance and transpiration - estimated at whole-clump level, mol CO2 m-2 s-1
                                     IF(GSBG1U.GT.0.0)THEN
-                                        GSIPT = GSBG0U + GSBG1U* PSC3 * RH(IHOUR)/CA(IHOUR)
+                                        GSIPT = GSBG0U + GSBG1U* PSC3 * RH(IHOUR)/CA(IHOUR) 
                                     ELSE
                                         GSIPT = PSC3/(CA(IHOUR) - CICARAT*CA(IHOUR))
                                     ENDIF
-
+                                
                                     ! mmol H2O m-2 s-1
                                     ETC3 = GSIPT*GSVGSC*VPD(IHOUR)/PRESS(IHOUR)*1E3
-
+                                    
                                 ELSE
                                     PSC3 = 0.0
                                     ETC3 = 0.0
                                 ENDIF
-
-                                !
+                                
+                                ! 
                                 IF(C4FRAC.GT.0.0)THEN
                                     CALL COLLATZC4(VCMAXC4, TAIR(IHOUR), TVJUPC4, TVJDNC4, DELSCC4, EAVCC4, EDVCC4,    &
                                                UIDIFF(IHOUR,IPTUS), SUNLA, BEAMP, ABSRPU, EXTKUS, USLAI(IPTUS),        &
                                                CICAC4,CA(IHOUR), APARUS(IHOUR,IPTUS), PSC4, GSC4)
-
+                                    
                                     ! mmol H2O m-2 s-1
                                     ETC4 = GSC4*GSVGSC*VPD(IHOUR)/PRESS(IHOUR)*1E3
                                 ELSE
                                     PSC4 = 0.0
                                     ETC4 = 0.0
                                 ENDIF
-
+                                
                                 ! Net photosynthesis
                                 PSUS(IHOUR,IPTUS) = C4FRAC*PSC4 + (1.0 - C4FRAC)*PSC3 - RD0US
-
+                                
                                 ! Transpiration
                                 ETUS(IHOUR,IPTUS) = C4FRAC*ETC4 + (1.0 - C4FRAC)*ETC3
                                 IF(ETUS(IHOUR,IPTUS) .LT. 0)THEN
                                     CALL SUBERROR('UNDERSTOREY ET LESS THAN ZERO - LIKELY INPUT PROBLEMS',IWARN,-1)
                                 ENDIF
-
-
+                                
+                                
                                 ! Bewdy outputs in mu mol, convert to W m-2
                                 APARUS(IHOUR,IPTUS) = APARUS(IHOUR,IPTUS) / UMOLPERJ
                                 PARUNDER(IHOUR,IPTUS) = PARUNDER(IHOUR,IPTUS) / UMOLPERJ
@@ -1065,16 +1065,16 @@ PROGRAM maespa
 
                             END IF
                         END DO ! Loop over understorey points.
-
+              
                         ! Sum understorey arrays over all points:
                         CALL SUMHRUS(IHOUR,NOUSPOINTS,GRDAREAI,AREAUS,PARUS,PARUSMEAN,PARUSSD,APARUS,PSUS,ETUS,THRABUS,&
                                     FCO2US,FH2OUS)
                     ENDIF ! Understorey calculations
-
+                    
                     ! Output PAR transmittance for test points.
-                    IF(IPOINTS.EQ.1)THEN
+                    IF(IPOINTS.EQ.1)THEN      
                         DO IPTEST = 1,NUMTESTPNT
-
+          
                         IPROGCUR = ITEST
 
                         DO I=1,NOTREESTEST
@@ -1108,22 +1108,22 @@ PROGRAM maespa
                                 ABSRP(1,IWAVE),DIFDN(IPTEST,IWAVE), &
                                 DIFUP(IPTEST,IWAVE), &
                                 DFLUX,BFLUX,SCATFX,DEXTT,TLEAFTABLE)
-
+                        
                         ! Output transmittances
                         PAR = RADABV(IHOUR,1)*UMOLPERJ
                         TBEAM = FBEAM(IHOUR,IWAVE)*PAR*SUNLAP
                         TDIFF = (1-FBEAM(IHOUR,IWAVE))*PAR*TDP(IPTEST)
                         TSCAT = DIFDN(IPTEST,IWAVE)
                         TTOT = TBEAM + TDIFF + TSCAT
-
+      
                         WRITE (UPOINTSO,501) IDAY,IHOUR,IPTEST,XLP(IPTEST),YLP(IPTEST),ZLP(IPTEST), &
                             PAR,FBEAM(IHOUR,1),TDP(IPTEST),TSCAT,TBEAM,TDIFF,TTOT
 501                         FORMAT(3(I5,1X),12(F12.5,1X))
-
-                        ENDDO
-                    ENDIF  !MAESTEST
-
-
+                            
+                        ENDDO  
+                    ENDIF  !MAESTEST          
+   
+                    
                     ! Loop over grid points
                     DO IPT = 1,NUMPNT
                         ! Calculate the weighted pathlengths for beam radiation.
@@ -1132,11 +1132,11 @@ PROGRAM maespa
                                     SHAPET,NOTREES,SUNLA,BEXT,BEXTANGT,BEXTANG)
                         ! Assign plant hydraulic conductance
                         !PLANTK = PLANTKCR(ITAR,IPT)
-
+                        
 
                         ! Loop over the 3 wavelengths
                         DO IWAVE = 1,3
-
+                            
                             ! Calculate the scattered radiation
                             CALL SCATTER(IPT,ITAR,IWAVE,MLAYER(IPT),LAYER(IPT),DLAI,EXPDIF,ZEN(IHOUR),BEXT,DMULT2,SOMULT,BMULT,&
                                             RADABV(IHOUR,IWAVE),FBEAM(IHOUR,IWAVE),TAIR(IHOUR),TSOILSURFACE,ARHO(LGP(IPT),IWAVE),& !glm PREVTSOIL
@@ -1146,7 +1146,7 @@ PROGRAM maespa
                             ! Lost scattered radiation for each tree (W m-2), averaged over the grid points.
                             SCLOSTTREE(ITAR,1) = SUM(SCLOST(1:NUMPNT,1)) / NUMPNT
                             SCLOSTTREE(ITAR,2) = SUM(SCLOST(1:NUMPNT,2)) / NUMPNT
-
+                            
                             ! Assume zero reflectance in TR waveband (Norman 1979)
                             ! But store in the same array the lost tranmission at top of canopy.
                             SCLOSTTREE(ITAR,3) = SUM(SCLOST(1:NUMPNT,3)) / NUMPNT
@@ -1156,24 +1156,24 @@ PROGRAM maespa
                             IF(IWAVE.EQ.3) THEN
                                 DOWNTHTREE(ITAR) = SUM(DOWNTH) / NUMPNT
                             END IF
-
+                  
                             ! Calculate absorbed radiation
                             CALL ABSRAD(ITAR,IPT,IWAVE,NZEN,DEXT,BEXT,BMULT,RELDF(IPT),RADABV(IHOUR,IWAVE),&
                                         FBEAM(IHOUR,IWAVE),ZEN(IHOUR),ABSRP(LGP(IPT),IWAVE),DIFDN(IPT,IWAVE),&
                                         DIFUP(IPT,IWAVE),DFLUX,BFLUX,SCATFX,DEXTT,TLEAFTABLE)
 
                         END DO
-
+                        
                         ! Calculation of photosynthesis may be done for sunlit & shaded leaves
                         ! separately, or by averaging PAR over the total leaf area
-                        IF ((MODELSS.EQ.0).AND.(FBEAM(IHOUR,1).NE.0.0)) THEN
+                        IF ((MODELSS.EQ.0).AND.(FBEAM(IHOUR,1).NE.0.0)) THEN 
 
                             ! Voxel output initialisation. Christina Mathias July 2014
                             CALL ZEROIPTTABLE(TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, &
                                               ETTABLE, HTABLE, GSCTABLE, PSILTABLE, AREATOT, ITAR,IPT, &
                                               EVTABLE) !glm canopy evap
-
-
+                            
+                            
                             !Calculation total leaf area of the voxel, to use in SUMIPT
                             DO ISUNLIT = 1,2
                                 IF (ISUNLIT.EQ.1) THEN
@@ -1187,7 +1187,7 @@ PROGRAM maespa
                                 ENDDO
                             ENDDO
 
-
+                            
                             ! Do calculations separately for sunlit & shaded leaves
                             DO ISUNLIT = 1,2 ! Loop over sunlit & shaded leaves
 
@@ -1207,12 +1207,12 @@ PROGRAM maespa
                                 DO IAGE = 1,NOAGEP ! Loop over age classes
                                     AREA = FAREA * DLI(IAGE,IPT) * VL(IPT) ! m2
                                     IF (IOHIST.EQ.1) CALL CATEGO(AREA,APAR,HISTO,BINSIZE,ITAR)
-
+                                    
                                     ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
                                     ! in fact AREATOT still unknown
                                     GROUNDAREA = XMAX*COS(XSLOPE)*YMAX*COS(YSLOPE)
                                     CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*GROUNDAREA) ! glm canopy evap
-
+                                    
                                     ! Call physiology routine
                                     CALL PSTRANSPIF(IDAY,IHOUR,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
                                                     WINDAH(IHOUR)*WINDLAY(LGP(IPT)), APAR, &
@@ -1226,8 +1226,8 @@ PROGRAM maespa
                                                     MINLEAFWP,WEIGHTEDSWP,KTOT,     &
                                                     HMSHAPE,PSIL,ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET, &
                                                     EV,drycan,CANOPY_STORE_I) ! glm canopy evap
-
-
+                                    
+                                                                      
                                     ! Filling voxel table
                                     CALL SUMIPT (TLEAF,APAR,ANIR,ATHR,ET,HFX,GSC,PSIL, &
                                                  TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, ETTABLE, &
@@ -1242,16 +1242,16 @@ PROGRAM maespa
                                                 GSCAN,GBHCAN,FH2O,ETCANDEFICIT,  &
                                                 FHEAT,TCAN,FSOIL1,PSILCAN,PSILCANMIN,CICAN,ECANMAX,ACANMAX,FOLT(1), &
                                                 EV,FH2OEV) !glm canopy evap
-
+                                                                        
                                 END DO
                             END DO ! End loop over sunlit / shaded leaves
-                        ELSE IF ((MODELSS.EQ.1).OR.(FBEAM(IHOUR,1).EQ.0.0)) THEN
-
-                            ! Voxel output initialisation.
+                        ELSE IF ((MODELSS.EQ.1).OR.(FBEAM(IHOUR,1).EQ.0.0)) THEN 
+                            
+                            ! Voxel output initialisation. 
                             CALL ZEROIPTTABLE(TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, &
                                               ETTABLE, HTABLE, GSCTABLE, PSILTABLE, AREATOT,ITAR,IPT, &
                                               EVTABLE) !glm canopy evap
-
+                            
                             ! Do calculations for PAR averaged over all leaf area
                             APAR = (BFLUX(IPT,1)*BEXTT(1)*SUNLA + DFLUX(IPT,1))*UMOLPERJ
                             ANIR = BFLUX(IPT,2)*BEXTT(1)*SUNLA + DFLUX(IPT,2)
@@ -1267,7 +1267,7 @@ PROGRAM maespa
                             DO IAGE = 1,NOAGEP ! Loop over age classes
                                 AREA = DLI(IAGE,IPT) * VL(IPT)
                                 IF (IOHIST.EQ.1) CALL CATEGO(AREA,APAR,HISTO,BINSIZE,ITAR)
-
+                                
                                 ! Call physiology routine
                                 CALL PSTRANSPIF(iday,ihour,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
                                                 WINDAH(IHOUR)*WINDLAY(LGP(IPT)),  &
@@ -1282,15 +1282,15 @@ PROGRAM maespa
                                                 VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,HFX,TLEAF,           &
                                                 GBH,PLANTK,TOTSOILRES,MINLEAFWP,WEIGHTEDSWP,KTOT,HMSHAPE,PSIL,  &
                                                 ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET,           &
-                                                EV,drycan,CANOPY_STORE_I) !glm canopy evap
+                                                EV,drycan,CANOPY_STORE_I) !glm canopy evap                                       
 
-
+   
                                 ! Filling voxel table
                                 CALL SUMIPT (TLEAF,APAR,ANIR,ATHR,ET,HFX,GSC,PSIL,                              &
                                              TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, ETTABLE,              &
                                              HTABLE, GSCTABLE, PSILTABLE, AREA, AREATOT,ITAR,IPT,TAIR(IHOUR),   &
                                              EV,EVTABLE) !glm canopy evap
-
+                                
                                 ! Sum outputs for the hour
                                 CALL SUMHR(APAR/UMOLPERJ,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,     &
                                             FSOIL,PSIL,CI,AREA,IHOUR,LGP(IPT),ITAR,                             &
@@ -1298,12 +1298,12 @@ PROGRAM maespa
                                             GSCAN,GBHCAN,FH2O,ETCANDEFICIT,                                     &
                                             FHEAT,TCAN,FSOIL1,PSILCAN,PSILCANMIN,CICAN,ECANMAX,ACANMAX,FOLT(1), &
                                             EV,FH2OEV) !glm canopy evap
-
+                     
                             END DO ! End loop over age classes
-
-                        ELSE IF ((MODELSS.EQ.2).AND.(FBEAM(IHOUR,1).NE.0.0)) THEN
-
-                            ! Voxel output initialisation.
+ 
+                        ELSE IF ((MODELSS.EQ.2).AND.(FBEAM(IHOUR,1).NE.0.0)) THEN 
+                            
+                            ! Voxel output initialisation. 
                             CALL ZEROIPTTABLE(TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, &
                                               ETTABLE, HTABLE, GSCTABLE, PSILTABLE, AREATOT,ITAR,IPT, &
                                               EVTABLE) !glm canopy evap
@@ -1315,14 +1315,14 @@ PROGRAM maespa
                                 ELSE
                                     FAREA = SUNLA*FALPHA(ISUNLIT)
                                 ENDIF
-
+                                    
                                 DO IAGE = 1,NOAGEP
                                     AREA = FAREA * DLI(IAGE,IPT) * VL(IPT) ! m2
                                     AREATOT = AREATOT + AREA
                                 ENDDO
                             ENDDO
 
-
+                            
                             ! Do calculations separately for sunlit & shaded. Further separate sunlit
                             ! into leaf angle classes.
                             DO ISUNLIT = 1,NALPHA+1
@@ -1345,7 +1345,7 @@ PROGRAM maespa
 
                                         ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
                                         CANOPY_STORE_I=CANOPY_STORE*AREA/AREATOT !glm canopy evap
-
+                                        
                                         ! Call physiology routine
                                         CALL PSTRANSPIF(iday,ihour,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
                                                         WINDAH(IHOUR)*WINDLAY(LGP(IPT)),  &
@@ -1367,14 +1367,14 @@ PROGRAM maespa
                                                      TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, ETTABLE,              &
                                                      HTABLE, GSCTABLE, PSILTABLE, AREA, AREATOT,ITAR,IPT,TAIR(IHOUR),   &
                                                      EV,EVTABLE)   !glm canopy evap
-
+                                                     
                                         ! Sum outputs for the hour
                                         CALL SUMHR(APAR/UMOLPERJ,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,     &
                                                     FSOIL,PSIL,CI,AREA,IHOUR,LGP(IPT),ITAR,NOTARGETS,NUMPNT,NSUMMED,    &
                                                     TOTTMP, PPAR,PPS,PTRANSP,THRAB,FCO2,FRESPF,GSCAN,GBHCAN,FH2O,       &
                                                     ETCANDEFICIT,FHEAT,TCAN,FSOIL1,PSILCAN,PSILCANMIN,CICAN,ECANMAX,    &
                                                     ACANMAX,FOLT(1),EV,FH2OEV) !glm canopy evap
-
+                                        
                                 END DO
                             END DO ! End loop over sunlit / shaded leaves
                         END IF ! Separating sunlit & shaded foliage, or not
@@ -1386,23 +1386,23 @@ PROGRAM maespa
                                   ABSRP(LGP(IPT),1),ABSRP(LGP(IPT),2),ABSRP(LGP(IPT),3),BFLUX(IPT,1), DFLUX(IPT,1),     &
                                   BFLUX(IPT,2),DFLUX(IPT,2),DFLUX(IPT,3),SCLOST(IPT,1),SCLOST(IPT,2),SCLOST(IPT,3),     &
                                   DOWNTH(IPT),RADABV(IHOUR,1),RADABV(IHOUR,2),RADABV(IHOUR,3)
-
+                                    
                          ENDIF
 11221      FORMAT(4(1X,I4), 7(1X,F12.3), 13(1X,F12.3))
-
+                    
                     END DO ! End loop over grid points
-
+                    
                     ! Calculate transpiration by applying Penman-Monteith to canopy
                     FH2OCAN(ITAR,IHOUR) = ETCAN(WINDAH(IHOUR),ZHT,Z0HT,ZPD,PRESS(IHOUR),TAIR(IHOUR),    &
                                             THRAB(ITAR,IHOUR,1)+THRAB(ITAR,IHOUR,2)+THRAB(ITAR,IHOUR,3),&
                                             VPD(IHOUR),GSCAN(ITAR,IHOUR),STOCKING,TREEH,TOTLAI)
-
-
+            
+                    
                 ELSE ! Night-time
-
+    
                     ISNIGHT = .TRUE.
-
-                    ! Loop over grid points
+                    
+                    ! Loop over grid points 
                     DO IPT = 1,NUMPNT
 
                         ! Calculate the scattered radiation, for thermal only.
@@ -1412,15 +1412,15 @@ PROGRAM maespa
                                         ATAU(LGP(IPT),3),RHOSOL(3),DIFUP,                                   &
                                         DIFDN,SCLOST,DOWNTH,TCAN2,TLEAFTABLE,                               &
                                         EMSKY(IHOUR),NUMPNT,TOTLAI,FOLLAY,FOLT(1),LGP)
-
+                  
                         ! Lost scattered radiation for each tree (W m-2), averaged over the grid points.
                         SCLOSTTREE(ITAR,1) = 0.0 !glm night time !SUM(SCLOST(1:NUMPNT,1)) / NUMPNT
                         SCLOSTTREE(ITAR,2) = 0.0 !glm night time !SUM(SCLOST(1:NUMPNT,2)) / NUMPNT
                         SCLOSTTREE(ITAR,3) = SUM(SCLOST(1:NUMPNT,3)) / NUMPNT
-
+                        
                         ! Downward thermal flux, averaged across grid points in this tree:
                         DOWNTHTREE(ITAR) = SUM(DOWNTH) / NUMPNT
-
+                        
                         ! Calculate absorbed radiation
                         CALL ABSRAD(ITAR,IPT,3,NZEN,DEXT,BEXT,BMULT,RELDF(IPT),RADABV(IHOUR,3),            &
                                     FBEAM(IHOUR,3),ZEN(IHOUR),ABSRP(LGP(IPT),3),DIFDN(IPT,3),              &
@@ -1430,24 +1430,24 @@ PROGRAM maespa
                         CALL ZEROIPTTABLE(TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, ETTABLE, HTABLE,    &
                                             GSCTABLE, PSILTABLE, AREATOT,ITAR,IPT,EVTABLE) !glm canopy evap
 
-
+                        
                         ! Absorbed thermal radiation
                         ATHR = DFLUX(IPT,3)
                         RNET = ATHR
-
+                        
                         !Calculation total leaf area of the voxel, to use in SUMIPT
                             DO IAGE = 1,NOAGEP
                                 AREA = DLI(IAGE,IPT) * VL(IPT) ! m2
                                 AREATOT = AREATOT + AREA
                             ENDDO
-
+              
                         DO IAGE = 1,NOAGEP ! Loop over age classes
                             AREA = DLI(IAGE,IPT) * VL(IPT) ! m2
                             APAR = 0.0
-
+                            
                             ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
                             CANOPY_STORE_I=CANOPY_STORE*AREA/AREATOT !glm canopy evap
-
+                                
                             ! Night-time call to PSTRANSP (most parameters not used but passed for consistency).
                             ! Note : DAYRESP set to 1.0.
                             CALL PSTRANSPIF(IDAY,IHOUR,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
@@ -1460,11 +1460,11 @@ PROGRAM maespa
                                                 WSOILMETHOD,EMAXLEAF,SOILMOISTURE,SMD1,SMD2,WC1,WC2,            &
                                                 SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,   &
                                                 WLEAF,NSIDES,VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,  &
-                                                RD,ET,HFX,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP, WEIGHTEDSWP,   &
+                                                RD,ET,HFX,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,WEIGHTEDSWP,    &
                                                 KTOT,HMSHAPE,PSIL,ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,  &
                                                 NEWTUZET,EV,drycan,CANOPY_STORE_I) !glm canopy evap
-
-
+                                                                    
+                            
                             ! Filling voxel table
                             CALL SUMIPT (TLEAF,APAR,ANIR,ATHR,ET,HFX,GSC,PSIL, &
                                          TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, ETTABLE, &
@@ -1480,25 +1480,25 @@ PROGRAM maespa
                                             EV,FH2OEV) !glm canopy evap
 
                         END DO ! End loop over age classes.
-
+                    
                     ! And ci the same as ca
                     CICAN(ITAR,IHOUR) = CA(IHOUR)
-
+                    
                     END DO ! Loop over gridpoints (nighttime).
-
-
+                    
+                    
                     ! Calculate night-time foliage respiration
                     DO IPT = 1,NUMPNT
                         DO IAGE = 1,NOAGEP
                             AREA = DLI(IAGE,IPT) * VL(IPT)
                             RESPF = AREA * RESP(RD0(LGP(IPT),IAGE),RD0ACC,TAIR(IHOUR),TMOVE,Q10F,K10F,RTEMP,1.0,TBELOW)
                             FCO2(ITAR,IHOUR) = FCO2(ITAR,IHOUR) - RESPF
-                            FRESPF(ITAR,IHOUR) = FRESPF(ITAR,IHOUR) + RESPF
+                            FRESPF(ITAR,IHOUR) = FRESPF(ITAR,IHOUR) + RESPF 
                         END DO
                     END DO
-
+                    
                 END IF ! If day or night
-
+               
                 ! No good (does not run for Tumbarumba, and has not been updated since looping order change).
                 ! Calculate non-foliage maintenance respiration (in umol tree-1 s-1)
                 FRESPW(ITAR,IHOUR) = RESP(RMW,RMW,TAIR(IHOUR),TAIR(IHOUR), &
@@ -1510,34 +1510,34 @@ PROGRAM maespa
                 FRESPCR(ITAR,IHOUR) = RESP(RMCR,RMCR,TSOIL(IHOUR),TAIR(IHOUR), &
                                         Q10R,0.0,RTEMPR,1.0,TBELOW) * RBIOM * (1. - FRFRAC)
 
-
+                
                 ! Update plant water store
                 IF(SIMSTORE.EQ.1)THEN
-
-                    PLANTWATER(IDAY+1,ITAR) = PLANTWATER(IDAY+1,ITAR) - ETCANDEFICIT(ITAR,IHOUR)*SPERHR*1E-06*18
-
+                
+                    PLANTWATER(IDAY+1,ITAR) = PLANTWATER(IDAY+1,ITAR) - ETCANDEFICIT(ITAR,IHOUR)*SPERHR*1E-06*18 
+                
                     IF(STOPSIMONEMPTY.EQ.1)THEN
                         IF(PLANTWATER(IDAY+1,ITAR).LE.0.0) ABORTSIMULATION=.TRUE.
                     ENDIF
-
+                    
                 ENDIF
-
+                
 
             END DO ! End loop over trees
-
+            
 
             ! Do the water balance.
             ! Throughfall, soil evaporation, root water uptake, infiltration of surface water,
-            ! gravitational drainage.
+            ! gravitational drainage.            
             IF(ISMAESPA) THEN
-
+                
                 ! Get area-based estimates of radiation interception and transpiration rate.
                 CALL SCALEUP(IHOUR, USESTAND, NOTARGETS, NOALLTREES, FOLT,IT, ITARGETS,ISPECIES,NOSPEC,TOTLAI,STOCKING,  &
                                 SCLOSTTREE,THRAB,RADABV,FH2O,PLOTAREA,  &
                                 DOWNTHTREE,RGLOBABV,RGLOBUND,RADINTERC,FRACAPAR,ISIMUS,FH2OUS(IHOUR),THRABUS(IHOUR),   &
                                 PARUSMEAN(IHOUR),SCLOSTTOT,GSCAN,WINDAH(IHOUR),ZHT,Z0HT,ZPD,PRESS(IHOUR),TAIR(IHOUR), &
                                 VPD(IHOUR),ETMM,ETUSMM,ETMMSPEC,TREEH,RGLOBUND1,RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
-                                PREVTSOIL,RHOSOL,FH2OEV,EVMM,EVMMSPEC)
+                                PREVTSOIL,RHOSOL,FH2OEV,EVMM,EVMMSPEC)      
                 !pause
 
                 ! Find soil surface temperature, unless this is input data.
@@ -1560,18 +1560,18 @@ PROGRAM maespa
                                     RHOSOLSPEC(1,1),RHOSOLSPEC(2,1),RHOSOLSPEC(3,1), &
                                     RGLOBUND1,RGLOBUND2,DOWNTHAV,DRYTHERM) !TSOILSURFACE is here the output (and Qx)
                 !ENDIF
-
+                
                 ! Or, do not calculate heat balance. Either if using measured ET for water balance,
                 ! or if not simulating soil evaporation (which would render heat balance meaningless anyway).
                 !IF(USEMEASET.EQ.1.OR.SIMSOILEVAP.EQ.0)THEN
-                ELSE
+                ELSE 
                     QE = 0
                     QH = 0
                     QN = 0
                     QC = 0
                 ENDIF
 
-
+                
                 ! Get the evaporation from the wet canopy
                 !CALL CANOPY_BALANCE(PPT(IHOUR),WINDAH(IHOUR),ZHT,Z0HT,ZPD, &
                 !            PRESS(IHOUR),TAIR(IHOUR),RADINTERC, &
@@ -1580,28 +1580,28 @@ PROGRAM maespa
                 !            CANOPY_STORE, SURFACE_WATERMM, &
                 !            EVAPSTORE, DRAINSTORE,TREEH,TOTLAI)
 
-
-
+                
+                
                 IF (ITERTAIRMAX.GT.1) THEN
-
+                    
                     ! average canopy temperature
                     TCAN2 = sum(TCAN(1:NOTARGETS, IHOUR)) / NOTARGETS
                     ! Calculation of a new VPD and Tair within the canopy based on the heat balance of Chourdhury et al. 1988
-                    CALL TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIR(IHOUR),TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,RHNEW,&
+                    CALL TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIR(IHOUR),TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,RHNEW,& 
                                             WINDAH(IHOUR), ZPD, ZHT, Z0HT, DELTA, PRESS(IHOUR),QC,TREEH,TOTLAI,GCANOP, &
                                             EVAPSTORE,HTOT, &
-                                            EVMM) !glm canopy evap
-
+                                            EVMM) !glm canopy evap   
+                    
                     IF ((ABS(TAIRNEW - TAIR(IHOUR)).LT.TOL) &
                         .AND. (ABS(PREVTSOIL - TSOILSURFACE).LT.TOL) &
                         .AND. (ABS(VPDNEW - PREVVPDCAN).LT.(50*TOL))) THEN
-
+                        
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'convergence', ITERTAIR
                         !ITERTAIR = ITERTAIRMAX - 1
                         PREVTAIRCAN = TAIRNEW
                         PREVVPDCAN = VPDNEW
-                        GOTO 1112
-                    ELSE IF ((ITERTAIR.EQ.ITERTAIRMAX)) THEN
+                        GOTO 1112                 
+                    ELSE IF ((ITERTAIR.EQ.ITERTAIRMAX)) THEN    
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'no convergence'
                         !PREVTAIRCAN = PREVTAIRCAN
                         !PREVVPDCAN = PREVVPDCAN
@@ -1610,19 +1610,19 @@ PROGRAM maespa
                         GOTO 1112
                     ELSE
                         PREVTAIRCAN = TAIRNEW ! glm
-                        PREVVPDCAN = VPDNEW ! glm
+                        PREVVPDCAN = VPDNEW ! glm                      
                         GOTO 1111
                     END IF
                 ENDIF
+                
 
-
-1112            CONTINUE
-
+1112            CONTINUE    
+                
                          IF(ISUNLA.EQ.1.AND.(IHOUR.EQ.24.OR.IHOUR.EQ.2))THEN
-
+                            
                              DO ITAR = 1, NOTARGETS
                                  DO IPT = 1,NUMPNT
-
+                                     
                              WRITE(USUNLA, 112) IDAY, IHOUR, ITAR, IPT, TLEAFTABLE(ITAR,IPT),   &
                                  APARTABLE(ITAR,IPT), ANIRTABLE(ITAR,IPT),ATHRTABLE(ITAR,IPT), &
                                  ETTABLE(ITAR,IPT)*(H2OLV0 - 2.365E3 * TAIRNEW) * H2OMW* 1e-06,&
@@ -1632,7 +1632,7 @@ PROGRAM maespa
                                  ENDDO
                          ENDIF
 112  FORMAT(4(1X,I4), 8(1X,F12.3))
-
+                
                 ! Layered water balance, outputs new soil water content, discharge,
                 ! soil evaporation, overflow, thickness of dry layer.
                 CALL WATBALLAY(IDAY,IHOUR,PPT(IHOUR),RUTTERB,RUTTERD,MAXSTORAGE,THROUGHFALL,RADINTERC,CANOPY_STORE,         &
@@ -1642,7 +1642,7 @@ PROGRAM maespa
                                 KSAT,BPAR,WSOIL,WSOILROOT,DISCHARGE,DRYTHICKMIN,DRYTHICK,SOILEVAP,OVERFLOW,WATERGAIN,       &
                                 WATERLOSS,PPTGAIN,KEEPWET,EXPINF,WS,WR,PSIE,ALPHARET,NRET,RETFUNCTION,SOILWP,               &
                                 IWATTABLAYER,ISIMWATTAB,PLATDRAIN,WATCAPIL,TREEH,TOTLAI,EVMM,EVMMSPEC,drycan) ! glm canopy evap
-
+ 
                 ! Heat balance: soil T profile (SOILTEMP).
                 IF(USEMEASET.EQ.0.AND.USEMEASSW.EQ.0)THEN
                     CALL HEATBALANCE(NLAYER,FRACWATER,POREFRAC,TAIR(IHOUR)+FREEZE,SOILTK,SOILTEMP,LAYTHICK,WATERGAIN,&
@@ -1651,8 +1651,8 @@ PROGRAM maespa
                     ! Do nothing.
                     SOILTEMP = SOILTK
                 ENDIF
-
-
+           
+        
                 ! Output water balance
                 CALL OUTPUTWATBAL(IDAY,IHOUR,NROOTLAYER,NLAYER,WSOIL,                             &
                                   WSOILROOT,PPT(IHOUR),                                           &
@@ -1664,10 +1664,10 @@ PROGRAM maespa
                                   TAIRABOVE,QH,QE,QN,QC,RGLOBUND,RGLOBABV,RGLOBABV12,RADINTERC, &
                                   ESOIL, TOTLAI, WTITLE,                                          &
                                   RADINTERC1, RADINTERC2, RADINTERC3,SCLOSTTOT,SOILWP,FRACAPAR, &
-                                  RADABV(IHOUR,3),TAIR(IHOUR),TCAN, VPDABOVE, VPDNEW, &
+                                  RADABV(IHOUR,3),TAIR(IHOUR),TCAN, VPDABOVE, VPDNEW, & 
                                   TSOILSURFACE,GCANOP,ITERTAIR,NOTARGETS,HTOT,SCLOSTTOT3, &
                                   EVMM,drycan) !glm canopy evap
-
+                
                 CALL SUMDAILYWAT(WSOIL,WSOILROOT,WEIGHTEDSWP,PPT,ETMM,ETMEAS,DISCHARGE, &
                                 SOILEVAP,FSOIL1,SURFACE_WATERMM,QH,QE,QN,QC, &
                                 RADINTERC,WSOILMEAN,WSOILROOTMEAN,SWPMEAN,PPTTOT,ETMMTOT, &
@@ -1681,11 +1681,11 @@ PROGRAM maespa
             CALL OUTPUTHR(IDAY+1,IHOUR,NOTARGETS,ITARGETS,ISPECIES,TCAN,NOLAY,PPAR, &
                                 PPS,PTRANSP,FOLLAY,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FH2O,GSCAN,GBHCAN, &
                                 FH2OCAN,FHEAT,VPD,TAIRABOVE,UMOLPERJ*RADABV(1:KHRS,1),PSILCAN,PSILCANMIN,CICAN,  &
-                                ECANMAX,ACANMAX,ZEN,AZ,ETCANDEFICIT,FBEAM)
-
-
-
-
+                                ECANMAX,ACANMAX,ZEN,AZ,ETCANDEFICIT,FBEAM) 
+            
+            
+            
+            
         !**********************************************************************
         END DO ! End hourly loop
 
@@ -1696,28 +1696,28 @@ PROGRAM maespa
         TOTRESPCRG = GRESP(RBINC*(1.-FRFRAC),EFFYRW)
         TOTRESPFG = GRESP(FBINC,EFFYRF)
 
-
+       
         WRITE(UWATTEST,*)PLANTWATER(IDAY+1,1)
-
+        
         ! Output daily totals
         CALL SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,FH2O,FH2OCAN,FHEAT, &
                       TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,TOTRESPB,TOTRESPCR,   &
                       TOTRESPFR,TOTH2O,TOTH2OCAN,TOTHFX,&
-                      FH2OEV,TOTH2OEV) !glm canopy evap
+                      FH2OEV,TOTH2OEV) !glm canopy evap 
 
-
-
+        
+        
         CALL OUTPUTDY(IDAY+1,NOTARGETS,ITARGETS,ISPECIES,TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,&
                                 TOTRESPWG,TOTH2O,TOTH2OCAN,TOTHFX,TOTRESPCR,TOTRESPFR,TOTRESPFRG,&
                                 TOTRESPCRG,TOTRESPFG,TOTRESPB,TOTRESPBG, &
-                                TOTH2OEV) !glm canopy evap
-
+                                TOTH2OEV) !glm canopy evap 
+                
         IF(ISMAESPA)THEN
             CALL OUTPUTDYWAT(IDAY+1,WSOILMEAN,WSOILROOTMEAN,SWPMEAN,PPTTOT,ETMMTOT,ETMEASTOT,DISCHARGETOT,&
                                 SOILEVAPTOT,FSOILMEAN,TFALLTOT,QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT, &
-                                   EVMMTOT)!glm canopy evap
+                                   EVMMTOT)!glm canopy evap    
         ENDIF
-
+         
         IF(ISIMUS.EQ.1)THEN
             CALL OUTPUTUS(IDAY+1,NOUSPOINTS,XLU,YLU,ZLU,UIBEAM,UIDIFF,PARUS,APARUS,PSUS,ETUS)
         ENDIF
@@ -1727,43 +1727,43 @@ PROGRAM maespa
         IF ((ISTART+IDAY) <= IEND) THEN
             CALL SKIPMET(MFLAG,NSTEP)
         END IF
-
+        
     END DO ! End daily loop
 
-
+    
 
 !**********************************************************************
 
 IF (IOHIST.EQ.1) CALL OUTPUTHIST(UHIST,HISTO,BINSIZE,NOTARGETS)
-
+    
 !**********************************************************************
     ! Write diffuse transmittances to file
     REWIND (UTUTD)
     WRITE (UTUTD,1313) (IPT,TU(IPT),TD(IPT),RELDF(IPT),IPT=1,NUMPNT)
     1313  FORMAT (1X,I3,5X,F8.4,1X,F8.4,1X,F8.4)
-
+    
     CALL SUBERROR('SIMULATION COMPLETED SUCCESSFULLY',IWARN,-1)
-
+    
     CALL CLOSEF()
-
+        
 END PROGRAM MAESPA
 !**********************************************************************
 
 
 !**********************************************************************
 SUBROUTINE ZEROSTART(HISTO,CANOPYDIMS)
-! Set initial values of histogram to zero.
+! Set initial values of histogram to zero. 
 !**********************************************************************
 
     USE maestcom
     IMPLICIT NONE
-
+    
     REAL HISTO(MAXT,MAXHISTO)
     REAL CANOPYDIMS(6)
-
+    
     HISTO = 0.0
     CANOPYDIMS = 0.0
-
+    
     RETURN
 END SUBROUTINE ZEROSTART
 
@@ -1778,7 +1778,7 @@ SUBROUTINE ZEROD(TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,TOTRESPB,TOTRESPCR,TOTRESPFR,  
 !**********************************************************************
     USE maestcom
     IMPLICIT NONE
-
+    
     REAL TDYAB(MAXT,3)
     REAL TOTCO2(MAXT),TOTRESPF(MAXT),TOTRESPWM(MAXT)
     REAL TOTRESPB(MAXT),TOTRESPFR(MAXT),TOTRESPCR(MAXT)
@@ -1817,7 +1817,7 @@ SUBROUTINE ZEROD(TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,TOTRESPB,TOTRESPCR,TOTRESPFR,  
 
     RETURN
 END SUBROUTINE ZEROD
-
+      
 !**********************************************************************
 SUBROUTINE ZEROHR(THRAB, FCO2, FRESPF, FRESPW, FRESPB, FRESPFR, FRESPCR, &
                     FH2O, GSCAN, GBHCAN, FHEAT, PPAR, PPS, PTRANSP, TCAN, FSOIL1,&
@@ -1872,9 +1872,9 @@ SUBROUTINE ZEROHR(THRAB, FCO2, FRESPF, FRESPW, FRESPB, FRESPFR, FRESPCR, &
 
     RETURN
 END SUBROUTINE ZEROHR
-
-
-!**********************************************************************
+      
+      
+!**********************************************************************     
 SUBROUTINE ZEROIPTTABLE (TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, &
                         ETTABLE, HTABLE, GSCTABLE, PSILTABLE, AREATOT, &
                         ITAR, IPT, &
@@ -1885,7 +1885,7 @@ SUBROUTINE ZEROIPTTABLE (TLEAFTABLE, APARTABLE, ANIRTABLE, ATHRTABLE, &
 USE maestcom
 IMPLICIT NONE
 
-REAL TLEAFTABLE(MAXT,MAXP), APARTABLE(MAXT,MAXP), ANIRTABLE(MAXT,MAXP)
+REAL TLEAFTABLE(MAXT,MAXP), APARTABLE(MAXT,MAXP), ANIRTABLE(MAXT,MAXP) 
 REAL ATHRTABLE(MAXT,MAXP), ETTABLE(MAXT,MAXP), HTABLE(MAXT,MAXP)
 REAL GSCTABLE(MAXT,MAXP), PSILTABLE(MAXT,MAXP), AREATOT
 REAL EVTABLE(MAXT,MAXP) !glm canopy evap
@@ -1906,24 +1906,24 @@ AREATOT = 0.0
 END SUBROUTINE ZEROIPTTABLE
 
 
-
-!**********************************************************************
+    
+!**********************************************************************     
 SUBROUTINE ZEROFSOIL(FSOIL1,NSUMMED,TOTTMP)
 ! Set FSOIL1 to zero, and NSUMMED.
-!**********************************************************************
+!**********************************************************************     
     IMPLICIT NONE
     INTEGER NSUMMED
     REAL FSOIL1,TOTTMP
-
+      
     FSOIL1 = 0.0
     NSUMMED = 0
     TOTTMP = 0.0
-
-END SUBROUTINE ZEROFSOIL
-
-
+      
+END SUBROUTINE ZEROFSOIL   
+      
+      
 !**********************************************************************
-SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PSIL,CI,      &
+SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PSIL,CI,      & 
                     AREA,IHOUR,ILAY,ITAR,NOTARGETS,NUMPNT,NSUMMED,TOTTMP,PPAR,PPS,PTRANSP,  &
                     THRAB,FCO2,FRESPF,GSCAN,GBHCAN,FH2O,ETCANDEFICIT,FHEAT,TCAN,FSOIL1,     &
                     PSILCAN,PSILCANMIN,CICAN, ECANMAX, ACANMAX,FOLT,EV,FH2OEV) !glm canopy evap
@@ -1947,29 +1947,29 @@ SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PS
     REAL PSIL,CI,GBH,ETDEFICIT
     REAL FOLT
     REAL EV,FH2OEV(MAXT,MAXHRS)  !glm canopy evap
-
+    
 
     ! Sum PAR, photosynthesis, & transpiration by layer
     PPAR(ITAR,ILAY,IHOUR) = PPAR(ITAR,ILAY,IHOUR) + APAR*UMOLPERJ*AREA
     PPS(ITAR,ILAY,IHOUR) = PPS(ITAR,ILAY,IHOUR) + ALEAF*AREA
     PTRANSP(ITAR,ILAY,IHOUR) = PTRANSP(ITAR,ILAY,IHOUR) + ET*AREA
-
+  
     ! Sum all fluxes for the hour
     THRAB(ITAR,IHOUR,1) = THRAB(ITAR,IHOUR,1) + APAR*AREA
     THRAB(ITAR,IHOUR,2) = THRAB(ITAR,IHOUR,2) + ANIR*AREA
     THRAB(ITAR,IHOUR,3) = THRAB(ITAR,IHOUR,3) + ATHR*AREA
     FCO2(ITAR,IHOUR) = FCO2(ITAR,IHOUR) + ALEAF*AREA
-
+    
     ! Foliage respiration in umol tree-1 s-1
     FRESPF(ITAR,IHOUR) = FRESPF(ITAR,IHOUR) + RD*AREA
     ! Transpiration in umol tree-1 s-1
     FH2O(ITAR,IHOUR) = FH2O(ITAR,IHOUR) + ET*AREA
     ! Evaporation wet foliage in umol tree-1 s-1
     FH2OEV(ITAR,IHOUR) = FH2OEV(ITAR,IHOUR) + EV*AREA
-
+    
     ! transpiration deficit
     ETCANDEFICIT(ITAR,IHOUR) = ETCANDEFICIT(ITAR,IHOUR) + ETDEFICIT*AREA
-
+    
     ! Maximum rates of transpiration and photosynthesis
     IF(ET.GT.ECANMAX(ITAR,IHOUR))THEN
         ECANMAX(ITAR, IHOUR) = ET
@@ -1977,7 +1977,7 @@ SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PS
     IF(ALEAF.GT.ACANMAX(ITAR,IHOUR))THEN
         ACANMAX(ITAR, IHOUR) = ALEAF
     ENDIF
-
+    
     ! Stom cond in mol tree-1 s-1
 !    GSCAN(ITAR,IHOUR) = GSCAN(ITAR,IHOUR) + GSC*AREA
     ! Boundary layer conductance to heat
@@ -1985,8 +1985,8 @@ SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PS
     ! Heat flux in mol tree-1 s-1
     FHEAT(ITAR,IHOUR) = FHEAT(ITAR,IHOUR) + HFX*AREA
 
-    IF (FOLT.GT.0.0) THEN
-        ! Average leaf temperature - will be divided by total leaf area later.
+    IF (FOLT.GT.0.0) THEN       
+        ! Average leaf temperature - will be divided by total leaf area later. 
             TCAN(ITAR,IHOUR) = TCAN(ITAR,IHOUR) + TLEAF*AREA / FOLT
         ! Average leaf water potential
             PSILCAN(ITAR,IHOUR) = PSILCAN(ITAR,IHOUR) + PSIL*AREA / FOLT
@@ -1994,19 +1994,19 @@ SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PS
         IF(PSIL.LT.PSILCANMIN(ITAR,IHOUR))THEN
            PSILCANMIN(ITAR,IHOUR) = PSIL
         ENDIF
-
+    
         ! Next two are not divided by FOLT because they are totals, not averages.
         ! Stom cond in mol tree-1 s-1
         GSCAN(ITAR,IHOUR) = GSCAN(ITAR,IHOUR) + GSC*AREA
-
+    
         ! Boundary layer conductance to heat
         GBHCAN(ITAR,IHOUR) = GBHCAN(ITAR,IHOUR) + GBH*AREA
-
+        
         ! Average ci.
         CICAN(ITAR,IHOUR) = CICAN(ITAR,IHOUR) + CI*AREA / FOLT
-
+    
     ELSE
-
+    
         TCAN(ITAR,IHOUR) = TLEAF
         PSILCAN(ITAR,IHOUR) = PSIL
         CICAN(ITAR,IHOUR) = CI
@@ -2016,12 +2016,12 @@ SUBROUTINE SUMHR(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL,PS
            PSILCANMIN(ITAR,IHOUR) = PSIL
         ENDIF
     END IF
-
+    
     ! Average FSOIL across all target trees and grid points.
     FSOIL1 = FSOIL1 + FSOIL*ET*AREA
     TOTTMP = TOTTMP + ET*AREA
     NSUMMED = NSUMMED + 1
-
+    
     RETURN
 END SUBROUTINE SUMHR
 
@@ -2038,9 +2038,9 @@ USE maestcom
 IMPLICIT NONE
 
 REAL TLEAF, APAR, ANIR, ATHR, ET,HFX,GSC,PSIL
-REAL TLEAFTABLE(MAXT,MAXP), APARTABLE(MAXT,MAXP), ANIRTABLE(MAXT,MAXP)
+REAL TLEAFTABLE(MAXT,MAXP), APARTABLE(MAXT,MAXP), ANIRTABLE(MAXT,MAXP) 
 REAL ATHRTABLE(MAXT,MAXP), ETTABLE(MAXT,MAXP), HTABLE(MAXT,MAXP)
-REAL GSCTABLE(MAXT,MAXP), PSILTABLE(MAXT,MAXP)
+REAL GSCTABLE(MAXT,MAXP), PSILTABLE(MAXT,MAXP) 
 REAL AREA, AREATOT,TAIR
 REAL EV, EVTABLE(MAXT,MAXP) !glm canopy evap
 
@@ -2074,13 +2074,13 @@ ENDIF
 
     RETURN
 END SUBROUTINE SUMIPT
-
+    
 
 
 !**********************************************************************
 SUBROUTINE SUMHRUS(IHOUR,NOUSPOINTS,GRDAREAI,AREAUS,PARUS,PARUSMEAN,PARUSSD,&
                     APARUS,PSUS,ETUS,THRABUS,FCO2US,FH2OUS)
-
+     
 ! Sum fluxes from each understorey point to give hourly fluxes.
 ! Taken from MAESUS, Feb. '09 (RAD).
 !**********************************************************************
@@ -2094,7 +2094,7 @@ SUBROUTINE SUMHRUS(IHOUR,NOUSPOINTS,GRDAREAI,AREAUS,PARUS,PARUSMEAN,PARUSSD,&
     REAL AREAUS(MAXP),PARUSMEAN(MAXHRS),PARUSSD(MAXHRS)
     REAL GRDAREAI
     REAL, EXTERNAL :: STDEV
-
+    
     THRABUS(IHOUR) = 0.0
     FCO2US(IHOUR) = 0.0
     FH2OUS(IHOUR) = 0.0
@@ -2113,7 +2113,7 @@ END SUBROUTINE SUMHRUS
 
 
 !**********************************************************************
-SUBROUTINE SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,   &
+SUBROUTINE SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,   &  
                     FH2O,FH2OCAN,FHEAT,TDYAB,TOTCO2,TOTRESPF,TOTRESPWM,TOTRESPB, &
                     TOTRESPCR,TOTRESPFR,TOTH2O,TOTH2OCAN,TOTHFX, &
                     FH2OEV,TOTH2OEV) !glm canopy evap
@@ -2132,14 +2132,14 @@ SUBROUTINE SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,  
     REAL TOTRESPB(MAXT),TOTRESPFR(MAXT),TOTRESPCR(MAXT)
     REAL TOTH2O(MAXT),TOTH2OCAN(MAXT),TOTHFX(MAXT),CONVERT
     REAL FH2OEV(MAXT,MAXHRS),TOTH2OEV(MAXT) !glm canopy evap
-
+       
     DO ITAR = 1,NOTARGETS
         DO IHOUR = 1,KHRS
             TOTCO2(ITAR) = TOTCO2(ITAR) + FCO2(ITAR,IHOUR)
             TOTRESPF(ITAR) = TOTRESPF(ITAR) + FRESPF(ITAR,IHOUR)
             TOTRESPWM(ITAR) = TOTRESPWM(ITAR) + FRESPW(ITAR,IHOUR)
             TOTRESPB(ITAR)  = TOTRESPB(ITAR) + FRESPB(ITAR,IHOUR)
-            TOTRESPCR(ITAR) = TOTRESPCR(ITAR) + FRESPCR(ITAR,IHOUR)
+            TOTRESPCR(ITAR) = TOTRESPCR(ITAR) + FRESPCR(ITAR,IHOUR) 
             TOTRESPFR(ITAR) = TOTRESPFR(ITAR) + FRESPFR(ITAR,IHOUR)
             TOTH2O(ITAR) = TOTH2O(ITAR) + FH2O(ITAR,IHOUR)
             TOTH2OEV(ITAR) = TOTH2OEV(ITAR) + FH2OEV(ITAR,IHOUR) !glm canopy evap
@@ -2149,7 +2149,7 @@ SUBROUTINE SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,  
                 TDYAB(ITAR,J) = TDYAB(ITAR,J) + THRAB(ITAR,IHOUR,J)
             END DO
         END DO
-    END DO
+    END DO    
 
     CONVERT = SPERHR*1E-6
 
@@ -2161,9 +2161,9 @@ SUBROUTINE SUMDAILY(NOTARGETS,THRAB,FCO2,FRESPF,FRESPW,FRESPB,FRESPCR,FRESPFR,  
     TOTRESPFR = TOTRESPFR*CONVERT
     TOTH2O = TOTH2O*CONVERT
     TOTH2OCAN = TOTH2OCAN*CONVERT
-    TOTHFX = TOTHFX*CONVERT
+    TOTHFX = TOTHFX*CONVERT      
     TDYAB = TDYAB*CONVERT
-
+    
     RETURN
 END SUBROUTINE SUMDAILY
 
@@ -2186,9 +2186,9 @@ REAL TAIRNEW, VPDNEW
 IF (ITERTAIRMAX.LE.1) THEN
 		TCAN2 = TAIR(IHOUR)
 		PREVTAIRCAN = TAIR(IHOUR)
-		PREVVPDCAN = VPD(IHOUR)
-        VPDNEW= VPD(IHOUR)
-        TAIRNEW= TAIR(IHOUR)
+		PREVVPDCAN = VPD(IHOUR) 
+        VPDNEW= VPD(IHOUR) 
+        TAIRNEW= TAIR(IHOUR) 
 		DO IDIPT=1,NUMPNT
 			DO IDTAR = 1,NOTARGETS
 				TLEAFTABLE(IDTAR,IDIPT)=TAIR(IHOUR)
@@ -2206,21 +2206,21 @@ ELSE
 
 		! We used the calculation of TAIRCAN of the previous time step
 		! avoid the case PREVTAICAN = 0 during the first calculation
-		IF (PREVTAIRCAN.NE.0.0) THEN
+		IF (PREVTAIRCAN.NE.0.0) THEN        
                     TAIR(IHOUR) = PREVTAIRCAN
                     VPD(IHOUR) = PREVVPDCAN
 		END IF
 	END IF
 
 	IF (ITERTAIR.GE.1) THEN
-		!TAIR(IHOUR) = TAIR(IHOUR) + (TAIRNEW-TAIR(IHOUR))/2
+		!TAIR(IHOUR) = TAIR(IHOUR) + (TAIRNEW-TAIR(IHOUR))/2     
 		!VPD(IHOUR) = VPD(IHOUR) + (VPDNEW-VPD(IHOUR))/2
-		TAIR(IHOUR) = TAIRNEW
+		TAIR(IHOUR) = TAIRNEW   
 		VPD(IHOUR) = VPDNEW
 	END IF
 
 	ITERTAIR = ITERTAIR + 1
-
+            
 	! if we had reached itertairmax, we take the taircan as the one from the previous half-hour
 	IF (ITERTAIR.EQ.ITERTAIRMAX) THEN
 		TAIR(IHOUR) = PREVTAIRCAN
@@ -2235,4 +2235,4 @@ ELSE
 
 ENDIF
 
-END SUBROUTINE !
+END SUBROUTINE ! 
