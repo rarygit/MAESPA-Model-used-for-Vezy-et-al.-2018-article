@@ -2949,7 +2949,7 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     END DO
 
       
-     FCOVER= 1 ! RV 12/12/2016 
+    FCOVER= 1 ! RV 12/12/2016 
     
     ! Lost scattered radiation
     ! Take the average across the trees
@@ -2958,7 +2958,7 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     SCLOSTTOT2_tree = SUM(SCLOSTTREE(1:NOTARGETS,2)) / NOTARGETS
     SCLOSTTOT3_tree = SUM(SCLOSTTREE(1:NOTARGETS,3)) / NOTARGETS !glm test proportion fcover
     
-    FCOVER=MIN(MAX(TOTLAI/4.5,0.),1.) !glm test
+    ! FCOVER=MIN(MAX(TOTLAI/4.5,0.),1.) !glm test
     
     !glm: test to add the proportion of radiation from soil
     ! Soil emission
