@@ -68,10 +68,10 @@
     REAL, PARAMETER :: TCH2O = 0.594       ! thermal conductivity of water (W m-1 K-1)
     REAL, PARAMETER :: TCORG = 0.25        ! thermal conductivity of organic matter (W m-1 K-1)
     REAL, PARAMETER :: DHEAT = 21.5e-6     ! molecular diffusivity for heat
-    REAL, PARAMETER :: EMLEAF = 0.98       ! Emissivity of thermal radiation by leaf coffee
-    REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil coffee
-    ! REAL, PARAMETER :: EMLEAF = 0.955       ! Emissivity of thermal radiation by leaf eucas
-    ! REAL, PARAMETER :: EMSOIL = 0.975       ! Emissivity of thermal radiation by soil eucas
+    REAL, PARAMETER :: EMLEAF = 0.955      ! Emissivity of thermal radiation by leaf coffee
+    REAL, PARAMETER :: EMSOIL = 0.975      ! Emissivity of thermal radiation by soil coffee
+    ! REAL, PARAMETER :: EMLEAF = 0.955    ! Emissivity of thermal radiation by leaf eucas
+    ! REAL, PARAMETER :: EMSOIL = 0.975    ! Emissivity of thermal radiation by soil eucas
     REAL, PARAMETER :: H2OLV0 = 2.501e6    ! latent heat H2O (J/kg)
     REAL, PARAMETER :: H2OMW = 18.e-3      ! mol mass H2O (kg/mol)
     REAL, PARAMETER :: H2OVW = 18.05e-6    ! partial molal volume of water at 20C (m3 mol-1)

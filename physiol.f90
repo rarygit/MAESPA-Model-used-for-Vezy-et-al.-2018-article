@@ -360,11 +360,12 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! Calculate leaf water potential
     ! supposed to be the one of the dry part of the leaf !glm canopy evap!
     IF(ISMAESPA)THEN
-        ! Used to use ET without boundary layer; not sure why.
-        !ETEST = 1E06 * (VPD/PATM) * GSV
-        
+       ! Used to use ET without boundary layer; not sure why.
+       ! ETEST = 1E06 * (VPD/PATM) * GSV
        ! PSIL = WEIGHTEDSWP - (ETEST/1000)/KTOT
-        PSIL = WEIGHTEDSWP - (ET/1000)/KTOT
+       ! PSIL = min(0.,WEIGHTEDSWP - (ET/1000)/KTOT) ! RV 04-2017. 
+        PSIL = WEIGHTEDSWP - (ET/1000)/KTOT ! RV 04-2017. 
+       ! PSIL can be positive when ET is negative (e.g. dew)
     ELSE
         PSIL = 0.0
     ENDIF
@@ -1062,7 +1063,12 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     ! Formula from Jones 1992 p 68, aerodynamic conductance air-canopy - air, adapted from the CASTANEA model (Dufrene et al., 2005)
     ZPD2 = 0.75 * TREEH
     Z0 = 0.1 *  TREEH
-
+    
+    ! RV: Observations indicate that z* lies 1–2 times the height of the canopy above the canopy (Garratt 1992, Harman&Finnigan 2007).
+    ! In their paper z* is the height of the roughness sublayer (not even the ZHT). So ZHT must be at least above TREEH.
+    IF (ZHT.LE.TREEH) THEN
+        ZHT= TREEH*1.1
+    ENDIF    
     ! Aerodynamic conductance between the atmosphere and the canopy
     ! Reference Wind used in the conductance calculation
     ! (this is ustar, the friction velocity)
@@ -1081,12 +1087,11 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     ! GBCANMSROU = WINDSTAR*VONKARMAN * ((ZW - TREEH)/(ZW - ZPD2))
     GBCANMSROU = WINDSTAR*VONKARMAN / ((ZW - TREEH)/(ZW - ZPD2)) !glm 03/2016
     
-    ! Total aerodynamic conductance between the canopy ant the atmosphere
+    ! Total aerodynamic conductance between the canopy and the atmosphere
     GBCANMS1MIN = 0.0123 ! RV, GBCANMS1 for WIND= 0.035 and CANOPY HEIGHT at 25 m
     GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
     IF (GBCANMS1.LE.GBCANMS1MIN) THEN
         GBCANMS1 = GBCANMS1MIN
-    !    print*, 'Set GBCANMS1 at lower bound, GBCANMS1= GBCANMS1MIN'
     ENDIF
            
     ! Aerodynamic conductance between the soil surface to the the canopy, 2nd conductance term from choudhury et al. 1988   

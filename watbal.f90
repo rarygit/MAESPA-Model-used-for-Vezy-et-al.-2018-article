@@ -2528,17 +2528,19 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       ! calculation of air vapor pressure within the canopy
       VPAIRCANOP = VPAIR + (ETOT / (CPAIR * AIRMA * GCANOP/GAMMA))
 
-      VPDNEW = SATUR(TAIRNEW) - VPAIRCANOP
+      
       
       !VPDNEW=VPDABOVE !test
       ! limit condition      glm: without these, unresolved problems occurs at the beginning and end of day
       IF ((TAIRNEW-TAIRABOVE).GT.10)  TAIRNEW = TAIRABOVE + 10
       IF ((TAIRABOVE-TAIRNEW).GT.10)  TAIRNEW = TAIRABOVE - 10
 
+      VPDNEW = max(10.,SATUR(TAIRNEW) - VPAIRCANOP) ! RV 04/2017
+      ! IF (VPDNEW.GT.SATUR(TAIRNEW)) VPDNEW=SATUR(TAIRNEW) -1
       ! Avoid very low VPD or over-saturation.
-      ! IF ((VPDNEW-VPDABOVE).GT.100) VPDNEW = VPDABOVE+500
-      ! IF ((VPDABOVE-VPDNEW).GT.100) VPDNEW = max(10.,VPDABOVE-500)
-      ! print*, 'VPDNEW',VPDNEW,VPDABOVE, TAIRNEW, TAIRABOVE
+      IF ((VPDNEW-VPDABOVE).GT.1500) VPDNEW = VPDABOVE+1500
+      IF ((VPDABOVE-VPDNEW).GT.1500) VPDNEW = max(10.,VPDABOVE-1500)
+      
       
       ! Updated relative humidity
       RHNEW = 1.0 - VPDNEW/SATUR(TAIRNEW) 

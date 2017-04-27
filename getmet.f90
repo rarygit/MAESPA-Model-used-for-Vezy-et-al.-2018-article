@@ -1574,17 +1574,38 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     
     ! According to Van de Griend we can assumed that (ZW height of the roughness layer) :
     ALPHA1 = 1.5
-    ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2)
+    ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2) ! zw-h= 1.5l Raupach (1980)
     
+    IF(ZHT.GT.ZW) THEN
     ! Wind speed at the top of the canopy according to Van de Griend 1989 (eq 42)
-    WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
+            WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
                   WINDSTAR/VONKARMAN * (1-((TREEH-ZPD2)/(ZW-ZPD2)))
-
+    ELSE
+    ! WINDSPEED is already measured on top of canopy (in the roughness layer), no correction. RV 02/2017
+        WINDTOP = 1
+    ENDIF
+    
     ! We assumed a expenential decrease of wind speed with depth in the canopy according to Choudhury & Monteith 1988   
     ALPHA2 = 3.0
-    DO IPT = 1,NUMPNT
-        WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
-    ENDDO     
+   
+    IF (ZHT.GT.TREEH) THEN
+    ! If ZHT is indeed above tree canopy, reduce wind exponetially with depth. 
+        DO IPT = 1,NUMPNT
+            WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
+        ENDDO     
+    ELSE
+        ! If wind measurements were made below tree canopy (ZHT<TREEH), reduce wind exponetially below ZHT
+        ! and increase wind above ZHT (ALPHA= 0.25 above). This is made to have the possibility to use wind
+        ! measurements from within canopy (e.g. between Understory and tree canopy). RV 02/2017
+        DO IPT = 1,NUMPNT
+            IF (ZL(IPT).GE.ZHT)THEN
+                WINDLAY(LGP(IPT)) = WINDTOP * EXP(0.25 * (ZL(IPT)/ZHT -1))
+            ELSE
+                WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/ZHT -1))
+            ENDIF    
+        ENDDO     
+    ENDIF
+    
     END SUBROUTINE GETWINDNEW
     
     

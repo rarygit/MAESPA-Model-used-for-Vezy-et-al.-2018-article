@@ -2950,6 +2950,7 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
 
       
     FCOVER= 1 ! RV 12/12/2016 
+    ! FCOVER=MIN(MAX(TOTLAI/4.5,0.),1.) !glm test 
     
     ! Lost scattered radiation
     ! Take the average across the trees
