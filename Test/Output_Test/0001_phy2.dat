@@ -1,0 +1,116 @@
+Poro physiology file.
+	
+nmber of age classes of foliage (two, but no difference)
+&noages
+noagep = 1
+/
+	
+proportion of leaf area in each age class
+&phenol
+prop = 1.0
+/
+	
+reflectance and transmittance (obtain from remote sensing group)
+&absorp
+nolayers = 1
+rhosol = 0.15	0.25	0.05
+atau = 0.093	0.34	0.01
+arho = 0.082	0.35	0.05
+/	
+
+&bbgscon
+nodates = 1
+condunits = 'CO2'
+wleafnodates= 1
+/
+
+Ball-Berry parameters (when MODELGS = 2)
+&bbtuz
+dates = '31/09/10'
+g0 = 0.005
+g1 = 11.3
+GNIGHT= 0
+sf = 8
+psiv = -2.989
+nsides = 1
+wleaf = 0.2 
+gamma = 0
+wleafdates= '31/09/10'
+/
+	
+&jmaxcon			
+nolayers = 1			
+noages = 1			
+nodates = 1			
+/
+	
+&jmax
+values = 112
+dates = '01/01/11'
+/
+	
+&vcmaxcon
+nolayers = 1
+noages = 1
+nodates = 1
+/
+	
+&vcmax
+values = 75
+dates = '01/01/11'
+/
+	
+&jmaxpars
+theta =0.7
+eavj = 43790
+edvj = 200000
+delsj = 644.4338
+/
+
+&ajqcon
+nolayers = 1
+noages = 1
+nodates = 1
+/
+
+&ajq
+values = 0.48
+dates = '01/01/12'
+/
+	
+&vcmaxpars
+eavc = 51560
+edvc = 200000
+delsc = 636
+/
+	
+&rdcon
+nolayers = 1
+noages = 1
+nodates = 1
+/
+
+from Nygren 
+&rd
+values = 0.89
+dates = '01/01/11'
+/
+
+&rdpars
+rtemp = 24
+q10f = 0.0575
+dayresp = 0.6
+effyrf = 0.4
+/ 
+	
+&slacon
+noages = 1
+nodates = 1
+nolayers = 1
+/
+	
+&sla
+values = 17.6
+dates = '01/01/11'
+/
+	

@@ -1,0 +1,40 @@
+Cacha structure file. 20/06/2015 mu and nu updated
+	&canopy					
+	cshape = 'ELIP'					
+	/					
+	
+	&lia	
+	elp = -1	
+	nalpha = 9	
+	falpha = 0.007088497	0.051019758	0.111414262	0.165755414	0.197361297	0.195928107	0.158664923	0.092545924	0.02022182
+
+	/ 
+	
+	&ladd
+	jleaf = 0
+	noagec = 1
+	random = 1.0
+	/					
+	
+	&aero
+	extwind = 0.0
+	/				
+	
+	&allom
+	coefft = 91.4114
+	expont = 1.741
+	winterc = 0.0
+	/
+	
+	&allomb
+	bcoefft = 8.9126
+	bexpont = 1.341
+	binterc = 0.0
+	/
+	
+	&allomr
+	rcoefft = 20
+	rexpont = 2.0
+	rinterc = 0.0
+	frfrac = 0.4
+	/

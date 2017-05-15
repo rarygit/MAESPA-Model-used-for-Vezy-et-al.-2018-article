@@ -1,0 +1,41 @@
+Poro structure file.
+	
+	&canopy					
+	cshape = 'ELIP'					
+	/					
+	
+From horizontal photos (Methodo Ryu, 2012)		
+	&lia	
+	elp = -1	
+	nalpha = 9	
+	falpha = 0.153	0.204	0.197	0.168	0.129	0.087	0.049	0.020	0.002
+	/ 
+	
+	&ladd
+	jleaf = 0
+	noagec = 1
+	random = 1.0
+	/					
+	
+	&aero
+	extwind = 0.0
+	/				
+	
+	&allom
+	coefft = 91.4114
+	expont = 1.741
+	winterc = 0.0
+	/
+	
+	&allomb
+	bcoefft = 8.9126
+	bexpont = 1.341
+	binterc = 0.0
+	/
+	
+	&allomr
+	rcoefft = 20
+	rexpont = 2.0
+	rinterc = 0.0
+	frfrac = 0.4
+	/

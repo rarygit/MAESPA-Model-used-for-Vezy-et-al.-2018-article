@@ -1,0 +1,32 @@
+Program:    MAESPA                                                                          
+Control:    ENSAYO calcul de la lumière transmise only (3 espèces d'arbres, pas de café)    
+Trees:      ENSAYO transmitance Shade Trees Only 3 species                                  
+Structure:                                                                      Multispecies
+Physiology:                                                                     Multispecies
+Met data:   ENSAYO trial Meteo 21 august 2015                                               
+Water bal.: Soil parameterized for Aquiares and Tarrazu                                     
+                                                                                
+ Species codes:
+           1  : Cacha                         
+           2  : Poro                          
+           3  : Terminalia                    
+           4  : Trunk                         
+           5  : Coffee                        
+                                                                                
+DOY: simulation date
+Tree: tree number
+Spec: tree species number
+absPAR:   absorbed PAR              MJ tree-1 d-1
+absNIR:   absorbed NIR              MJ  tree-1 d-1
+absTherm: absorbed thermal          MJ tree-1 d-1
+totPs: gross photosynthesis         mol tree-1 d-1
+totRf: daily foliar respiration     mol tree-1 d-1
+netPs: photosyn. net of foliar resp   mol tree-1 d-1
+totLE1: daily transpiration         mol H2O tree-1 d-1
+totLE2: daily transpirn (CANOPY calc) mol H2O m-2 d-1
+totH:  daily sensible heat flux     MJ tree-1 d-1
+                                                                                
+Columns: DOY Tree Spec absPAR absNIR absTherm totPs totRf netPs totLE1 totLE2 totH
+      1  132    5       1.6569       1.1469       0.2786       0.1828       0.0264       0.1564      17.1983       0.1715       2.3302       0.0000
+      1  299    5       0.7444       0.5930       0.3549       0.0979       0.0200       0.0778      10.4291       0.1054       1.2361       0.0000
+      1  363    5       1.9616       1.5851       0.7556       0.2529       0.0570       0.1959      28.2389       0.2837       3.0670       0.0000

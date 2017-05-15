@@ -88,7 +88,7 @@ PROGRAM maespa
     ENDIF
     
     IF(ISMAESPA)THEN
-        VTITLE = 'MAESPA.V2'
+        VTITLE = 'MAESPA'
     ELSE
         VTITLE = 'MAESTRA'
     ENDIF
@@ -143,9 +143,6 @@ PROGRAM maespa
     
     ! Save number of species
     NOSPEC = MAXVAL(ISPECIES(ITARGETS(1:NOTARGETS)))
-    
-    ! RV: correct STOCKING to correspond to the target trees stocking (stocking may be different on the edges).
-    STOCKING = NOTARGETS/PLOTAREA
     
     ! Get input from the water balance file
     IF(ISMAESPA)THEN        
