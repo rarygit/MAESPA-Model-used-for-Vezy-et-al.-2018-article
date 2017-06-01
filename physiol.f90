@@ -274,30 +274,29 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     GV = (GBV*GSV)/(GBV+GSV)
 
     ! Call Penman-Monteith equation !(if leaf 100% dry)  !glm canopy evap
-    !ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
+    ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
     
-    !calcul 2 !glm
-    GAMMA = CPAIR*AIRMA*PRESS/LHV
-    IF (GV.GT.0.0) THEN
-        ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
-        ET = ET/LHV
-        !print*,TLEAF,TAIR,VPD,GH,GV,ET2    
-    ELSE
-        ET = 0.0
-    ENDIF
+    ! calcul 2 !glm
+    ! GAMMA = CPAIR*AIRMA*PRESS/LHV
+    ! IF (GV.GT.0.0) THEN
+    !     ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
+    !     ET = ET/LHV
+    ! ELSE
+    !     ET = 0.0
+    ! ENDIF
     
     ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
     GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
-    !EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
+    EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
     !calcul 2 !glm
-    GAMMA = CPAIR*AIRMA*PRESS/LHV
-    IF (GV.GT.0.0) THEN
-        EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
-        EV = EV/LHV
-    !    !print*,ET,ET2        
-    ELSE
-        EV = 0.0
-    ENDIF
+    !  GAMMA = CPAIR*AIRMA*PRESS/LHV
+    !  IF (GV.GT.0.0) THEN
+    !     EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
+    !     EV = EV/LHV
+    !     !print*,ET,ET2        
+    ! ELSE
+    !     EV = 0.0
+    ! ENDIF
 
     !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
     IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
@@ -1048,8 +1047,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
 
     USE maestcom
     IMPLICIT NONE
-    REAL WIND,ZHT,Z0HT,ZPD
-    
+    REAL WIND,ZHT,ZSTAR,Z0HT,ZPD,WIND2
     REAL Cd, X, TOTLAI, ZPD2, TREEH, Z0, KH, ALPHA, Z0HT2
     REAL GBCANMS1, GBCANMS2, GBCANMSINI, GBCANMSROU
     REAL ALPHA1, WINDSTAR, ZW, COAT, GBCANMS3,Z0H,GBCANMS1MIN
@@ -1061,27 +1059,46 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     
     ! Aerodynamic conductance from the canopy to the atmosphere
     ! Formula from Jones 1992 p 68, aerodynamic conductance air-canopy - air, adapted from the CASTANEA model (Dufrene et al., 2005)
+    ! OLIVER & MAYHEAD (1974) :
     ZPD2 = 0.75 * TREEH
     Z0 = 0.1 *  TREEH
+    ! ZPD2 = 0.67 * TREEH
+    ! Z0 = 0.046 *  TREEH
+    ! RV: Z0 and ZPD2 are unknown... Carefull, model is sensible to z0.
+    ! NB: Lettau (1969) proposed an other way: Z0= 0.5 . h* . s / S where h* is canopy height, s is
+    ! the average silhouette area (projected area of the tree on a vertical plane) and S the specific 
+    ! area, with S= A/n, where A is the total plot area and n the number of trees.
+    ! For ZPD2, Verhoef et al. (1997) said d= 0.67 . h is a good proxy without any prior knowledge. 
+    
+    ZSTAR=ZHT
+    WIND2= WIND
+    ! ZSTAR can be corrected if lower than maximum tree height (TREEH) because GBCANMS have to be computed
+    ! for the whole canopy.
     
     ! RV: Observations indicate that z* lies 1–2 times the height of the canopy above the canopy (Garratt 1992, Harman&Finnigan 2007).
-    ! In their paper z* is the height of the roughness sublayer (not even the ZHT). So ZHT must be at least above TREEH.
-    IF (ZHT.LE.TREEH) THEN
-        ZHT= TREEH*1.1
-    ENDIF    
+    ! In their paper z* is the height of the roughness sublayer.
+    
+    
+    ! RV & GLM 05/2017 : If ZSTAR (=ZHT) is below TREEH (e.g. wind measurements are made under canopy)
+    ! wind is increased to obtain a wind above the canopy for GBH (Wind in the roughness layer). 
+    IF (ZSTAR.LE.TREEH) THEN
+        WIND2 = WIND * EXP(0.13155 * (TREEH/ZSTAR -1))
+        ZSTAR= TREEH*2.0
+    ENDIF
+    
     ! Aerodynamic conductance between the atmosphere and the canopy
     ! Reference Wind used in the conductance calculation
     ! (this is ustar, the friction velocity)
-    WINDSTAR = WIND * VONKARMAN / log((ZHT-ZPD2)/Z0)
+    WINDSTAR = WIND2 * VONKARMAN / log((ZSTAR-ZPD2)/Z0)
     
-    ! We supposed 2 aerodynamic conductances, one in the inertial layer (from ZHT to ZW)
-    ! and another one in the roughness layer from ZHT to TREEH
+    ! We supposed 2 aerodynamic conductances, one in the inertial layer (from ZSTAR to ZW)
+    ! and another one in the roughness layer from ZSTAR to TREEH
     ! According to Van de Griend 1989, we can assumed that :
     ALPHA1 = 1.5
     ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2)
     
     ! Aerodynamic conductance in the inertial sublayer (Van de Griend 1989)
-    GBCANMSINI = WINDSTAR*VONKARMAN /(LOG((ZHT - ZPD2)/(ZW - ZPD2)))
+    GBCANMSINI = WINDSTAR*VONKARMAN /(LOG((ZSTAR - ZPD2)/(ZW - ZPD2)))
     ! Aerodynamic conductance in the roughness layer
     ! The roughness layer is located between TREEH and a height ZW, according to 
     ! GBCANMSROU = WINDSTAR*VONKARMAN * ((ZW - TREEH)/(ZW - ZPD2))
@@ -1113,14 +1130,14 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
 !        IF (COAT.GT.3) COAT = 3
 
       ! Intermediate values
-!        WINDSTAR = WIND * VONKARMAN / log((ZHT-ZPD2)/Z0HT2)
+!        WINDSTAR = WIND * VONKARMAN / log((ZSTAR-ZPD2)/Z0HT2)
 !        Z0H = Z0*exp(-6.27*VONKARMAN*(WINDSTAR**(1/3)))
 !      
-!        GBCANMS2 = 1/  ( log((ZHT-ZPD2)/Z0)/(WIND*VONKARMAN**2) * (log((ZHT-ZPD2)/(TREEH-ZPD2)) +  &
+!        GBCANMS2 = 1/  ( log((ZSTAR-ZPD2)/Z0)/(WIND*VONKARMAN**2) * (log((ZSTAR-ZPD2)/(TREEH-ZPD2)) +  &
 !               (TREEH/(COAT*(TREEH-ZPD2)))*   (exp(COAT*(1-(ZPD2+Z0H)/TREEH))- 1)))     
 !    GBCANMS1=0.02
 !    GBCANMS2=0.01
-    
+
     RETURN
 
 END SUBROUTINE GBCANMS

@@ -173,7 +173,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                             WIND, ZHT, Z0HT, GAMSOIL, &
                             WEIGHTEDSWP,TOTESTEVAP,   &
                             FRACUPTAKE,TOTSOILRES,ALPHARET,WS,WR,NRET,ZBC,RZ,&
-                            ZPD, NOTREES, EXTWIND,IWATTABLAYER,ISIMWATTAB) 
+                            ZPD, NOTREES, EXTWIND,IWATTABLAYER,ISIMWATTAB,TREEH) 
 
 ! Calculates soil water potential, hydraulic conductivity,
 ! soil-to-root hydraulic conductance (leaf specific), thermal
@@ -198,7 +198,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL SOILMOISTURE,ROOTRESIST,ROOTRESFRAC,ROOTRAD,TOTLAI
       REAL WIND,ZHT,Z0HT,WEIGHTEDSWP,TOTSOILRES
       REAL ZBC(MAXT),RZ(MAXT), EXTWIND, GBCANMS1
-      REAL TREEHAVG,ZPD    ! for aerodynamic conductance calculation
+      REAL TREEH,ZPD    ! for aerodynamic conductance calculation
       INTEGER J, NOTREES
       INTEGER IWATTABLAYER,ISIMWATTAB
       
@@ -263,14 +263,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       
     ! Aerodynamic conductance between soil surface and air,
     ! assuming turbulent transfer (so that conductance is the same for
-    ! momentum, heat and mass transfer (Jones 1992)).
-    ! average canopy height calculation
-    TREEHAVG = (sum(ZBC(1:NOTREES)) + sum(RZ(1:NOTREES)) ) / NOTREES
-    ! RV: changed TREEH to TREEHAVG because TREEH is already computed in 
-    ! maespa.f90 and is the maximum tree height (to compute air to canopy
-    ! conductance).
-          
-      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEHAVG, TOTLAI, GBCANMS1, GAMSOIL)
+    ! momentum, heat and mass transfer (Jones 1992)).          
+      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH, TOTLAI, GBCANMS1, GAMSOIL)
 
       RETURN
       END
@@ -794,7 +788,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
       ! Net radiation - emitted longwave varies with surface temp.
       ! Uses reflectance as input to phy.dat.
-      ! Emission from the soil using the temperature above the dry thick layer
+      ! Thermal emission from the soil using the temperature above the dry thick layer
       ESOIL = ESOILFUN(TSOILSURFACE)
       !print*,'TSOILSURFACE',TSOILSURFACE
       !QN = DOWNTHAV*(1-RHOSOLSPEC3) + (1-RHOSOLSPEC1)*RGLOBUND1 + (1-RHOSOLSPEC2)*RGLOBUND2 - ESOIL 
@@ -2507,13 +2501,14 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
       
-      ! To avoid bug in case of no wind
-      IF (WIND.LT.0.001) WIND=0.001
       
+      ! To avoid bug in case of no wind
+      ! IF (WIND.LT.0.001) WIND=0.001  ! RV 05/2017: already in import
       ! aerodynamic conductance air within canopy - air above canopy from Choudhury 1988
       CALL GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
-      GCANOP = GBCANMS1 * CMOLAR
       
+      GCANOP = GBCANMS1 * CMOLAR
+
       ! calculation of air temperature within the canopy (Note that Qc <0)
       !HTOT=RNETTOT - ETOT + QC !W m-2
       HTOT = RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)

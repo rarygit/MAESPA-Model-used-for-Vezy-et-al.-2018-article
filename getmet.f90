@@ -689,7 +689,7 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
         IF (METCOLS(MHWIND).EQ.MISSING) THEN
             WINDAH(IHR) = DEFWIND     ! Very default value!!
         ELSE IF (DATAIN(IHR,METCOLS(MHWIND)).LE.0) THEN
-            WINDAH(IHR) = DEFWIND
+            WINDAH(IHR) = 0.001         ! RV 05/2017 : if wind<=0, WIND= 0.001
         ELSE
             WINDAH(IHR) = DATAIN(IHR,METCOLS(MHWIND))
         END IF
@@ -1547,7 +1547,7 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     INTEGER IPT, I, NUMPNT,LGP(MAXP), NOTREES
     REAL ZL(MAXP),ZBC(MAXP),RZ(MAXP),WINDLAY(MAXLAY)
     REAL ZHT, WINDTOP,ALPHA1, ALPHA2, ZW,ZPD2,Z0
-    REAL WINDSTAR,TREEH
+    REAL WINDSTAR,TREEHMAX
     
     !Average canopy height
     !TREEH = 0.0
@@ -1557,16 +1557,17 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     !    TREEH = TREEH / NOTREES
         
     !or max canopy height (eg. heterogeneous canopy)
-    TREEH = 0.0
-    DO I = 1,notrees 
-        TREEH = MAX(TREEH, ZBC(I) + RZ(I))
+    TREEHMAX = 0.0
+    DO I = 1,NOTREES 
+        TREEHMAX = MAX(TREEHMAX, ZBC(I) + RZ(I))
     ENDDO
 
     ! The wind speed at the top of the canopy is calculated assuming a logarithmic decrease of wind
     ! speed above the canopy (see Van de Griend 1989 and GBCANMS subroutine)
-    ZPD2 = 0.75 * TREEH
-    Z0 = 0.1 *  TREEH
-
+    ZPD2 = 0.75 * TREEHMAX
+    Z0 = 0.1 *  TREEHMAX
+    ! ZPD2 = 0.67 * TREEHMAX
+    ! Z0 = 0.046 *  TREEHMAX
     ! Relative reference Wind used in the conductance calculation
     ! Note that the formula differs from the one used in GBCANMS (without wind)
     ! because this subroutine calculate a relative wind
@@ -1574,12 +1575,12 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     
     ! According to Van de Griend we can assumed that (ZW height of the roughness layer) :
     ALPHA1 = 1.5
-    ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2) ! zw-h= 1.5l Raupach (1980)
+    ZW = ZPD2 + ALPHA1 * (TREEHMAX-ZPD2) ! zw-h= 1.5l Raupach (1980)
     
     IF(ZHT.GT.ZW) THEN
     ! Wind speed at the top of the canopy according to Van de Griend 1989 (eq 42)
             WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
-                  WINDSTAR/VONKARMAN * (1-((TREEH-ZPD2)/(ZW-ZPD2)))
+                  WINDSTAR/VONKARMAN * (1-((TREEHMAX-ZPD2)/(ZW-ZPD2)))
     ELSE
     ! WINDSPEED is already measured on top of canopy (in the roughness layer), no correction. RV 02/2017
         WINDTOP = 1
@@ -1588,20 +1589,20 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     ! We assumed an expenential decrease of wind speed with depth in the canopy according to Choudhury & Monteith 1988   
     ALPHA2 = 3.0
    
-    IF (ZHT.GT.TREEH) THEN
+    IF (ZHT.GT.TREEHMAX) THEN
     ! If ZHT is indeed above tree canopy, reduce wind exponetially with depth. 
         DO IPT = 1,NUMPNT
-            WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
+            WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEHMAX -1))
         ENDDO     
     ELSE
         ! If wind measurements were made below tree canopy (ZHT<TREEH), reduce wind exponetially below ZHT
         ! and increase wind above ZHT with a low ALPHA value because it has the least a priori possible 
-        ! (ALPHA= 0.13 above, from coffee plantation wind measurements at 3 and 25m).
+        ! (ALPHA= 0.13155 above, from coffee plantation wind measurements at 3 and 25m).
         ! This is made to have the possibility to use wind measurements from within canopy (e.g. between
         ! understory and tree canopy). RV 02/2017
         DO IPT = 1,NUMPNT
             IF (ZL(IPT).GE.ZHT)THEN
-                WINDLAY(LGP(IPT)) = WINDTOP * EXP(0.13 * (ZL(IPT)/ZHT -1))
+                WINDLAY(LGP(IPT)) = WINDTOP * EXP(0.13155 * (ZL(IPT)/ZHT -1))
             ELSE
                 WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/ZHT -1))
             ENDIF    

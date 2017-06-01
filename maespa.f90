@@ -132,6 +132,7 @@ PROGRAM maespa
         CALL SUBERROR('Error: Cannot use Tuzet model in MAESTRA. Use MAESPA!', IFATAL, 0)
     ENDIF
     
+    
     ! Get input from trees file
     CALL INPUTTREE(XSLOPE,YSLOPE,BEAR,X0,Y0,XMAX,YMAX,PLOTAREA,STOCKING,ZHT,Z0HT,ZPD, &
                     NOALLTREES,NOTREES,NOTARGETS,ITARGETS,SHADEHT,NOXDATES, &
@@ -144,8 +145,6 @@ PROGRAM maespa
     ! Save number of species
     NOSPEC = MAXVAL(ISPECIES(ITARGETS(1:NOTARGETS)))
     
-    ! RV: correct STOCKING to correspond to the target trees stocking (stocking may be different on the edges).
-    STOCKING = NOTARGETS/PLOTAREA
     
     ! Get input from the water balance file
     IF(ISMAESPA)THEN        
@@ -662,8 +661,11 @@ PROGRAM maespa
 
                         
             ! average canopy height for aerodynamic conductance calculation
-            TREEH = (SUM(ZBC(1:NOTREES)) + SUM(RZ(1:NOTREES))) / NOTREES
-            
+            ! TREEH = (SUM(ZBC(1:NOTREES)) + SUM(RZ(1:NOTREES))) / NOTREES
+            TREEH = 0.0
+            DO I = 1,NOTREES 
+                TREEH = MAX(TREEH, ZBC(I) + RZ(I))
+            ENDDO
             ! Run the iteration on air temperature and vapour pressure within the canopy
             CALL ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			                TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
@@ -916,7 +918,7 @@ PROGRAM maespa
                                         ROOTRAD,MINROOTWP,TOTLAI,WINDAH(IHOUR),ZHT,Z0HT,GAMSOIL,   &
                                         WEIGHTEDSWP,TOTESTEVAP, &
                                         FRACUPTAKESPEC(1:MAXSOILLAY, ISPEC),TOTSOILRES,ALPHARET,WS,WR,NRET,  &
-										ZBC,RZ,ZPD, NOTREES,EXTWIND,IWATTABLAYER,ISIMWATTAB)
+										ZBC,RZ,ZPD, NOTREES,EXTWIND,IWATTABLAYER,ISIMWATTAB,TREEH)
                                         
                     ! Soil surface T for SCATTER routine:
                     IF(SIMTSOIL.EQ.0)THEN  ! No Tsoil simulated.
@@ -1213,8 +1215,9 @@ PROGRAM maespa
                                     
                                     ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
                                     ! in fact AREATOT still unknown
-                                    GROUNDAREA = XMAX*COS(XSLOPE)*YMAX*COS(YSLOPE)
-                                    CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*GROUNDAREA) ! glm canopy evap
+                                    ! GROUNDAREA = XMAX*COS(XSLOPE)*YMAX*COS(YSLOPE)
+                                    ! RV & GLM 05/2017 : replace whole plot area by watbalarea
+                                    CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
                                     
                                     ! Call physiology routine
                                     CALL PSTRANSPIF(IDAY,IHOUR,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
@@ -1347,7 +1350,7 @@ PROGRAM maespa
                                     IF (IOHIST.EQ.1) CALL CATEGO(AREA,APAR,HISTO,BINSIZE,ITAR)
 
                                         ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
-                                        CANOPY_STORE_I=CANOPY_STORE*AREA/AREATOT !glm canopy evap
+                                        CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
                                         
                                         ! Call physiology routine
                                         CALL PSTRANSPIF(iday,ihour,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
@@ -1449,7 +1452,7 @@ PROGRAM maespa
                             APAR = 0.0
                             
                             ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
-                            CANOPY_STORE_I=CANOPY_STORE*AREA/AREATOT !glm canopy evap
+                            CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
                                 
                             ! Night-time call to PSTRANSP (most parameters not used but passed for consistency).
                             ! Note : DAYRESP set to 1.0.
