@@ -1217,7 +1217,8 @@ PROGRAM maespa
                                     ! in fact AREATOT still unknown
                                     ! GROUNDAREA = XMAX*COS(XSLOPE)*YMAX*COS(YSLOPE)
                                     ! RV & GLM 05/2017 : replace whole plot area by watbalarea
-                                    CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
+                                    ! CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
+                                    CANOPY_STORE_I = CANOPY_STORE / TOTLAI ! RV: from mm on soil to mm on leaves
                                     
                                     ! Call physiology routine
                                     CALL PSTRANSPIF(IDAY,IHOUR,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
@@ -1350,7 +1351,8 @@ PROGRAM maespa
                                     IF (IOHIST.EQ.1) CALL CATEGO(AREA,APAR,HISTO,BINSIZE,ITAR)
 
                                         ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
-                                        CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
+                                        ! CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
+                                        CANOPY_STORE_I = CANOPY_STORE / TOTLAI ! RV: from mm on soil to mm on leaves
                                         
                                         ! Call physiology routine
                                         CALL PSTRANSPIF(iday,ihour,RELDF(IPT),TU(IPT),TD(IPT),RNET, &
@@ -1452,8 +1454,8 @@ PROGRAM maespa
                             APAR = 0.0
                             
                             ! estimate IPT surface leaf water storage as proportional to AREA !glm canopy evap
-                            CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
-                                
+                            ! CANOPY_STORE_I=CANOPY_STORE*AREA/(TOTLAI*PLOTAREA) ! glm canopy evap
+                            CANOPY_STORE_I = CANOPY_STORE / TOTLAI ! RV: from mm on soil to mm on leaves
                             ! Night-time call to PSTRANSP (most parameters not used but passed for consistency).
                             ! Note : DAYRESP set to 1.0.
                             CALL PSTRANSPIF(IDAY,IHOUR,RELDF(IPT),TU(IPT),TD(IPT),RNET, &

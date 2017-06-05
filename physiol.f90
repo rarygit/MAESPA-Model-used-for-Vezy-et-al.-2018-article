@@ -154,7 +154,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     REAL GSC,ALEAF,RD,WEIGHTEDSWP,GBHF,GBH,GH,VMFD0,GBV,GSV,GV
     REAL ET,RNET,GBC,TDIFF,TLEAF1,FHEAT,ETEST,SF,PSIV,HMSHAPE
     REAL PSILIN,CI,VPARA,VPARB,VPARC,VPDMIN,GK,RD0ACC,ETDEFICIT
-    REAL EV, drycan, GVEV,CANOPY_STORE_I  !glm canopy evap
+    REAL EV, drycan,DRYCAN_I,GVEV,CANOPY_STORE_I  !glm canopy evap
     REAL TLEAF2,DELTATLEAFIN,DELTATLEAF,DELTATLEAF2 !glm secant method of convergence
     
     LOGICAL ISMAESPA,ISNIGHT,FAILCONV
@@ -288,6 +288,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
     GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
     EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
+
     !calcul 2 !glm
     !  GAMMA = CPAIR*AIRMA*PRESS/LHV
     !  IF (GV.GT.0.0) THEN
@@ -299,8 +300,19 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! ENDIF
 
     !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
-    IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
-        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
+       
+    ! IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
+    !     drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
+    ! ENDIF
+
+    ! glm canopy evap
+    ! RV: unit was the same for CANOPY_STORE_I and EV, no need to change it.
+    ! RV: DRYCAN_I is now used here instead of drycan because it can be modified for the considered voxel only.
+    ! EV in mol.m-2.s-1, convert to mm. CANOPY_STORE_I in mm
+    IF (((1-drycan)*EV*SPERHR * 18 * 1E-03).gt.CANOPY_STORE_I) THEN       
+        DRYCAN_I = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))
+    ELSE 
+        DRYCAN_I = drycan
     ENDIF
 
     ! End of subroutine if no iterations wanted.
@@ -314,7 +326,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ENDIF
     !TDIFF = (RNET - ET*LHV) / (CPAIR * AIRMA * GH)  
     ! changed to weighted average between evap and transp in function of drycan ratio. Drycan computed at canopy scale (this is a limit) !glm canopy evap
-    TDIFF = (RNET - drycan*ET*LHV - (1-drycan)*EV*LHV) / (CPAIR * AIRMA * GH)  !glm canopy evap
+    TDIFF = (RNET - DRYCAN_I*ET*LHV - (1-DRYCAN_I)*EV*LHV) / (CPAIR * AIRMA * GH)  !glm canopy evap
     
     TLEAF1 = TAIR + TDIFF/4 ! divide by 4 to slow down convergence and avoid big changes
 !    DELTATLEAF = TLEAF-(TAIR + TDIFF)
@@ -345,7 +357,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     
     ! Sensible heat flux
 !200 FHEAT = RNET - LHV*ET
-200 FHEAT = RNET - drycan*LHV*ET - (1-drycan)*LHV*EV ! glm canopy evap
+200 FHEAT = RNET - DRYCAN_I*LHV*ET - (1-DRYCAN_I)*LHV*EV ! glm canopy evap
     
     ! Transpiration minus supply by soil/plant (EMAX) must be drawn from plant reserve
     ETDEFICIT = (VPD/PATM) * GSV *1E03 - EMAXLEAF
@@ -369,8 +381,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
         PSIL = 0.0
     ENDIF
     
-    ET = drycan*ET ! (output = actual reduced Transp)!glm canopy evap 
-    EV = (1-drycan)*EV !(output = actual reduced evaporation)!glm canopy evap 
+    ET = DRYCAN_I*ET ! (output = actual reduced Transp)!glm canopy evap 
+    EV = (1-DRYCAN_I)*EV !(output = actual reduced evaporation)!glm canopy evap 
+
     
     RETURN
     END SUBROUTINE PSTRANSP

@@ -2259,13 +2259,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               WTOT = WTOT + FH2O(ITAR,IHOUR)
               WTOTEV = WTOTEV + FH2OEV(ITAR,IHOUR) !glm canopy evap
           ENDDO
-        
           ! Simple conversion
           ETMM = WTOT * CONV / PLOTAREA
-          EVMM = WTOTEV * CONV / PLOTAREA !glm canopy evap
-      
+          EVMM = WTOTEV * CONV / PLOTAREA !glm canopy evap  
       ENDIF
 
+      
 ! Option 2 : recalculate canopy water use from averaged (corrected) GSCAN
       IF(USESTAND.EQ.1)THEN
 
