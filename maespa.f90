@@ -1388,14 +1388,14 @@ PROGRAM maespa
                         END IF ! Separating sunlit & shaded foliage, or not
 
                          ! Write sunlit leaf area to file.
-                         IF(ISUNLA.EQ.1)THEN
-                             AREA = DLT(IPT) * VL(IPT)  ! LEAF AREA FOR THIS GRIDPOINT
-                             WRITE(USUNLA, 11221) IDAY,IHOUR,ITREE,IPT,SUNLA,AREA,BEXT,FBEAM(IHOUR,1),ZEN,              &
-                                  ABSRP(LGP(IPT),1),ABSRP(LGP(IPT),2),ABSRP(LGP(IPT),3),BFLUX(IPT,1), DFLUX(IPT,1),     &
-                                  BFLUX(IPT,2),DFLUX(IPT,2),DFLUX(IPT,3),SCLOST(IPT,1),SCLOST(IPT,2),SCLOST(IPT,3),     &
-                                  DOWNTH(IPT),RADABV(IHOUR,1),RADABV(IHOUR,2),RADABV(IHOUR,3)
+                         ! IF(ISUNLA.EQ.1)THEN
+                         !    AREA = DLT(IPT) * VL(IPT)  ! LEAF AREA FOR THIS GRIDPOINT
+                         !    WRITE(USUNLA, 11221) IDAY,IHOUR,ITREE,IPT,SUNLA,AREA,BEXT,FBEAM(IHOUR,1),ZEN,              &
+                         !         ABSRP(LGP(IPT),1),ABSRP(LGP(IPT),2),ABSRP(LGP(IPT),3),BFLUX(IPT,1), DFLUX(IPT,1),     &
+                         !         BFLUX(IPT,2),DFLUX(IPT,2),DFLUX(IPT,3),SCLOST(IPT,1),SCLOST(IPT,2),SCLOST(IPT,3),     &
+                         !         DOWNTH(IPT),RADABV(IHOUR,1),RADABV(IHOUR,2),RADABV(IHOUR,3)
                                     
-                         ENDIF
+                         ! ENDIF
 11221      FORMAT(4(1X,I4), 7(1X,F12.3), 13(1X,F12.3))
                     
                     END DO ! End loop over grid points
@@ -1626,20 +1626,26 @@ PROGRAM maespa
 
 1112            CONTINUE    
                 
-                         IF(ISUNLA.EQ.1.AND.(IHOUR.EQ.24.OR.IHOUR.EQ.2))THEN
+                         IF(ISUNLA.EQ.1)THEN
                             
+                             ! DO ITAR = 1, NOTARGETS
+                             !     DO IPT = 1,NUMPNT
+                             !         
+                             ! WRITE(USUNLA, 112) IDAY, IHOUR, ITAR, IPT, TLEAFTABLE(ITAR,IPT),   &
+                              !     APARTABLE(ITAR,IPT), ANIRTABLE(ITAR,IPT),ATHRTABLE(ITAR,IPT), &
+                              !    ETTABLE(ITAR,IPT)*(H2OLV0 - 2.365E3 * TAIRNEW) * H2OMW* 1e-06,&
+                              !    HTABLE(ITAR,IPT),&
+                              !    GSCTABLE(ITAR,IPT),PSILTABLE(ITAR,IPT)
+                              !    END DO
+                            ! ENDDO
+                             
                              DO ITAR = 1, NOTARGETS
-                                 DO IPT = 1,NUMPNT
-                                     
-                             WRITE(USUNLA, 112) IDAY, IHOUR, ITAR, IPT, TLEAFTABLE(ITAR,IPT),   &
-                                 APARTABLE(ITAR,IPT), ANIRTABLE(ITAR,IPT),ATHRTABLE(ITAR,IPT), &
-                                 ETTABLE(ITAR,IPT)*(H2OLV0 - 2.365E3 * TAIRNEW) * H2OMW* 1e-06,&
-                                 HTABLE(ITAR,IPT),&
-                                 GSCTABLE(ITAR,IPT),PSILTABLE(ITAR,IPT)
-                                 END DO
-                                 ENDDO
+                                WRITE(USUNLA, 112) IDAY, IHOUR, ITAR, maxval(TLEAFTABLE(ITAR,1:NUMPNT)), &
+                                     minval(TLEAFTABLE(ITAR,1:NUMPNT)),                                   &
+                                    sum(TLEAFTABLE(ITAR,1:NUMPNT))/NUMPNT
+                             ENDDO
                          ENDIF
-112  FORMAT(4(1X,I4), 8(1X,F12.3))
+112  FORMAT(3(1X,I4), 3(1X,F12.3))
                 
                 ! Layered water balance, outputs new soil water content, discharge,
                 ! soil evaporation, overflow, thickness of dry layer.

@@ -1188,8 +1188,10 @@ END SUBROUTINE EXDIFF
         TD(IPT) = WNS/WDS
         TU(IPT) = WNG/WDG
         RELDF(IPT)= WNS1/WDS
-  900 CONTINUE
+900   CONTINUE
 
+      
+      
       RETURN
       END !Transd
 
