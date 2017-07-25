@@ -177,9 +177,9 @@ PROGRAM maespa
     
     ! Read MAESTEST input file.
     ! Open files and read information about points
-    IF(IPOINTS .EQ. 1)THEN
+    IF(IPOINTS.GE.1)THEN
       CALL GETPOINTSF(NUMTESTPNT,XLP,YLP,ZLP,X0,Y0,XMAX,YMAX, &
-         CTITLE,TTITLE,MTITLE,STITLE,VTITLE)
+         CTITLE,TTITLE,MTITLE,STITLE,VTITLE,IPOINTS)
     ENDIF
       
     ! Initialize various variables related to water balance calculations.
@@ -351,7 +351,7 @@ PROGRAM maespa
                 CALL TRANSD(IDAY,NEWCANOPY,IPROGUS,NOTREES,XSLOPE,YSLOPE,NZEN,DIFZEN,NAZ,NOUSPOINTS, &
                             DEXTTUS,DIFSKY,XLU,YLU,ZLU,RXUS,RYUS,RZUS,DXTUS,DYTUS,DZTUS,XMAX,YMAX,SHADEHT,  &
                             FOLTUS,ZBCUS,JLEAFTUS,BPTTUS,NOAGECTUS,PROPCT,JSHAPETUS,SHAPETUS,NEWTUTD,TUUS,  &
-                            TDUS,RELDFUS,DEXT)   
+                            TDUS,RELDFUS,DEXT,IPOINTS)   
             ENDIF
         ENDIF  ! ISIMUS.EQ.1
 
@@ -538,7 +538,7 @@ PROGRAM maespa
                 
                 ! Do Maestest calculations (only once - when the loop is at the first tree (ITAR), and on the first day).
                 RANPOINTS = 0
-                IF(IPOINTS.EQ.1.AND.RANPOINTS.EQ.0)THEN
+                IF(IPOINTS.GE.1.AND.RANPOINTS.EQ.0)THEN
    
                         ! Sort trees to middle of test points (has no real effect at the moment; since all trees in the plot are used).
                         AX = AVERAGEVAL(XLP,NUMTESTPNT)
@@ -586,7 +586,7 @@ PROGRAM maespa
                         XLP,YLP,ZLP,RXP,RYP,RZP,DXTP,DYTP,DZTP, &
                         XMAX,YMAX,SHADEHT, &
                         FOLTP,ZBCP,JLEAFTP,BPTTP,NOAGECTP,PROPCTP,JSHAPETP,SHAPETP, &
-                        NEWTUTD,TUP,TDP,RELDFP,DEXTP)
+                        NEWTUTD,TUP,TDP,RELDFP,DEXTP,IPOINTS)
       
                         CALL EHC(NUMTESTPNT,TUP,TDP, &
                          TOTLAI,XSLOPE,YSLOPE,NAZ,NZEN,NECHLAY,DIFZEN,DEXTP, &
@@ -607,7 +607,7 @@ PROGRAM maespa
                 ! Calculate diffuse transmittances
                 CALL TRANSD(IDAY,NEWCANOPY,IPROG,NOTREES,XSLOPE,YSLOPE,NZEN,DIFZEN,NAZ,NUMPNT,DEXTT,             &
                             DIFSKY,XL,YL,ZL,RX,RY,RZ,DXT,DYT,DZT,XMAX,YMAX,SHADEHT,FOLT,ZBC,JLEAFT,BPTT,NOAGECT,PROPCT, &
-                            JSHAPET,SHAPET,NEWTUTD,TU,TD,RELDF,DEXT)
+                            JSHAPET,SHAPET,NEWTUTD,TU,TD,RELDF,DEXT,IPOINTS)
 
                 TUAR(ITAR, 1:NUMPNT) = TU(1:NUMPNT)
                 TDAR(ITAR, 1:NUMPNT) = TD(1:NUMPNT)
@@ -1077,7 +1077,7 @@ PROGRAM maespa
                     ENDIF ! Understorey calculations
                     
                     ! Output PAR transmittance for test points.
-                    IF(IPOINTS.EQ.1)THEN      
+                    IF(IPOINTS.GE.1)THEN      
                         DO IPTEST = 1,NUMTESTPNT
           
                         IPROGCUR = ITEST
@@ -1640,7 +1640,7 @@ PROGRAM maespa
                             ! ENDDO
                              
                              DO ITAR = 1, NOTARGETS
-                                WRITE(USUNLA, 112) IDAY, IHOUR, ITAR, maxval(TLEAFTABLE(ITAR,1:NUMPNT)), &
+                                WRITE(USUNLA, 112) IDAY, IHOUR, ITARGETS(ITAR), maxval(TLEAFTABLE(ITAR,1:NUMPNT)), &
                                      minval(TLEAFTABLE(ITAR,1:NUMPNT)),                                   &
                                     sum(TLEAFTABLE(ITAR,1:NUMPNT))/NUMPNT
                              ENDDO

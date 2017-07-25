@@ -136,6 +136,7 @@
     INTEGER, PARAMETER :: URESPHDR = 48
     INTEGER, PARAMETER :: USUNLA = 49
     INTEGER, PARAMETER :: USWPLAY = 50
+    INTEGER, PARAMETER :: UPTTD = 51        ! Output diff. trans for ZEN & AZ
 
 
 

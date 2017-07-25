@@ -493,7 +493,7 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
         IF (ISUNLA.EQ.1) THEN
             WRITE (USUNLA,461)    ! MAthias 27/11/12
         END IF
-
+        
         ! Write headings to daily flux file
         IF (IODAILY.GT.0) THEN
             WRITE (UDAILY, 991) 'Program:    ', VTITLE
@@ -1095,6 +1095,8 @@ SUBROUTINE CLOSEF()
     CLOSE(USUNLA)  ! Mathias 27/11/12
     CLOSE(STDIN)
     CLOSE(UTREES)
+    CLOSE(UPTTD)    ! RV 30/06/17
+    CLOSE(UPOINTSO)    ! RV 30/06/17
     CLOSE(USTR)
     CLOSE(UPHY)
     CLOSE(UMET)
@@ -5622,7 +5624,7 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
 
 !**********************************************************************
       SUBROUTINE GETPOINTSF(NUMTESTPNT,XL,YL,ZL,X0,Y0,XMAX,YMAX, &
-        CTITLE,TTITLE,MTITLE,STITLE,VTITLE)
+        CTITLE,TTITLE,MTITLE,STITLE,VTITLE,IPOINTS)
 ! Subroutine for testing radiation interception routines.
 ! Open input & output files and read information about sensor positions.
 !**********************************************************************
@@ -5630,7 +5632,7 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
       USE maestcom
       IMPLICIT NONE
       INTEGER NOPOINTS,INPUTTYPE,IOERROR,NUMTESTPNT,N,I
-
+      INTEGER IPOINTS
 
       CHARACTER*20 filenamenum !glm!
       INTEGER :: numpar !glm!
@@ -5729,7 +5731,19 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
       CALL OPEN_FILE(filenamenum, UPOINTSO, 'write', 'asc', 'replace')
       ! OPEN (UPOINTSO, FILE = filenamenum, STATUS='UNKNOWN')
       ! OPEN (UPOINTSO, FILE = 'testflx.dat', STATUS = 'UNKNOWN')
-
+    IF (IPOINTS.EQ.2) THEN
+        if (numpar.lt.10) then
+            write(filenamenum,'(I1.1,A)') numpar,'_ptTD.dat' !RV
+            elseif (numpar.lt.100) then
+	        write(filenamenum,'(I2.2,A)') numpar,'_ptTD.dat' !RV
+            elseif (numpar.lt.1000) then
+	        write(filenamenum,'(I3.3,A)') numpar,'_ptTD.dat' !RV
+            else
+	        write(filenamenum,'(I4.4,A)') numpar,'_ptTD.dat' !RV
+        endif
+        CALL OPEN_FILE(filenamenum, UPTTD, 'write', 'asc', 'replace')    
+    ENDIF
+            
 ! Write headings to output file
 991   FORMAT (A12,A80) ! For writing comments to output files.
 992   FORMAT (1X,3(A3,1X),11(A12,1X))
