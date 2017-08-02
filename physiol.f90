@@ -306,7 +306,6 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! ENDIF
 
     ! glm canopy evap
-    ! RV: unit was the same for CANOPY_STORE_I and EV, no need to change it.
     ! RV: DRYCAN_I is now used here instead of drycan because it can be modified for the considered voxel only.
     ! EV in mol.m-2.s-1, convert to mm. CANOPY_STORE_I in mm
     IF (((1-drycan)*EV*SPERHR * 18 * 1E-03).gt.CANOPY_STORE_I) THEN       
