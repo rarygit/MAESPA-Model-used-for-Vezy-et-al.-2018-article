@@ -366,7 +366,6 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ET = ET*1E6
     EV = EV*1E6 !glm canopy evap
     
-
     ! Calculate leaf water potential
     ! supposed to be the one of the dry part of the leaf !glm canopy evap!
     IF(ISMAESPA)THEN
@@ -383,6 +382,14 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ET = DRYCAN_I*ET ! (output = actual reduced Transp)!glm canopy evap 
     EV = (1-DRYCAN_I)*EV !(output = actual reduced evaporation)!glm canopy evap 
 
+    ! RV 08/2017 : ET and EV can be negative when there is dew.
+    ! If ET is negative, we transfer its values to EV to increase 
+    ! CANOPY_STORE for the next time-step, and set it equal to 0.
+    IF(ET.LT.0)THEN
+        EV = EV + ET
+        ET = 0
+    ENDIF
+    
     
     RETURN
     END SUBROUTINE PSTRANSP
@@ -955,7 +962,9 @@ REAL FUNCTION PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
     END IF
     PENMON = ET / LHV
     
-    IF (PENMON.LT.0.0) PENMON = 0.0            ! BM 12/05 Should not be negative
+    
+    ! IF (PENMON.LT.0.0) PENMON = 0.0            ! BM 12/05 Should not be negative
+    ! RV: it should when dew is formed
     
       RETURN
 END FUNCTION PENMON
