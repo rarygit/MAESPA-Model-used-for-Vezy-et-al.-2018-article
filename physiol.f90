@@ -938,7 +938,7 @@ END FUNCTION ETCAN
 !**********************************************************************
 REAL FUNCTION PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
 ! This subroutine calculates evapotranspiration by leaves using the Penman-Monteith equation.
-! Inputs:      PRESS atmospheric pressure, Pa
+! Inputs:    PRESS atmospheric pressure, Pa
 !            SLOPE slope of VPD/T curve, Pa K-1
 !            LHV latent heat of water at air T, J mol-1
 !            RNET net radiation, J m-2 s-1

@@ -1016,7 +1016,7 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
 421     FORMAT('qn: soil radiation                                 W m-2')
 422     FORMAT('qc: soil heat transport                            W m-2')
 423     FORMAT('rglobund: net radiation underneath canopy          W m-2')
-424     FORMAT('rglobabv: net radiation above canopy               W m-2')
+424     FORMAT('rglobabv: incident radiation above canopy          W m-2')
 425     FORMAT('radinterc: total radiation intercepted by canopy   W m-2')
 426     FORMAT('rnet: net radiation above the canopy               W m-2')
 427     FORMAT('totlai: leaf area index                           m2 m-2')
