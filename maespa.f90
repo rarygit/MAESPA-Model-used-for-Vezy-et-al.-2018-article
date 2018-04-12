@@ -56,7 +56,7 @@ PROGRAM maespa
     INTEGER :: numpar !glm!
     COMMON /PAR/ numpar !glm! 
 
-    VTITLE = 'MAESPA: version Feb 2014'
+    VTITLE = 'MAESPA: Vezy_et_al.2018'
     VTITLE = VTITLE(1:LEN_TRIM(VTITLE))
 
     ! Read files number for cluster calculations
