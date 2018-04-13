@@ -1,6 +1,6 @@
 A soil-plant-atmosphere model based on MAESTRA and SPA <img src="logo/MAESPA.png" alt="logo" width="300" align="right" />
 ===========================================================================================================================
-[![Project Status: Inactive � The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](http://www.repostatus.org/badges/latest/inactive.svg)](http://www.repostatus.org/#inactive)
+[![Project Status: Inactive - The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](http://www.repostatus.org/badges/latest/inactive.svg)](http://www.repostatus.org/#inactive)
 [![Join the chat at https://gitter.im/MAESPA_Gitlab/Lobby#](https://badges.gitter.im/MAESPA_Gitlab/Lobby.svg?token=bdd0825dd47f74557eb8&branch=master)](https://gitter.im/MAESPA_Gitlab/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
