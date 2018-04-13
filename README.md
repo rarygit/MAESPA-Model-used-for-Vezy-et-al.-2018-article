@@ -44,7 +44,7 @@ NB: The Intel Visual Fortran Compiler can lead to much faster executables using 
 A Makefile is provided to compile Maes* on a Mac or linux-based OS (thanks to Martin de Kauwe and Alejandro Morales).
 
 ## Direct downloads
-Here are the links to direct download this version executables for Windows [Win x84](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/Windows/maespa_x86.exe)
+Here are the links to direct download this version executables for Windows [Win x84](https://gitlab.com/VEZY/MAESPA/raw/master/Executables/Windows/maespa_x86.exe)
 and [Win x64 ](https://gitlab.com/VEZY/MAESPA/raw/master/Executables/Windows/maespa_x64.exe) and
 Linux [CentOS](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/CentOS/maespa),
 [Debian](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/Debian/maespa) and
