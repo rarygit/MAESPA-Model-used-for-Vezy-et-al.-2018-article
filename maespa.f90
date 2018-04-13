@@ -7,7 +7,7 @@ PROGRAM maespa
     ! ======================================================================================
     
     !=======================================================================================
-    ! Copyright 2015 Remko Duursma, Belinda Medlyn, Mathias Christina, Guerric le Maire
+    ! Copyright 2015 Remko Duursma, Belinda Medlyn, Mathias Christina, Guerric le Maire, Remi Vezy.
     !---------------------------------------------------------------------------------------
     ! this file is part of MAESPA.
     !
