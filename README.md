@@ -24,8 +24,7 @@ Changes relative to the official [master](https://bitbucket.org/remkoduursma/mae
 * Bug fixes on slope computation
 
 ## Contributors
-Original model maintainers: [Remko Duursma](http://www.remkoduursma.com/) and [Belinda Medlyn](https://bmedlyn.wordpress.com).
-
+Original model maintainers: [Remko Duursma](http://www.remkoduursma.com/) and [Belinda Medlyn](https://bmedlyn.wordpress.com).  
 This version developpers (alphabetical order): Mathias Christina, Guerric le Maire and Rémi Vezy.  
 This version maintainer: Rémi Vezy.
 
@@ -48,7 +47,7 @@ Here are the links to direct download this version executables for Windows [Win 
 and [Win x64 ](https://gitlab.com/VEZY/MAESPA/raw/master/Executables/Windows/maespa_x64.exe) and
 Linux [CentOS](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/CentOS/maespa),
 [Debian](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/Debian/maespa) and
-[RedHat](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/RedHat/maespa). Carefull : the Linux executables are no longer updated, please compile MAESPA locally.
+[RedHat](https://gitlab.com/VEZY/MAESPA/raw/3bcfa81e53840c609f50a7a5d948257cc33a0822/Executables/RedHat/maespa). Carefull: the Linux executables are no longer updated, please compile MAESPA locally.
 
 ## Links to repositories
 Here are the links to the official repository on which this version is based on [here](https://bitbucket.org/remkoduursma/maespa/commits/b7440289f6801fbd8841241e48ead6592e58e39e?at=montpellier) and direct download [link](https://bitbucket.org/remkoduursma/maespa/get/montpellier.zip).
@@ -56,5 +55,13 @@ Here are the links to the official repository on which this version is based on 
 ## Adapting input files
 To adapt the input files from the original version to this version, please consider reading the [wiki](https://gitlab.com/VEZY/MAESPA/wikis/home).
 
+## Official MAESPA website (infos + technical manual)
+All informations about MAESPA can be found in the [MAESPA website](http://maespa.github.io).
+
+## Validation website
+A [website](https://vezy.github.io/MAESPA_Validation/) is available to see the simulation outputs from this version of MAESPA on different sites (Monospecific *Eucalyptus urograndis* plantation in Brazil + 3 *Coffee arabica* plantations in Costa Rica under agroforestry management).
+
+
 ## References
-The scientific article can be found on the Agricultural and Forest Meteorology [website](https://www.sciencedirect.com/science/article/pii/S016819231830042X) or [here](https://www.researchgate.net/publication/323398728_Measuring_and_modelling_energy_partitioning_in_canopies_of_varying_complexity_using_MAESPA_model) alternatively.
+Vezy, R., et al., Measuring and modelling energy partitioning in canopies of varying complexity using MAESPA model. Agricultural and Forest Meteorology, 2018. 253–254: p. 203-217. [Official link](https://www.sciencedirect.com/science/article/pii/S016819231830042X) or
+[Researchgate](https://www.researchgate.net/publication/323398728_Measuring_and_modelling_energy_partitioning_in_canopies_of_varying_complexity_using_MAESPA_model) alternatively.
