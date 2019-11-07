@@ -111,7 +111,7 @@ SUBROUTINE OPENINPUTF(CTITLE,TTITLE,PTITLE,STITLE,WTITLE,UTITLE,IWATFILE,KEEPZEN
     LOGICAL EXT
 
     CHARACTER*20 filenamenum !glm!
-	INTEGER :: numpar !glm!
+   	INTEGER :: numpar !glm!
     COMMON /PAR/ numpar !glm!
 
     ! Modified RAD
@@ -493,7 +493,7 @@ SUBROUTINE WRITE_HEADER_INFORMATION(NSPECIES,SPECIESNAMES, &
         IF (ISUNLA.EQ.1) THEN
             WRITE (USUNLA,461)    ! MAthias 27/11/12
         END IF
-        
+
         ! Write headings to daily flux file
         IF (IODAILY.GT.0) THEN
             WRITE (UDAILY, 991) 'Program:    ', VTITLE
@@ -3792,9 +3792,18 @@ SUBROUTINE READGS(UFILE,I,MODELGS,                                              
             CALL SUBERROR('GNIGHT NOT INPUT, ASSUMED EQUAL TO G0 AT FIRST DATE.', IWARN,0)
         ENDIF
 
-        ! New Medlyn et al 2011 model (corrigendum):
-        ! g1 MUST be for H2O
-        CALL SUBERROR('GS PARAMETERS ARE ASSUMED TO BE FOR H2O.', IWARN,0)
+        ! If conductance pars given for water:
+        IF(CONDUNITS.EQ.'H2O'.OR.CONDUNITS.EQ.'h2o')THEN
+            GSMIN = GSMIN / GSVGSC
+            G0 = G0 / GSVGSC
+            G1 = G1 / GSVGSC
+            G20 = G20 / GSVGSC
+            G21 = G21 / GSVGSC
+            GNIGHT = GNIGHT / GSVGSC
+            CALL SUBERROR('GS PARAMETERS FOR H2O WERE CONVERTED TO CO2.', IWARN,0)
+        ELSE
+            CALL SUBERROR('GS PARAMETERS ARE ASSUMED TO BE FOR CO2.', IWARN,0)
+        ENDIF
 
         GSMINI = GSMIN
         GNIGHTI = GNIGHT
@@ -5741,9 +5750,9 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
             else
 	        write(filenamenum,'(I4.4,A)') numpar,'_ptTD.dat' !RV
         endif
-        CALL OPEN_FILE(filenamenum, UPTTD, 'write', 'asc', 'replace')    
+        CALL OPEN_FILE(filenamenum, UPTTD, 'write', 'asc', 'replace')
     ENDIF
-            
+
 ! Write headings to output file
 991   FORMAT (A12,A80) ! For writing comments to output files.
 992   FORMAT (1X,3(A3,1X),11(A12,1X))
