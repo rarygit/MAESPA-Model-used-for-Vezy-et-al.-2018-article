@@ -6,10 +6,12 @@
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	PROG =	maespa
+	cleanit= rm -f $(PROG) $(OBJS) *.mod
 endif
 
 ifeq ($(OS),Windows_NT)
 	PROG =	maespa.exe
+	cleanit= del /f /q $(PROG) $(OBJS) *.mod
 endif
 
 SRCS =	default_conditions.f90 switches.f90 maestcom.f90 getmet.f90 maindeclarations.f90 \
@@ -26,7 +28,7 @@ INCLS =
 
 F90 = gfortran
 
-FFLAGS = -g -fbounds-check -finit-local-zero -Wuninitialized -ftrapv -ffree-form -ffree-line-length-none -O3
+FFLAGS = -g -fbounds-check -finit-local-zero -Wuninitialized -ftrapv -ffree-form -ffree-line-length-none -O3 -ffast-math
 
 all: $(PROG)
 $(PROG): $(OBJS)
@@ -35,7 +37,7 @@ $(PROG): $(OBJS)
 	@echo ' '
 
 clean:
-	rm -f $(PROG) $(OBJS) *.mod
+	$(cleanit)
 	@echo 'Clean complete'
 
 .SUFFIXES: $(SUFFIXES) .f90

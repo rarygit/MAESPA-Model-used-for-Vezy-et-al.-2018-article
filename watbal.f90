@@ -19,7 +19,7 @@
 ! you should have received a copy of the gnu general public license
 ! along with MAESPA.  if not, see <http://www.gnu.org/licenses/>.
 !=======================================================================================
-    
+
 !     This file contains all the subroutines for calculating the water
 !     balance. Based on SPA water balance routines, with various modifications.
 !
@@ -146,7 +146,7 @@ SUBROUTINE INITWATBAL(LAYTHICK,WETTINGBOT,WETTINGTOP, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR
-        
+
     ELSE IF (IOFORMAT .EQ. 0) THEN
         WRITE (UWATBAL,520)IZEROVAR,IZEROVAR,WSOIL,ZEROVAR,ZEROVAR, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR, &
@@ -156,7 +156,7 @@ SUBROUTINE INITWATBAL(LAYTHICK,WETTINGBOT,WETTINGTOP, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR, &
                         ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR,ZEROVAR
             520   FORMAT (I7,I7,51(F14.4,1X))
-    END IF            
+    END IF
     RETURN
 END SUBROUTINE INITWATBAL
 
@@ -173,7 +173,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                             WIND, ZHT, Z0HT, GAMSOIL, &
                             WEIGHTEDSWP,TOTESTEVAP,   &
                             FRACUPTAKE,TOTSOILRES,ALPHARET,WS,WR,NRET,ZBC,RZ,&
-                            ZPD, NOTREES, EXTWIND,IWATTABLAYER,ISIMWATTAB,TREEH) 
+                            ZPD, NOTREES, EXTWIND,IWATTABLAYER,ISIMWATTAB,TREEH)
 
 ! Calculates soil water potential, hydraulic conductivity,
 ! soil-to-root hydraulic conductance (leaf specific), thermal
@@ -201,13 +201,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL TREEH,ZPD    ! for aerodynamic conductance calculation
       INTEGER J, NOTREES
       INTEGER IWATTABLAYER,ISIMWATTAB
-      
+
       REAL, EXTERNAL :: SOILCONDFUN
       REAL, EXTERNAL :: THERMCONDFUN
       REAL, EXTERNAL :: SOILWPFUN
       REAL, EXTERNAL :: SOILCONDFUN2
 !      REAL, EXTERNAL :: GBCANMS
-      
+
 ! Update soil water potential,soil conductivity, soil thermal conductivity and
 ! soil to root conductance for each soil layer.
       DO I=1,NLAYER
@@ -231,7 +231,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                           WS(I), BPAR(I), &
                                           FRACORGANIC(I),RETFUNCTION)
           ENDDO
-      END IF              
+      END IF
 
 ! Calculate soil conductivity and soil-to-root resistance if using measured soil water content.
       IF(USEMEASSW.EQ.1)THEN
@@ -244,8 +244,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         ENDIF
       ENDIF
-      
-      
+
+
     CALL SOILRESCALC(USEMEASSW, SOILCOND,ROOTRESIST, &
                             ROOTMASS,ROOTLEN,LAYTHICK,ROOTRAD, &
                             NROOTLAYER,SOILRRES1,SOILRRES2)
@@ -259,11 +259,11 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                 USEMEASSW, SOILDATA, SOILMOISTURE, &
                                 ROOTLEN,NROOTLAYER,WEIGHTEDSWP, &
                                 FRACUPTAKE,TOTSOILRES,LAYTHICK, &
-                                TOTESTEVAP,ZBC,RZ) 
-      
+                                TOTESTEVAP,ZBC,RZ)
+
     ! Aerodynamic conductance between soil surface and air,
     ! assuming turbulent transfer (so that conductance is the same for
-    ! momentum, heat and mass transfer (Jones 1992)).          
+    ! momentum, heat and mass transfer (Jones 1992)).
       CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH, TOTLAI, GBCANMS1, GAMSOIL)
 
       RETURN
@@ -320,12 +320,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL, EXTERNAL :: HEATEVAP
         REAL WS(MAXSOILLAY),WR(MAXSOILLAY),NRET(MAXSOILLAY)
         REAL PSIE(MAXSOILLAY), ALPHARET(MAXSOILLAY)
-        INTEGER IWATTABLAYER,ISIMWATTAB,K 
+        INTEGER IWATTABLAYER,ISIMWATTAB,K
         REAL WATERGAINCAPIL(MAXSOILLAY), SOILWP(MAXSOILLAY)
         REAL LDRAIN(MAXSOILLAY),PLATDRAIN, WATCAPIL
         REAL TREEH, TOTLAI
         REAL  EVMM,EVMMSPEC(MAXSP),drycan !glm canopy evap
-        
+
 !       Conversions
         SOILTC = SOILTK - FREEZE
         TAIRC = TAIRK - FREEZE
@@ -405,9 +405,9 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             ENDDO
 ! Use modelled; allow for multiple species.
         ELSE
-        
+
             DO ISPEC=1,NOSPEC
-                
+
                 !       Water loss from each rooted layer (i.e. *root water uptake)
                 ETLOSS = ETMMSPEC(ISPEC) / 1000
                 FRACUPTAKE(1:MAXSOILLAY) = FRACUPTAKESPEC(1:MAXSOILLAY, ISPEC)
@@ -415,7 +415,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                 DO I=1,NROOTLAYER
                     WATERLOSS(I) = WATERLOSS(I) + ETLOSS*FRACUPTAKE(I)
                 ENDDO
-            
+
             ENDDO
         ENDIF
 
@@ -423,8 +423,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         check2 = etmm/1000 + qem
         check3 = sum(etmmspec(1:nospec))/1000 + qem
         check4 = sum(waterloss(1:nrootlayer))
-        
-  
+
+
 !       Calculate capilary rising to each layer
         IF (ISIMWATTAB.EQ.1) THEN
             DO J = 1,NLAYER
@@ -433,27 +433,27 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                    IWATTABLAYER, WATERGAINCAPIL,WATERGAIN,WATERLOSS)
             END DO
             ! capilary rising from the wat tab layer
-            WATCAPIL = 1000 * WATERGAINCAPIL(IWATTABLAYER-1)  
-        ELSE 
+            WATCAPIL = 1000 * WATERGAINCAPIL(IWATTABLAYER-1)
+        ELSE
             WATERGAINCAPIL = 0.0
             WATCAPIL = 0.0
-        END IF        
-        
+        END IF
+
 !       Calculate drainage for each soil layer
         ! Attention if there is capillary rising there should not have drainage
-        DO J = 1,NLAYER     
+        DO J = 1,NLAYER
         CALL SOIL_BALANCE(J, POREFRAC, ICEPROP, FRACWATER, &
                           LAYTHICK, DRAINLIMIT(J), WATERLOSS, WATERGAIN, &
                           KSAT(J), BPAR(J),WS(J),WR(J),ALPHARET(J),NRET(J),RETFUNCTION,&
                           LDRAIN,PLATDRAIN, WATERGAINCAPIL)
 
         ENDDO
-        
+
         ! Loss of water at lowest soil layer (discharge, or deep drainage) (mm).
         IF (ISIMWATTAB.EQ.0) THEN
             DISCHARGE = 1000 * WATERGAIN(NLAYER + 1)
             DO K=1,nlayer
-                DISCHARGE=DISCHARGE 
+                DISCHARGE=DISCHARGE
             ENDDO
         ELSE
             ! Discharge = lateral drainage from the water table
@@ -473,7 +473,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
 
         IF (ISIMWATTAB.EQ.0)  IWATTABLAYER = NLAYER+1  ! to avoid bug
-        
+
 !       Add and subtract gains and losses for each layer
         DO J = 1,MIN(NLAYER,IWATTABLAYER-1)
 
@@ -491,28 +491,28 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                   IF (J.EQ.1) THEN
                       WATERCONTENT = MAX(WR(J)*LAYTHICK(J), WATERCONTENT + WATERGAIN(J) + &
                         PPTGAIN(J) - WATERLOSS(J) + WATERGAINCAPIL(J))
-                  ELSE    
+                  ELSE
                       WATERCONTENT = MAX(WR(J)*LAYTHICK(J), WATERCONTENT + WATERGAIN(J) + &
                         PPTGAIN(J) - WATERLOSS(J) + WATERGAINCAPIL(J) - WATERGAINCAPIL(J-1))
                   END IF
               ELSE
                       WATERCONTENT = MAX(WR(J)*LAYTHICK(J), WATERCONTENT + WATERGAIN(J) + &
                   PPTGAIN(J) - WATERLOSS(J))
-                
-              END IF              
+
+              END IF
             ELSE
               IF (ISIMWATTAB.EQ.1) THEN
                   IF (J.EQ.1) THEN
                       WATERCONTENT = MAX(0., WATERCONTENT + WATERGAIN(J) + &
                         PPTGAIN(J) - WATERLOSS(J) + WATERGAINCAPIL(J))
-                  ELSE    
+                  ELSE
                       WATERCONTENT = MAX(0., WATERCONTENT + WATERGAIN(J) + &
                         PPTGAIN(J) - WATERLOSS(J) + WATERGAINCAPIL(J) - WATERGAINCAPIL(J-1))
                   END IF
               ELSE
                       WATERCONTENT = MAX(0., WATERCONTENT + WATERGAIN(J) + &
                   PPTGAIN(J) - WATERLOSS(J))
-                
+
               END IF
             ENDIF
 
@@ -538,13 +538,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             FRACWATER(J) = WS(J)
         END DO
 
-! Total soil water storage 
+! Total soil water storage
         WSOILROOT = 0.
         DO J = 1,NROOTLAYER
 !         Total soil water storage in rooted zone
           WSOILROOT = WSOILROOT + FRACWATER(J)*LAYTHICK(J)*1000
         END DO
-        
+
 ! glm commented, was computed twice
 !        DO J = 1,MIN(NLAYER,(IWATTABLAYER-1))
 !         Total soil water storage (mm)
@@ -618,7 +618,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL RHOSOLSPEC(1:3,MAXSP),RGLOBUND1,RGLOBUND2,DOWNTHAV
       REAL, EXTERNAL :: ENERGYFUN
       REAL, EXTERNAL :: ZBRENT
-      
+
       ! Put parameters into EXTRAPARS array:
       EXTRAPARS(1) = GAMSOIL
       EXTRAPARS(2) = PRESSPA
@@ -637,12 +637,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       EXTRAPARS(15) = DRYTHICK
       EXTRAPARS(16) = RHOSOLSPEC(1,1)
       EXTRAPARS(17) = RHOSOLSPEC(2,1)
-      EXTRAPARS(18) = RGLOBUND1 
-      EXTRAPARS(19) = RGLOBUND2 
+      EXTRAPARS(18) = RGLOBUND1
+      EXTRAPARS(19) = RGLOBUND2
       EXTRAPARS(20) = RHOSOLSPEC(3,1)
       EXTRAPARS(21) = DOWNTHAV
       EXTRAPARS(22) = DRYTHERM
-     
+
 ! Set bounds for root-finding (quite liberal bounds!).
       T1 = TAIRK - 50.
       T2 = TAIRK + 50.
@@ -681,7 +681,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL TORTPAR,QE,QH,QN,QC,ESOIL,SOILTK, TSOILSURFACE
       REAL RHOSOLSPEC1,RHOSOLSPEC2,RHOSOLSPEC3,RGLOBUND1,RGLOBUND2,DOWNTHAV
       REAL DRYTHERM
-      
+
       ! Get parameters from EXTRAPARS array:
       GAMSOIL = EXTRAPARS(1)
       PRESSPA = EXTRAPARS(2)
@@ -717,8 +717,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
 ! Energy balance:
       !ENERGYFUN = QH + QE + QN + QC
-      ENERGYFUN = QN - QH - QE - QC !glm change 
-      
+      ENERGYFUN = QN - QH - QE - QC !glm change
+
       RETURN
       END
 
@@ -748,7 +748,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL, EXTERNAL :: RHOFUN
       REAL, EXTERNAL :: ESOILFUN
       REAL, EXTERNAL :: THERMCONDFUN
-    
+
       ! Conversions
       TAIRC = TAIRK - FREEZE
 
@@ -757,8 +757,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
       ! Soil heat flux (flux of heat out of layer 1 into layer 2).
       ! SoilTK = Temperature jsut below drythick, SOILTK2 = T at the bottom of the first layer.
-      !QC = -THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 
-      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm 
+      !QC = -THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1
+      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm
 
       ! Latent heat flux (W m-2) (<0 = evaporation)
       QE = QEFLUX(SOILTK,TAIRK,VPDKPA,POREFRAC1,SOILWP1, &
@@ -768,20 +768,20 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ! Note that as we assumed FRACWATER = 0. in this thin dry layer, the only parameter required is POREFRAC
       ! If DRYTHERM lower than 0, it was not an input, so it has to be recalculated.
       ! RV: set Porefrac always equal to 0.35 because it gives strange values with high porefrac.
-      ! Furthermore, DRYTHERM is used to compute the soil surface temperature, in which the porefrac may be 
+      ! Furthermore, DRYTHERM is used to compute the soil surface temperature, in which the porefrac may be
       ! different than the porefrac from the first layer. NB: Choudhury & Monteith 1988 took 0.5 though.
       IF (DRYTHERM.LT.0.) THEN
           ! DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., POREFRAC1,4.,0.1,3)
           DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., 0.35,4.,0.1,3)
-      ENDIF 
+      ENDIF
       ! Note: sensible heat flux is above the dry layer, latent heat flux below the dry layer.
 
       !TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
       TSOILSURFACE = SOILTK + (QE + QC) *DRYTHICK / DRYTHERM !glm 15/03/2017
-      
+
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
-      !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
-      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK)   
+      !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)
+      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK)
 
       ! No soil evap if surface is frozen
       IF(SOILTK.LE.FREEZE)QE = 0.
@@ -791,7 +791,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ! Thermal emission from the soil using the temperature above the dry thick layer
       ESOIL = ESOILFUN(TSOILSURFACE)
       !print*,'TSOILSURFACE',TSOILSURFACE
-      !QN = DOWNTHAV*(1-RHOSOLSPEC3) + (1-RHOSOLSPEC1)*RGLOBUND1 + (1-RHOSOLSPEC2)*RGLOBUND2 - ESOIL 
+      !QN = DOWNTHAV*(1-RHOSOLSPEC3) + (1-RHOSOLSPEC1)*RGLOBUND1 + (1-RHOSOLSPEC2)*RGLOBUND2 - ESOIL
       QN = DOWNTHAV*(1-RHOSOLSPEC3) + RGLOBUND1 + RGLOBUND2 - ESOIL !glm: reflectance was already accounted for in RGOBUND1 and 2 through SCLOSTTOT and rflected and after intercepted so within RADINTERC (hard to find...)
 
       RETURN
@@ -813,12 +813,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       INTEGER RETFUNCTION,IOFATAL
       REAL WATERCONTENT,PSIE,BPAR,POROSITY
       REAL ALPHARET,WS,WR,NRET
-      
+
       SOILWPFUN = 1.0  ! INIT WITH WRONG VALUE.
 
     IF(WATERCONTENT.EQ.0.) THEN
-      SOILWPFUN = -999.0           
-    ELSE 
+      SOILWPFUN = -999.0
+    ELSE
       IF(RETFUNCTION.EQ.1)THEN
         SOILWPFUN = PSIE*(WATERCONTENT/POROSITY)**(-BPAR)
       ENDIF
@@ -831,11 +831,11 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
           ELSE IF (WATERCONTENT.GT.WS) THEN
               SOILWPFUN = -0.0001
           ELSE
-              SOILWPFUN = - 1/ALPHARET * (((WS-WR)/(WATERCONTENT-WR))**(NRET/(NRET-1)) - 1)**(1/NRET) 
+              SOILWPFUN = - 1/ALPHARET * (((WS-WR)/(WATERCONTENT-WR))**(NRET/(NRET-1)) - 1)**(1/NRET)
           END IF
-      END IF   
+      END IF
     ENDIF
-      
+
       IF(SOILWPFUN.GT.0) THEN
         SOILWPFUN = 0.0
         CALL SUBERROR('ERROR IN SOIL WATER POTENTIAL CALCULATION', &
@@ -845,7 +845,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     IF(SOILWPFUN.LT.-999) THEN      ! modification mathias decembre 2012 pour eviter bug
         SOILWPFUN = -999.0
     ENDIF
-      
+
       RETURN
       END ! SOILWPFUN
 
@@ -873,7 +873,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ELSE IF (RETFUNCTION.EQ.3) THEN
         ! van genuchten
           IF (WATERCONTENT.LE.WR) THEN
-              SOILCONDFUN = 0
+              SOILCONDFUN = 0.0
           ELSE IF (WATERCONTENT.GE.WS) THEN
               SOILCONDFUN = KSAT
           ELSE
@@ -881,8 +881,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               SOILCONDFUN = KSAT * (1 - ALPHAPOT**(N-1) * ( 1+ ALPHAPOT**N )**(-1+1/N) ) **2   &
                             / (1 + ALPHAPOT**N)**(1/2 - 1/(2*N))
            END IF
-      END IF    
-            
+      END IF
+
 ! Avoid underflow (avoiding very small numbers).
       IF(SOILCONDFUN.LT.1E-30) SOILCONDFUN = 1E-30
 
@@ -961,29 +961,29 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
               ! Soil hydraulic conductivity in m2 s-1 MPa-1
               !LSOIL = SOILCOND(I)/MPAM   !converts from ms-1 to m2 s-1 MPa-1
-          
-              ! ... in mol m-1 s-1 MPa-1. Note that original KSAT was given in same units. 
+
+              ! ... in mol m-1 s-1 MPa-1. Note that original KSAT was given in same units.
               KSOIL = SOILCOND(I)  / (H2OVW * GRAV * 1E-03)
-          
+
             IF(KSOIL.LT.1E-35)THEN      !prevent floating point error
                     SOILRRES(I) = 1e35
             ELSE
-                
+
                     ! Reformulated to match Duursma et al. 2008.
                     IF(ROOTLEN(I).GT.0.0)THEN
-                        
-                        ! Radius of soil cylinder around root in single-root model               
+
+                        ! Radius of soil cylinder around root in single-root model
                         RS = SQRT(1./(ROOTLEN(I)*PI))
-                
+
                         LOGRR = LOG(RS/ROOTRAD)
                         IF(LOGRR.LT.0)CALL SUBERROR( &
                         'Root radius larger than soil-root radius - fine root density too high!', &
                          IWARN,0)
-                
+
                         KS = ROOTLEN(I)*LAYTHICK(I)*2.0*pi*KSOIL/LOGRR
-                
+
                         ! Convert to MPa s m2 mmol-1
-                        SOILR1(I) = 1/KS * 0.001   
+                        SOILR1(I) = 1/KS * 0.001
 
                         ! Note : this component is calculated but not used (see wateruptakelayer proc). More research needed!
                         ! Second component of below ground resistance related to root hydraulics.
@@ -992,40 +992,40 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                         SOILR2(I) = 0.0
                         SOILR1(I) = 0.0
                     ENDIF
-                    
+
                     SOILRRES(I) = SOILR1(I) + SOILR2(I)
             ENDIF
 
        ENDDO
 
-    
+
       ! When using measured soil water, use water content of top layer,
       ! but all fine roots to calculate total soil conductance
       IF(USEMEASSW.EQ.1)THEN
-          
+
           KSOIL = SOILCOND(1)  / (H2OVW * GRAV * 1E-03)
-          
+
           ! Total average fine root density
           TOTROOT = 0
           DO I=1,NROOTLAYER
               TOTROOT = TOTROOT + ROOTLEN(I)*LAYTHICK(I)
           ENDDO
           MEANROOTLEN = TOTROOT / SUM(LAYTHICK(1:NROOTLAYER))
-          
+
           ! Average soil cylinder around roots.
-          RS = SQRT(1./(MEANROOTLEN*PI))      
+          RS = SQRT(1./(MEANROOTLEN*PI))
           LOGRR = LOG(RS/ROOTRAD)
-          
+
           ! Total soil conductance
           KS = TOTROOT*2.0*pi*KSOIL/LOGRR
-          
+
           SOILR1(1) = 1/KS * 0.001
-          
+
           SOILR2(1) = ROOTRESCONS * (SUM(LAYTHICK(1:NROOTLAYER))/2) / MEANROOTLEN
 
           SOILRRES(1) = SOILR1(1) + SOILR2(1)
       ENDIF
-      
+
       RETURN
       END !SOILRESCALC
 
@@ -1049,11 +1049,11 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         USE maestcom
         USE metcom
         IMPLICIT NONE
-    
+
         INTEGER I,NROOTLAYER,EQUALUPTAKE,SOILDATA,USEMEASSW, J
         INTEGER TMP1,TMP2
         REAL ESTEVAP(MAXSOILLAY),FRACUPTAKE(MAXSOILLAY)
-        REAL FRACUPTAKE2(MAXSOILLAY), LAYTHICK(MAXSOILLAY) 
+        REAL FRACUPTAKE2(MAXSOILLAY), LAYTHICK(MAXSOILLAY)
         REAL ICEPROP(MAXSOILLAY), SOILWP(MAXSOILLAY)
         REAL SOILRRES1(MAXSOILLAY),SOILRRES2(MAXSOILLAY)
         REAL SOILRRES(MAXSOILLAY),RESTOT(MAXSOILLAY)
@@ -1080,7 +1080,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         ! Estimated max transpiration from gradient-gravity / soil resis
         IF(EQUALUPTAKE.EQ.0)THEN
-        
+
         DO I=1,NROOTLAYER
 
                 !Depth of the layer M. Christina 09/2013
@@ -1103,8 +1103,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                 ! No uptake from frozen soils
                 IF(ICEPROP(I).GT.0.)ESTEVAP(I)=0.
         ENDDO
-    
-    
+
+
         ! Option 1 (not currently used) : SPA method to figure out relative water uptake.
         ! Fraction uptake in each layer by Emax in each layer (SPA)
         IF(SUM(ESTEVAP(1:NROOTLAYER)).EQ.0.0)THEN
@@ -1116,11 +1116,11 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         ENDIF
 
         ! sum of EMAX for each layer
-        TOTESTEVAP = SUM(ESTEVAP(1:NROOTLAYER))  
+        TOTESTEVAP = SUM(ESTEVAP(1:NROOTLAYER))
 
         ! Soil water potential is weighted by ESTEVAP.
         IF(TOTESTEVAP.GT.0.)THEN
-            WEIGHTEDSWP = WEIGHTEDSWP / TOTESTEVAP       
+            WEIGHTEDSWP = WEIGHTEDSWP / TOTESTEVAP
         ELSE
             !WEIGHTEDSWP = SUM(SOILWP(1:NROOTLAYER)) / NROOTLAYER
             WEIGHTEDSWP =0
@@ -1128,8 +1128,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                 WEIGHTEDSWP = WEIGHTEDSWP + SOILWP(I) * LAYTHICK(I)
             ENDDO
             WEIGHTEDSWP = WEIGHTEDSWP / SUM(LAYTHICK(1:NROOTLAYER))
-        
-        ENDIF        
+
+        ENDIF
 
         ! Resistances are in parallel. This variable is also not used.
         RSUM = 0.0
@@ -1139,7 +1139,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             ENDIF
         ENDDO
         TOTSOILRES = 1/RSUM
-        
+
         ENDIF
 
         ! Debugging option; equal uptake in all layers.
@@ -1149,27 +1149,27 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             TOTSOILRES = SOILRRES1(1)
         ENDIF
 
-        ! Option 2 (currently used) : 
+        ! Option 2 (currently used) :
         ! Taylor and Keppler: relative water uptake is
         ! proportional to root length density and Psi difference.
-        ! See : Taylor, H.M. and B. Keppler. 1975. Water uptake by cotton root systems: 
+        ! See : Taylor, H.M. and B. Keppler. 1975. Water uptake by cotton root systems:
         ! an examination of assumptions in the single root model. Soil Science. 120:57-67.
         DO I=1,NROOTLAYER
           IF(SUM(ESTEVAP(1:NROOTLAYER)).GT.0.)THEN
               SWPDIFF = MAX(0., (SOILWP(I)-MINROOTWP))
               FRACUPTAKE2(I) = ROOTLEN(I)*SWPDIFF
-          ELSE 
+          ELSE
               ! No water uptake possible.
               FRACUPTAKE2(I) = 0.
           ENDIF
         ENDDO
-        
+
         IF(SUM(FRACUPTAKE2(1:NROOTLAYER)).GT.0)THEN
           FRACUPTAKE2 = FRACUPTAKE2 / SUM(FRACUPTAKE2(1:NROOTLAYER))  ! Make sure that it sums to 1.
         ELSE
           FRACUPTAKE2 = 0.0
         ENDIF
-        
+
         ! If using measured soil water, replace with measurement.
         IF(USEMEASSW.EQ.1)THEN
             IF(SOILDATA.EQ.POTENTIAL)THEN
@@ -1222,11 +1222,11 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL DRAINSTORE,X1,X2,HMIN,H1,EPS,DXSAV
         REAL CANSTORPREV,DELTASTORE,TREEH,TOTLAI
         REAL EVMM,drycan !glm canopy evap
-        
+
         EXTERNAL CANSTOR
         REAL, EXTERNAL :: RKQS
         COMMON /PATH/ KMAX,KOUNT,DXSAV,X,Y
-        
+
         NVAR = 2
 
         EPS     = 1.0E-3  ! was 1.0E-4
@@ -1236,7 +1236,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         X1      = 1.
         X2      = 2.
         DXSAV   = (X2-X1)/20.0
-        
+
         IF (THROUGHFALL .LT. 0.) THEN
             THROUGHFALL= 1-MIN(MAX(TOTLAI/2.5 , 0.),1.)
         ENDIF
@@ -1281,9 +1281,9 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         EVAPSTORE = (1-THROUGHFALL)*PPT - DELTASTORE - DRAINSTORE !result with the EVMM input !glm canopy evap
 
         !computation of the ratio of dry canopy, approximated as CANSTOR/MAXSTORE !glm canopy evap
-        
+
         drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE/(MAXSTORAGE*TOTLAI))))
-        
+
         RETURN
         END
 
@@ -1307,7 +1307,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL EVAPSTORE,DRAINSTORE
         REAL TREEH, TOTLAI
         REAL EVMM !glm canopy evap
-        
+
         THROUGHFALL = EXTRAPARS(1)
         RUTTERB     = EXTRAPARS(2)
         RUTTERD     = EXTRAPARS(3)
@@ -1334,13 +1334,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         ! rate of input of water to ground
         ADDGROUND = THROUGHFALL * PPT
 
-        
+
         ! Wet evaporation rate (returns EVAPSTORE).! not necessary anymore, computation done in the IPT loop !glm canopy evap
         !CALL WETEVAP(WIND,ZHT,Z0HT,ZPD, &
         !                   PRESSPA,TAIRC,RNET, &
         !                   VPDPA,Y(1),MAXSTORAGE, &
         !                   EVAPSTORE,PPT,TREEH,TOTLAI)
-               
+
 
         ! Drainage from canopy store (Rutter et al. 1975)
         ! RUTTERB is in mm  min-1.
@@ -1409,8 +1409,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         RETURN
         END
-        
-        
+
+
 !**********************************************************************
       SUBROUTINE WETTINGLAYERS(POREFRAC,WETTINGBOT,WETTINGTOP, &
                                SURFACE_WATERMM,SNOW,SOILTK,QE,NLAYER, &
@@ -1445,7 +1445,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       !     (SURFACE_WATERMM*0.001+SNOW)/POREFRAC(1)   !M
       NETC = (0.001*(-QE)/LAMBDASOIL*SPERHR)/POREFRAC(1) + &
            (SURFACE_WATERMM*0.001+SNOW)/POREFRAC(1)   !glm
-      
+
       olddrythick = drythick
       IF(NETC.GT.0.)THEN      ! Wetting
               ! Resaturate the layer if top is dry and recharge is great
@@ -1472,7 +1472,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                       IF(WETTINGBOT(AR1B) .GE.WETTINGTOP(AR1B-1))  THEN
                                           ! layers are conterminous &
                                          WETTINGTOP(AR1B-1) = WETTINGTOP(AR1B)
-                                             
+
                                          ! remove layer
                                          WETTINGTOP(AR1B)=0.
                                          WETTINGBOT(AR1B)=0.
@@ -1511,7 +1511,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                         DRYTHICK = MAX(DRYTHICKMIN,WETTINGTOP(AR1B))
                 ENDIF
         ENDIF
-        
+
         RETURN
         END
 
@@ -1629,18 +1629,18 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL WATERLOSS(MAXSOILLAY), WATERGAIN(MAXSOILLAY)
         REAL EXTRAPARS(EXTRAPARDIM)   ! Soil parameters to be passed to ODEINT.
         REAL DRAINLIMIT, LDRAIN(MAXSOILLAY),PLATDRAIN, PLATDRAINDEPTH
-        
+
         ! Names of functions/subroutines to be passed to ODEINT
         EXTERNAL SOILSTOR
         REAL, EXTERNAL :: SOILCONDFUN   ! Mathias
         REAL KSOIL
-        
+
         ! I probably want to get rid of common blocks,
         ! instead make these pars in maestcom???
         COMMON /PATH/ KMAX,KOUNT,DXSAV,X,Y
-        
+
         NVAR = 1
-        
+
         EPS=1.0E-4
         H1=.001
         HMIN=0.0
@@ -1662,7 +1662,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             IF(FRACWATER(J+1).GE.(POREFRAC(J+1)-0.005)) THEN
                 PLATDRAINDEPTH = PLATDRAIN
             ENDIF
-        ENDIF 
+        ENDIF
 
         ! Array of parameters to be passed to ODEINT
         EXTRAPARS(1) = KSAT
@@ -1673,7 +1673,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         EXTRAPARS(6) = UNSAT
         EXTRAPARS(7) = WS
         EXTRAPARS(8) = WR
-        EXTRAPARS(9) = NRET 
+        EXTRAPARS(9) = NRET
         EXTRAPARS(10)= RETFUNCTION
         EXTRAPARS(11)= PLATDRAINDEPTH
         EXTRAPARS(12)= ALPHARET
@@ -1699,17 +1699,17 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                 IF (WATERGAINCAPIL(J).GT.0.0) THEN
                         CHANGE = 0.0
                 END IF
-                WATERGAIN(J+1) = WATERGAIN(J+1) + CHANGE 
+                WATERGAIN(J+1) = WATERGAIN(J+1) + CHANGE
 
                 KSOIL = SOILCONDFUN(FRACWATER(J),KSAT,BPAR,POREFRAC(J),&
                                     WS,WR,ALPHARET,NRET,RETFUNCTION)
-                
+
                 LDRAIN(J) = KSOIL*SPERHR * (PLATDRAINDEPTH)  ! lateral drainage decrease with soilwater content
-                
+
                 WATERLOSS(J) = WATERLOSS(J) + CHANGE + LDRAIN(J)
-                
+
         ENDIF
-        
+
         RETURN
         END
 
@@ -1773,13 +1773,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
 
 
-!**********************************************************************    
+!**********************************************************************
             SUBROUTINE SOIL_CAPILARY(J, POREFRAC, FRACWATER, LAYTHICK,SOILWP, &
                                KSAT, BPAR,WS,WR,NRET,PSIE, ALPHARET, &
                                 RETFUNCTION, IWATTABLAYER, &
                                 WATERGAINCAPIL, WATERGAIN,WATERLOSS)
 
-! Determines capilary rising of soil water table into lowest layer of soil. 
+! Determines capilary rising of soil water table into lowest layer of soil.
 ! Mathias Christina august 2014
 !**********************************************************************
 
@@ -1795,7 +1795,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL WATERGAIN(MAXSOILLAY), WATERLOSS(MAXSOILLAY)
         REAL, EXTERNAL :: SOILCONDFUN
         REAL, EXTERNAL :: SOILWPFUN
-        
+
 
         ! Hydraulic conductivity layer below and above at the beginning and Soil Water potential
         ! the +0.00001 term is to avoid extrem case when roots dry the layer juste above the water table
@@ -1809,32 +1809,32 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
              WR(J+1)-0.00001,NRET(J+1),RETFUNCTION)
         SWP1 = SOILWPFUN(FRACWATER(J),PSIE(J),BPAR(J), &
              POREFRAC(J)+0.00001,ALPHARET(J),WS(J)+0.00001,WR(J)-0.00001,NRET(J),RETFUNCTION)
-        
+
         DELTASWP = (SWP2 - SWP1) * 1000000/(1000*9.81*0.5*(LAYTHICK(J)+LAYTHICK(J+1)))
         IF((DELTASWP.GT.1).AND.(J.GT.5)) THEN
-            
+
             ! We apply the Richards equations at a 1 second time step over the step within MAESPA
             SWCLAY = FRACWATER(J)
             DO TIME = 1, INT(SPERHR)
                 KSOIL = SOILCONDFUN(max(WR(J)+0.005,SWCLAY),KSAT(J),BPAR(J),POREFRAC(J)+0.00001,&
-                                WS(J)+0.00001,WR(J),ALPHARET(J),NRET(J),RETFUNCTION) 
+                                WS(J)+0.00001,WR(J),ALPHARET(J),NRET(J),RETFUNCTION)
                 SWP1 = SOILWPFUN(SWCLAY,PSIE(J),BPAR(J), &
                  POREFRAC(J)+0.00001,ALPHARET(J),WS(J)+0.00001,WR(J)-0.00001,NRET(J),RETFUNCTION)
-            
-            
+
+
                 SWCLAY = SWCLAY - KSOIL * (1  -  (SWP2 - SWP1) * &
                                     1000000/(1000*9.81*0.5*(LAYTHICK(J)+LAYTHICK(J+1))))
             ENDDO
-        
+
             WATERFLUXCAPIL = (SWCLAY - FRACWATER(J)) * LAYTHICK(J)
 
-            UNSAT =(POREFRAC(J)-FRACWATER(J)+WATERGAIN(J)-WATERLOSS(J))*LAYTHICK(J) 
+            UNSAT =(POREFRAC(J)-FRACWATER(J)+WATERGAIN(J)-WATERLOSS(J))*LAYTHICK(J)
             WATERGAINCAPIL(J) = min(WATERFLUXCAPIL, UNSAT)
-        
+
         ELSE
             WATERGAINCAPIL(J) = 0.
         ENDIF
-        
+
 
         RETURN
         END
@@ -1880,13 +1880,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 !        FRACIN(3) = 0.2
 !        FRACIN(4) = 0.2
 !        FRACIN(5) = 0.1
-        
+
         DO I=2,NLAYER
            FRACIN(I) = ( SUM(LAYTHICK(1:I)) / SOILDEPTH ) ** EXPINF - &
                        ( SUM(LAYTHICK(1:(I-1))) / SOILDEPTH) ** EXPINF
         ENDDO
 
-        
+
         ! Error check:
         CHECKSUM = SUM(FRACIN(1:NLAYER))
         IF(ABS(CHECKSUM - 1.0).GT.1E-06)WRITE(*,*) &
@@ -1918,7 +1918,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         ENDDO
 
-        
+
         ! There may still be water left over; soil is saturated.
         OVERFLOW = WLEFTOVER
 
@@ -1980,7 +1980,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
               ! New soil temperature.
               SOILTEMP(I+1) = NEWHEAT / (VOLHC(I) * LAYTHICK(I))
- 
+
         ENDDO
 
         RETURN
@@ -2089,7 +2089,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             ALPHA = 0.27
         ENDIF
     END IF
-    
+
 ! Saturated and dry thermal conductivities:
         DRYLAMBDA = -0.56 * POREFRAC + 0.51
 
@@ -2103,7 +2103,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         KE = EXP(ALPHA*(1-SR**(ALPHA-1.33)))
 ! Combined (W m-1 K-1).
         THERMCONDFUN = (WETLAMBDA - DRYLAMBDA)*KE + DRYLAMBDA
-        
+
         RETURN
         END
 
@@ -2141,7 +2141,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                          RGLOBUND1,&
                          RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
                          TSOIL,RHOSOL,FH2OEV,EVMM,EVMMSPEC) !glm canopy evap
-                      
+
 ! Scale up individual tree transpiration and radiation interception to
 ! a per m2 basis for use in water/heat balance calculations.
 ! For global radiation above and underneath the canopy, GETRGLOB is called.
@@ -2170,10 +2170,10 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     REAL EVMM,FH2OEV(MAXT,MAXHRS),WTOTEV, EVMMSPEC(MAXSP),TOTSPECEV !glm canopy evap
 
 ! conversion to kg m-2 t-1
-            CONV = SPERHR * 1E-06 * 18 * 1E-03 
+            CONV = SPERHR * 1E-06 * 18 * 1E-03
 
 ! Get the leaf areas of all the target trees this timestep.
-! Because Maestra works like this : 
+! Because Maestra works like this :
 ! 1) sort trees around current target tree
 ! 2) interpolate leaf area if not directly input
 ! we have to 'unsort' the leaf areas to find all current target tree leaf areas.
@@ -2213,13 +2213,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ELSE
           EXPFACTORS(1:NOTARGETS) = 1.0
       ENDIF
-      
+
 ! If multiple species, calculate ET by species. If USESTAND, this is used to divide total recalculated
 ! ET into the species (an approximate method anyway!), if USESTAND=1, it is the final result for ETMMSPEC.
       IF(NOSPEC.GT.1)THEN
-          
+
         DO ISPEC=1,NOSPEC
-            
+
             WTOT = 0.0
             WTOTEV = 0.0 !glm canopy evap
             DO I=1,NOTARGETS
@@ -2227,16 +2227,16 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                  WTOT = WTOT + FH2O(I,IHOUR)
                  WTOTEV = WTOTEV + FH2OEV(I,IHOUR) !glm canopy evap
               ENDIF
-              
+
             ENDDO
-             
+
             ETMMSPEC(ISPEC) = WTOT * CONV / PLOTAREA
             EVMMSPEC(ISPEC) = WTOTEV * CONV / PLOTAREA !glm canopy evap
-        
+
         ENDDO
-      
+
       ENDIF
-      
+
 ! Get total radiation above and under the canopy.
       CALL GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
                       NOTARGETS,NOALLTREES,PLOTAREA, &
@@ -2248,10 +2248,10 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                       RGLOBUND1,&
                       RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
                       TOTLAI,TSOIL,RHOSOL)
-      
+
 ! Option 1 : do water balance only based on the target trees (no scaling to stand).
       IF(USESTAND.EQ.0) THEN
-      
+
           ! Total water use, based on FH2O (not recalculated!)
           WTOT = 0.0
           WTOTEV = 0.0 !glm canopy evap
@@ -2261,10 +2261,10 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
           ENDDO
           ! Simple conversion
           ETMM = WTOT * CONV / PLOTAREA
-          EVMM = WTOTEV * CONV / PLOTAREA !glm canopy evap  
+          EVMM = WTOTEV * CONV / PLOTAREA !glm canopy evap
       ENDIF
 
-      
+
 ! Option 2 : recalculate canopy water use from averaged (corrected) GSCAN
       IF(USESTAND.EQ.1)THEN
 
@@ -2274,7 +2274,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               GSCANAV = GSCANAV + TARGETFOLS(ITAR) * GSCAN(ITAR,IHOUR)
           ENDDO
           GSCANAV = GSCANAV / TOTLATAR
-      
+
     ! Estimate average conductance for all trees, based on
     ! leaf area difference:
           IF(TREELAMEAN.GT.0)THEN
@@ -2293,13 +2293,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             PRESS,TAIR, &
             RADINTERCTREE,   &
             VPD,GSCANAV,STOCKING,TREEH,TOTLAI) * CONV
-        
+
       ENDIF
 
 ! Option 3 : calculate stand water use from gridpoint transpiration rates,
 ! corrected for target trees (as USESTAND=1, but don't recalculate with Penman-Monteith).
      IF(USESTAND.EQ.2)THEN
-            
+
           ! Average water use per tree, based on FH2O (not recalculated!)
           WTOT = 0.0
           WTOTEV = 0.0 !glm canopy evap
@@ -2307,9 +2307,9 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               WTOT = WTOT + TARGETFOLS(ITAR) * FH2O(ITAR,IHOUR)
               WTOTEV = WTOTEV + TARGETFOLS(ITAR) * FH2OEV(ITAR,IHOUR) !glm canopy evap
           ENDDO
-          WTOT = WTOT / TOTLATAR 
+          WTOT = WTOT / TOTLATAR
           WTOTEV = WTOTEV / TOTLATAR !glm canopy evap
-          
+
           ! Correct for leaf area difference between target trees and all trees in stand
           IF(TREELAMEAN.GT.0)THEN
               WTOT = WTOT * (ALLTREELAMEAN / TREELAMEAN)
@@ -2318,14 +2318,14 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               WTOT = 0.0
               WTOTEV = 0.0 !glm canopy evap
           ENDIF
-        
+
           ! Convert from mol tree-1 s-1 to kg m-2 t-1.
           ETMM = WTOT * CONV * STOCKING
           EVMM = WTOTEV * CONV * STOCKING !glm canopy evap
-         
+
      ENDIF
-      
-      
+
+
 ! Recalculate ETMMSPEC to arrive at same total; this is an approximate method to apportion
 ! total ET into species components (needed for multiple rooting layers).
           IF(NOSPEC.GT.1)THEN
@@ -2338,17 +2338,17 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                     ENDDO
                 ENDIF
           ELSE
-                ETMMSPEC(1) = ETMM    
-                EVMMSPEC(1) = EVMM  !glm canopy evap   
+                ETMMSPEC(1) = ETMM
+                EVMMSPEC(1) = EVMM  !glm canopy evap
           ENDIF
-        
-      
+
+
 ! Add understorey ET to ETMM, if simulated:
       IF(ISIMUS.EQ.1)THEN
           ETUSMM = FH2OUS * SPERHR * 18 * 1E-06
           ETMM = ETMM + ETUSMM
       ENDIF
-    
+
       RETURN
       END
 
@@ -2459,7 +2459,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       RETURN
     END
 
-    
+
 !**********************************************************************
 
 SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNEW,VPDNEW,   &
@@ -2477,35 +2477,35 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       REAL QN, QE, RADINTERC, TAIR, VPD, TAIRNEW, VPDNEW, ETMM, RHNEW, TAIRABOVE, VPDABOVE,QC
       REAL RNETTOT, ETOT, LHV, GCANOP, WIND, ZHT, ZPD, Z0HT, DELTA,ZPD2,Z0HT2, ZHT2
       REAL VPAIR, VPAIRCANOP, PRESS, CMOLAR, GAMMA,TREEH,TAIRCAN, GBCANMS1, GBCANMS2
-      REAL EVMM !glm canopy evap   
+      REAL EVMM !glm canopy evap
 
-      
+
       REAL Cd, X, TOTLAI, Z0, KH, ALPHA
       REAL COAT, USTAR, Z0H, EVAPSTORE,HTOT
-    
+
       REAL, EXTERNAL :: SATUR
       REAL, EXTERNAL :: TK
       REAL, EXTERNAL :: HEATEVAP
       REAL, EXTERNAL :: GBCAN
-    
+
       ! total net radiation in the system (W m-2)
       RNETTOT = QN + RADINTERC
 
       ! Latent heat of water vapour at air temperature (J mol-1)
       LHV = HEATEVAP(TAIRCAN) * H2OMW
-     
+
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
-      ETOT = QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap 
-      
+      ETOT = QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap
+
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
-      
-      
+
+
       ! To avoid bug in case of no wind
       ! IF (WIND.LT.0.001) WIND=0.001  ! RV 05/2017: already in import
       ! aerodynamic conductance air within canopy - air above canopy from Choudhury 1988
       CALL GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
-      
+
       GCANOP = GBCANMS1 * CMOLAR
 
       ! calculation of air temperature within the canopy (Note that Qc <0)
@@ -2522,8 +2522,8 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       ! calculation of air vapor pressure within the canopy
       VPAIRCANOP = VPAIR + (ETOT / (CPAIR * AIRMA * GCANOP/GAMMA))
 
-      
-      
+
+
       !VPDNEW=VPDABOVE !test
       ! limit condition      glm: without these, unresolved problems occurs at the beginning and end of day
       IF ((TAIRNEW-TAIRABOVE).GT.10)  TAIRNEW = TAIRABOVE + 10
@@ -2534,22 +2534,22 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
       ! Avoid very low VPD or over-saturation.
       IF ((VPDNEW-VPDABOVE).GT.1500) VPDNEW = VPDABOVE+1500
       IF ((VPDABOVE-VPDNEW).GT.1500) VPDNEW = max(10.,VPDABOVE-1500)
-      
-      
-      ! Updated relative humidity
-      RHNEW = 1.0 - VPDNEW/SATUR(TAIRNEW) 
-      
-      RETURN
-      
-    END 
 
-    
+
+      ! Updated relative humidity
+      RHNEW = 1.0 - VPDNEW/SATUR(TAIRNEW)
+
+      RETURN
+
+    END
+
+
 !**********************************************************************
     SUBROUTINE  ZEROHRFLUX(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL, PSIL,CI,        &
                     AREA,IHOUR,ILAY,ITAR,NOTARGETS,NUMPNT,NSUMMED,TOTTMP,&
                     PPAR,PPS,PTRANSP,THRAB,FCO2,FRESPF,GSCAN,GBHCAN,FH2O,ETCANDEFICIT,FHEAT,TCAN,FSOIL1,  &
                     PSILCAN,PSILCANMIN,CICAN, ECANMAX, ACANMAX,AREATOT, &
-                    EV,FH2OEV)!glm canopy evap 
+                    EV,FH2OEV)!glm canopy evap
 
     ! set to 0 the value of Hrflux
 !**********************************************************************
@@ -2569,10 +2569,10 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
     REAL PTRANSP(MAXT,MAXLAY,MAXHRS)
     REAL APAR,AREA,ALEAF,ET,ANIR,ATHR,RD,GSC,HFX,TLEAF,FSOIL1,FSOIL,TOTTMP
     REAL PSIL,CI,GBH, AREATOT
-    REAL EV,FH2OEV(MAXT,MAXHRS)!glm canopy evap 
+    REAL EV,FH2OEV(MAXT,MAXHRS)!glm canopy evap
 
     AREATOT = 0.
-    
+
     DO ITAR = 1,MAXT
         DO ILAY= 1,MAXLAY
             ! Zero PAR, photosynthesis, & transpiration by layer
@@ -2581,7 +2581,7 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
             PTRANSP(ITAR,ILAY,IHOUR) = 0.
         END DO
     END DO
-    
+
     DO ITAR= 1,MAXT
         THRAB(ITAR,IHOUR,1) = 0.
         THRAB(ITAR,IHOUR,2) = 0.
@@ -2589,7 +2589,7 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
         FCO2(ITAR,IHOUR) = 0.
         FRESPF(ITAR,IHOUR) = 0.
         FH2O(ITAR,IHOUR) = 0.
-        FH2OEV(ITAR,IHOUR) = 0. !glm canopy evap 
+        FH2OEV(ITAR,IHOUR) = 0. !glm canopy evap
         GSCAN(ITAR,IHOUR) = 0.
         GBHCAN(ITAR,IHOUR) = 0.
         FHEAT(ITAR,IHOUR) = 0.
@@ -2598,12 +2598,12 @@ SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNE
         CICAN(ITAR,IHOUR) = 0.
         ETCANDEFICIT(ITAR,IHOUR) = 0.
     END DO
-    
+
     FSOIL1 = 0.
     TOTTMP = 0.
     NSUMMED = 0
 
-    
+
     RETURN
-    
-    END 
+
+    END
