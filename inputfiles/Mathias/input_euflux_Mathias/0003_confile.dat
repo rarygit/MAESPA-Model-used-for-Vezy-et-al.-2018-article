@@ -1,0 +1,53 @@
+	Bago BB gs
+	
+flags to indicate which input  output files to use.
+&control
+iohrly = 0
+iotutd=9       
+ioresp=0       
+iohist=0
+iowatbal=1
+/
+
+&species
+nspecies = 3
+speciesnames = 'Petit' 'Moyen' 'Grand' 
+phyfiles = 'phy1.dat' 'phy2.dat' 'phy3.dat' 
+strfiles = 'str1.dat' 'str2.dat' 'str3.dat' 
+/
+
+dates for simulation start and end (must overlap with met file). 
+&dates
+startdate = '01/01/10'
+enddate = '31/12/14'
+/
+	
+indicate which target tree(s) to use. 
+&treescon	
+notrees = 353
+itargets = 101 102 103 104 105 106 107 108 109 110 111 112 113 114 127 128 129 130 131 132 133 134 135 136 137 138 139 140 153 154 155 156 157 158 159 160 161 162 163 164 165 166 179 180 181 182 183 184 185 186 187 188 189 190 191 192 205 206 207 208 209 210 211 212 213 214 215 216 217 218 231 232 233 234 235 236 237 238 239 240 241 242 243 244 
+/
+
+number of angles and layers to integrate over. 
+&diffang					
+nolay = 6
+pplay = 12
+nzen = 10
+naz = 22
+/
+
+choice of submodels. 
+&model
+modelgs = 6
+modelrd = 0
+modeljm = 0
+itermax = 100
+modelss = 0
+/
+
+climate change scenarios.
+&ccscenX
+co2inc = 0.0
+tinc = 0.0
+/
+

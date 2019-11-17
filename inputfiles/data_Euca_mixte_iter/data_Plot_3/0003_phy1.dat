@@ -1,0 +1,119 @@
+Example physiology file.
+	
+nmber of age classes of foliage (two, but no difference)
+&noages
+noagep = 1
+/
+	
+proportion of leaf area in each age class
+&phenol
+prop = 1
+/
+	
+reflectance and transmittance (obtain from remote sensing group)
+&absorp
+nolayers = 3
+rhosol = 0.067 0.232 0.009 ! CBF
+atau = 0.0478385511742998 0.0353674349957139 0.0383182589697076 0.308177207913583 0.296891183379585 0.300581265979649 0.01 0.01 0.01 
+arho = 0.06 0.06 0.06 0.35 0.35 0.35 0.075 0.075 0.075 ! CBF
+/	
+
+&bbgscon
+nodates = 1 ! CBF
+condunits = 'H2O'
+wleafnodates = 4 ! CBF
+newtuzet = 1
+/
+
+
+Ball-Berry parameters 
+&bbtuz
+dates = '31/09/10' ! CBF
+g0 = 0.021 ! CBF
+g1 = 4.675 ! CBF
+g20 = -0.337 ! CBF
+g21 = 21.825 ! CBF
+sf = 2.253 ! CBF
+psiv = -2.899 ! CBF
+nsides = 1
+wleaf = 0.02818048 0.03281644 0.04232518 0.03699016 
+gamma = 0 ! CBF
+wleafdates = '10/04/10' '10/09/10' '12/12/10' '01/03/11' 
+/
+	
+&jmaxcon			
+nolayers = 3
+noages = 1
+nodates = 1			
+/
+	
+&jmax
+values = 92.8956393463182 141.467059990924 172.057246579131 
+dates = '31/09/10'
+/
+	
+&vcmaxcon
+nolayers = 3
+noages = 1
+nodates = 1
+/
+	
+&vcmax
+values = 57.319184406445 68.3076231788207 66.8794164041852 
+dates = '31/09/10'
+/
+	
+&jmaxpars
+theta = 0.5299633
+eavj = 43790
+edvj = 200000
+delsj = 644.4338
+ieco=0
+/
+	
+&vcmaxpars
+eavc = 60790
+edvc = 200000
+delsc = 636
+/
+	
+&rdcon
+nolayers = 3
+noages = 1
+nodates = 1
+/
+
+&rd
+values = 1.53409347831624 1.62432281378089 1.69801675079248 
+dates = '31/09/10'
+/
+
+&rdpars
+rtemp = 25
+q10f = 0.07285629
+dayresp = 0.6
+effyrf = 0.4
+/ 
+
+&ajqcon
+nolayers = 1
+noages = 1
+nodates = 1
+/
+
+&ajq
+values = 0.3825758 
+dates = '31/09/10'
+/
+	
+&slacon
+noages = 1
+nodates = 1
+nolayers = 1
+/
+	
+&sla
+values = 10.968738 11.109047 11.840404 10.524481 8.348017 7.508276 13.146974 13.875513 10.943812 11.946512 12.071941 
+dates = '11/02/10' '09/04/10' '01/05/10' '05/08/10' '12/11/10' '04/02/11' '25/05/11' '10/08/11' '05/12/11' '18/06/2012' '04/02/2013' 
+/
+	
